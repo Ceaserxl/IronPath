@@ -31,8 +31,6 @@ function UI:CheckAndAdvanceStep(step, isComplete)
             end
         end
         DebugPrint("|cffff0000❌ Step not found in visible step list.|r")
-    else
-        DebugPrint("|cffff0000⚠️ Auto-advance conditions not met.|r")
     end
 end
 
@@ -88,6 +86,32 @@ UI.ActionHandlers.destroy = function(self, step, done)
     local color = exists and yellow or green
     return "", "- Destroy: " .. color .. step.item .. "|r"
 end
+
+UI.ActionHandlers.trainer = function(self, step, done)
+    local isComplete = done or false
+    self:CheckAndAdvanceStep(step, isComplete)
+    return "", "- Trainer: " .. yellow .. "Class Trainer|r"
+end
+
+UI.ActionHandlers.fpath = function(self, step, done)
+    local isComplete = false
+    local mapID = step.mapID or C_Map.GetBestMapForUnit("player")
+
+    if mapID and step.taxiNode then
+        local taxiNodes = C_TaxiMap.GetAllTaxiNodes(mapID)
+        for _, node in ipairs(taxiNodes or {}) do
+            if node.name == step.taxiNode and node.state == Enum.FlightPathState.Reachable then
+                isComplete = true
+                break
+            end
+        end
+    end
+
+    self:CheckAndAdvanceStep(step, isComplete)
+    local color = isComplete and green or yellow
+    return "", "- Flight Path: " .. color .. (step.taxiNode or "Unknown") .. "|r"
+end
+
 
 UI.ActionHandlers.kill = function(self, step, done)
     local countStr, color = "", yellow
@@ -146,23 +170,51 @@ UI.ActionHandlers.grind = function(self, step, done)
     return "Grind Step: ", "- Reach " .. color .. "Level " .. step.level .. "|r"
 end
 
-UI.ActionHandlers.ding = function(self, step, done)
-    local level = UnitLevel("player")
-    local isComplete = level >= step.level
+UI.ActionHandlers.train = function(self, step, done)
+    local isComplete = false
+
+    -- Check if player has the skill and it's at or above target level
+    if step.skill and step.skillMax then
+        for i = 1, GetNumSkillLines() do
+            local name, _, _, rank = GetSkillLineInfo(i)
+            if name == step.skill and rank >= step.skillMax then
+                isComplete = true
+                break
+            end
+        end
+    end
+
     self:CheckAndAdvanceStep(step, isComplete)
-    local xpStr = step.xp and (" (" .. step.xp .. " xp)") or ""
-    return "", "- Ding: " .. (isComplete and green or yellow) .. step.level .. xpStr .. "|r"
+
+    local color = isComplete and green or yellow
+    local npc = step.npc or "Trainer"
+    local skill = step.skill or "Unknown Skill"
+    local max = step.skillMax and (" (" .. step.skillMax .. ")") or ""
+
+    return
+        "- Train: " .. color .. skill .. "|r"
 end
-UI.ActionHandlers.vendor = function(self, step, done)
+
+UI.ActionHandlers.note = function(self, step, done)
     local isComplete = done or false
     self:CheckAndAdvanceStep(step, isComplete)
-    return "", "- Vendor: " .. yellow .. (step.npc or "Unknown") .. "|r"
+
+    local color = isComplete and green or yellow
+    local note = step.note or "No note provided."
+
+    return "", "- Note: " .. color .. note .. "|r"
 end
 
 UI.ActionHandlers.use = function(self, step, done)
     local isComplete = done or false
     self:CheckAndAdvanceStep(step, isComplete)
-    return "", "- Use: " .. yellow .. (step.item or step.spell or "Item") .. "|r"
+
+    local quest = step.quest or (step.qid and GetQuestTitleByID(step.qid)) or "No Quest"
+    local item = step.item or step.spell or "Item"
+
+    return
+        "Complete: " .. (isComplete and green or yellow) .. quest .. "|r",
+        "- Use: " .. yellow .. item .. "|r"
 end
 
 UI.ActionHandlers.click = function(self, step, done)
@@ -182,6 +234,25 @@ UI.ActionHandlers.buff = function(self, step, done)
     local isComplete = done or false
     self:CheckAndAdvanceStep(step, isComplete)
     return "", "- Buff: " .. yellow .. (step.tip or "Use /kneel") .. "|r"
+end
+
+UI.ActionHandlers.vendor = function(self, step, done)
+    local isComplete = MerchantFrame and MerchantFrame:IsShown()
+    if isComplete then
+        step._wasComplete = true
+        local visible = self:GetVisibleSteps()
+        for idx, s in ipairs(visible) do
+            if s == step then
+                self.currentStep = idx + 1
+                IronPath.db.profile.lastStep = self.currentStep
+                C_Timer.After(0, function() self:ShowStep() end)
+                break
+            end
+        end
+    end
+
+    local color = isComplete and green or yellow
+    return "", "- Vendor: " .. color .. ("Sell your trash") .. "|r"
 end
 
 UI.ActionHandlers.walk = function(self, step)

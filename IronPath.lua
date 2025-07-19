@@ -10,7 +10,6 @@
 --     IronPath.lua → this file
 --     UI.lua       → guide UI frame
 -- ================================================================
-
 local IronPath = LibStub("AceAddon-3.0"):NewAddon("IronPath", "AceConsole-3.0", "AceEvent-3.0")
 _G.IronPath = IronPath
 
