@@ -1,55 +1,87 @@
 -- ================================================================
--- IronPath.lua
--- Main Addon Core - Human Alliance Hardcore 1-60 Leveling
+-- IronPath.lua – Ace3 Core + Initialization
+-- ================================================================
+-- Folder Structure:
+--   IronPath/
+--     features/    → Arrow.lua, MapIcon.lua
+--     guides/      → (guide data files)
+--     handlers/    → StepHandler.lua, QuestHandler.lua
+--     Config.lua   → AceConfig options
+--     IronPath.lua → this file
+--     UI.lua       → guide UI frame
 -- ================================================================
 
--- ------------------------------------------------
--- INIT + GUIDE LOADING
--- ------------------------------------------------
-local initFrame = CreateFrame("Frame")
-initFrame:RegisterEvent("PLAYER_LOGIN")
-initFrame:SetScript("OnEvent", function()
-    print("|cffffd100IronPath loaded!|r")
-    IronPath_Data = IronPath_Data or {}
+local IronPath = LibStub("AceAddon-3.0"):NewAddon("IronPath", "AceConsole-3.0", "AceEvent-3.0")
+_G.IronPath = IronPath
 
-    local faction = UnitFactionGroup("player")
-    local race = UnitRace("player")
-
-    if faction == "Alliance" and race == "Human" then
-        if IronPath_Guides_Alliance_Human_Starter then
-            IronPath_CurrentGuide = IronPath_Guides_Alliance_Human_Starter
-            local savedStep = IronPath_Data.lastStep or 1
-            IronPath_CurrentStep = savedStep
-            print("|cffffd100Guide loaded: "..IronPath_CurrentGuide.zone.." "..IronPath_CurrentGuide.levelRange.."|r")
-        else
-            print("|cffff0000IronPath: Human guide not found.|r")
-        end
-    else
-        print("|cffff0000IronPath: no guide for "..faction.." "..race..".|r")
-    end
-end)
+-- Global guide table
+IronPath_Guides = {}
 
 -- ------------------------------------------------
--- SLASH COMMAND
+-- SavedVariables Defaults
 -- ------------------------------------------------
-SLASH_IRONPATH1 = "/ironpath"
-SlashCmdList["IRONPATH"] = function()
-    if IronPathUI and IronPathUI:IsShown() then
-        IronPathUI:Hide()
-    elseif IronPathUI and IronPathUI.Show then
-        IronPathUI:Show()
-        IronPathUI:ShowStep()
+local defaults = {
+    profile = {
+        lastStep = 1,
+        lastGuide = "",
+        autoAccept = false,
+        autoTurnin = false,
+        autoAdvanceStep = false,
+        debug = false, -- Add this line
+    }
+}
+
+-- ------------------------------------------------
+-- OnInitialize
+-- ------------------------------------------------
+function IronPath:OnInitialize()
+    self.db = LibStub("AceDB-3.0"):New("IronPath_Data", defaults, true)
+end
+
+-- ------------------------------------------------
+-- OnEnable
+-- ------------------------------------------------
+function IronPath:OnEnable()
+    self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnPlayerLogin")
+end
+
+-- ------------------------------------------------
+-- Register a New Guide
+-- ------------------------------------------------
+function IronPath:RegisterGuide(guide)
+    if not guide or not guide.zone then return end
+    guide.steps = guide.steps or {}
+    table.insert(IronPath_Guides, guide)
+
+    -- Optionally assign starter guide
+    if guide.race == "Human" and guide.faction == "Alliance" then
+        IronPath_Guides_Alliance_Human_Starter = guide
     end
 end
 
 -- ------------------------------------------------
--- FINAL LOADER
+-- PLAYER_LOGIN Handler
 -- ------------------------------------------------
-local loader = CreateFrame("Frame")
-loader:RegisterEvent("PLAYER_LOGIN")
-loader:SetScript("OnEvent", function()
+function IronPath:OnPlayerLogin()
+    self:Print("|cffffd100IronPath loaded!|r")
+
+    local faction = UnitFactionGroup("player")
+    local race    = UnitRace("player")
+
+    if faction == "Alliance" and race == "Human" then
+        if IronPath_Guides_Alliance_Human_Starter then
+            IronPath_CurrentGuide = IronPath_Guides_Alliance_Human_Starter
+            IronPathUI.currentStep = self.db.profile.lastStep or 1
+            self:Print(string.format("Guide loaded: %s - %s", faction, race))
+        else
+            self:Print("|cffff0000Human guide not found.|r")
+        end
+    else
+        self:Print(string.format("No guide for %s %s.", faction, race))
+    end
+
     if IronPathUI and IronPathUI.Show then
         IronPathUI:Show()
         IronPathUI:ShowStep()
     end
-end)
+end

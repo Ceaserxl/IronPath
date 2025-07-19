@@ -5,17 +5,44 @@
 ## Version: 0.1
 ## SavedVariables: IronPath_Data
 
+# Libraries
 libs\LibStub\LibStub.lua
+libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
 libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
 libs\HereBeDragons\HereBeDragons-2.0.lua
 libs\HereBeDragons\HereBeDragons-Pins-2.0.lua
 
+libs\AceAddon-3.0\AceAddon-3.0.xml
+libs\AceGUI-3.0\AceGUI-3.0.xml
+libs\AceBucket-3.0\AceBucket-3.0.xml
+libs\AceComm-3.0\AceComm-3.0.xml
+libs\AceConfig-3.0\AceConfig-3.0.xml
+libs\AceConsole-3.0\AceConsole-3.0.xml
+libs\AceDB-3.0\AceDB-3.0.xml
+libs\AceDBOptions-3.0\AceDBOptions-3.0.xml
+libs\AceEvent-3.0\AceEvent-3.0.xml
+libs\AceHook-3.0\AceHook-3.0.xml
+libs\AceLocale-3.0\AceLocale-3.0.xml
+libs\AceSerializer-3.0\AceSerializer-3.0.xml
+libs\AceTab-3.0\AceTab-3.0.xml
+libs\AceTimer-3.0\AceTimer-3.0.xml
+
+# Core
 IronPath.lua
-IronPath_UI.lua
-IronPath_Logic.lua
+Config.lua
+UI.lua
 
-IronPath_Arrow.lua
-IronPath_Minimap.lua
+# Handlers
+handlers\ActionHandler.lua
+handlers\ConditionHandler.lua
+handlers\EventHandler.lua
+handlers\StepHandler.lua
+handlers\QuestHandler.lua
 
-guides\alliance\human\1-15.lua
+# Features
+features\Arrow.lua
+features\MapIcon.lua
+
+# Guides
+guides\alliance\Human(1-15).lua
