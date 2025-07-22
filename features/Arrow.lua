@@ -17,21 +17,53 @@ local currentX, currentY = nil, nil
 function IronPath:CreateArrowFrame()
     if arrowFrame then return end
 
+    -- Main frame styled with atlas background
     arrowFrame = CreateFrame("Frame", addonName .. "_ArrowFrame", UIParent)
-    arrowFrame:SetSize(48, 48)
-    arrowFrame:SetPoint("BOTTOM", IronPathFrame, "TOP", 0, 10)
+    arrowFrame:SetSize(90, 90) -- match size of the atlas
+    arrowFrame:SetPoint("BOTTOM", IronPathNavBar, "TOP", 0, 0)
     arrowFrame:SetFrameStrata("FULLSCREEN_DIALOG")
     arrowFrame:SetAlpha(1)
     arrowFrame:Hide()
 
+    -- Background atlas frame
+    local bg = arrowFrame:CreateTexture(nil, "BACKGROUND")
+    bg:SetAllPoints()
+    if C_Texture.GetAtlasInfo("ChallengeMode-SpikeyStar") then
+        bg:SetAtlas("ChallengeMode-SpikeyStar", true)
+    else
+        bg:SetColorTexture(0.2, 0.2, 0.2, 0.8)
+    end
+
+    distanceFrame = CreateFrame("Frame", nil, arrowFrame)
+    distanceFrame:SetSize(90, 20)
+    distanceFrame:SetPoint("TOP", arrowFrame, "BOTTOM", 0, 20)
+    distanceFrame:SetFrameStrata("FULLSCREEN_DIALOG")
+    distanceFrame:SetAlpha(1)
+    distanceFrame:Show()
+
+    local dbg = distanceFrame:CreateTexture(nil, "BACKGROUND")
+    dbg:SetAllPoints()
+    dbg:SetAtlas("ChallengeMode-Timer", true)
+
+    -- Arrow texture inside the ring
     local arrow = arrowFrame:CreateTexture(nil, "ARTWORK")
     arrow:SetTexture("Interface\\WorldMap\\WorldMapArrow")
-    arrow:SetAllPoints(true)
+    arrow:SetSize(40, 40)
+    arrow:SetPoint("CENTER", arrowFrame, "CENTER", 0, 0)
 
+    -- Distance text just below the frame
+    local text = distanceFrame:CreateFontString(nil, "OVERLAY", "GameFontWhiteSmall")
+    text:SetPoint("TOP", distanceFrame, "BOTTOM", 0, 15)
+    text:SetTextColor(1, 1, 1)
+    text:SetText("")
+
+    -- Store references
     arrowFrame.arrow = arrow
+    arrowFrame.distanceText = text
     arrowFrame.orientation = 0
     arrowFrame.forceUpdate = true
 end
+
 
 -- ------------------------------------------------
 -- Create Pins
@@ -39,20 +71,36 @@ end
 function IronPath:CreatePins()
     if not worldPin then
         worldPin = CreateFrame("Frame", nil, UIParent)
-        worldPin:SetSize(8, 8)
+        worldPin:SetSize(16, 16)
         local icon = worldPin:CreateTexture(nil, "OVERLAY")
-        icon:SetTexture("Interface\\BUTTONS\\WHITE8X8")
-        icon:SetVertexColor(0, 1, 0, 1)
+        icon:SetAtlas("Target") -- Use atlas texture here
         icon:SetAllPoints()
+        -- World Pin Tooltip
+        worldPin:SetScript("OnEnter", function(self)
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            GameTooltip:SetText("IronPath Pin", 1, 1, 1)
+            GameTooltip:Show()
+        end)
+        worldPin:SetScript("OnLeave", function()
+            GameTooltip:Hide()
+        end)
     end
 
     if not miniPin then
         miniPin = CreateFrame("Frame", nil, UIParent)
-        miniPin:SetSize(8, 8)
+        miniPin:SetSize(16, 16)
         local icon = miniPin:CreateTexture(nil, "OVERLAY")
-        icon:SetTexture("Interface\\BUTTONS\\WHITE8X8")
-        icon:SetVertexColor(0, 1, 0, 1)
+        icon:SetAtlas("Target") -- Use atlas texture here too
         icon:SetAllPoints()
+        -- Mini Pin Tooltip
+        miniPin:SetScript("OnEnter", function(self)
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            GameTooltip:SetText("IronPath Pin", 1, 1, 1)
+            GameTooltip:Show()
+        end)
+        miniPin:SetScript("OnLeave", function()
+            GameTooltip:Hide()
+        end)
     end
 end
 
@@ -92,6 +140,12 @@ function IronPath:OnArrowUpdate()
         arrowFrame.arrow:SetRotation(orientation)
         arrowFrame.orientation = orientation
         arrowFrame.forceUpdate = false
+    end
+
+    local dx, dy = tx - px, ty - py
+    local dist = math.sqrt(dx * dx + dy * dy)
+    if arrowFrame.distanceText then
+        arrowFrame.distanceText:SetText(string.format("%.0f yds", dist))
     end
 
     HBDPins:RemoveAllWorldMapIcons(addonName)

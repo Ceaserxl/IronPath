@@ -11,7 +11,9 @@
 --     UI.lua       → guide UI frame
 -- ================================================================
 local IronPath = LibStub("AceAddon-3.0"):NewAddon("IronPath", "AceConsole-3.0", "AceEvent-3.0")
-_G.IronPath = IronPath
+_G.IronPath         = IronPath
+_G.IronPathNavBar   = NavBar
+_G.IronPathViewer   = GuideViewer
 
 -- Global guide table
 IronPath_Guides = {}
@@ -21,12 +23,17 @@ IronPath_Guides = {}
 -- ------------------------------------------------
 local defaults = {
     profile = {
-        lastStep = 1,
-        lastGuide = "",
         autoAccept = false,
         autoTurnin = false,
         autoAdvanceStep = false,
-        debug = false, -- Add this line
+        autoSellGrey = true,
+        autoRepair = true,
+        debug = false,
+        stepDebug = false,
+    },
+    char = {
+        lastStep = 1,
+        lastGuide = "",
     }
 }
 
@@ -55,8 +62,34 @@ function IronPath:RegisterGuide(guide)
     -- Optionally assign starter guide
     if guide.race == "Human" and guide.faction == "Alliance" then
         IronPath_Guides_Alliance_Human_Starter = guide
+    elseif guide.race == "NightElf" and guide.faction == "Alliance" then
+        IronPath_Guides_Alliance_NightElf_Starter = guide
     end
 end
+
+function IronPath:SetCurrentGuide(guide)
+    if not guide or not guide.steps then return end
+
+    IronPath_CurrentGuide = guide
+
+    -- Only reset to step 1 if changing to a different guide
+    if IronPath.db and IronPath.db.char then
+        if IronPath.db.char.lastGuide ~= (guide.easyName or guide.zone) then
+            IronPath.db.char.lastStep = 1
+            IronPathViewer.currentStep = 1
+            IronPath.db.char.lastGuide = guide.easyName or guide.zone
+        else
+            IronPathViewer.currentStep = IronPath.db.char.lastStep or 1
+        end
+    end
+
+    if IronPathViewer and IronPathViewer.ShowStep then
+        IronPathViewer:ShowStep()
+    end
+
+    self:Print(string.format("|cff00ff00Guide loaded:|r %s", guide.easyName or guide.zone))
+end
+
 
 -- ------------------------------------------------
 -- PLAYER_LOGIN Handler
@@ -64,23 +97,49 @@ end
 function IronPath:OnPlayerLogin()
     self:Print("|cffffd100IronPath loaded!|r")
 
+    local lastGuideName = self.db.char.lastGuide
+    if lastGuideName and lastGuideName ~= "" then
+        for _, guide in ipairs(IronPath_Guides) do
+            local label = guide.easyName or guide.zone
+            if label == lastGuideName then
+                self:SetCurrentGuide(guide)
+                if IronPathUI and IronPathUI.Show then IronPathUI:Show() end
+                return
+            end
+        end
+        self:Print("|cffff0000Last selected guide not found:|r " .. lastGuideName)
+    end
+
+    -- Fallback to default guide by race/faction
     local faction = UnitFactionGroup("player")
     local race    = UnitRace("player")
 
+    local guide = nil
     if faction == "Alliance" and race == "Human" then
-        if IronPath_Guides_Alliance_Human_Starter then
-            IronPath_CurrentGuide = IronPath_Guides_Alliance_Human_Starter
-            IronPathUI.currentStep = self.db.profile.lastStep or 1
-            self:Print(string.format("Guide loaded: %s - %s", faction, race))
-        else
-            self:Print("|cffff0000Human guide not found.|r")
-        end
+        guide = IronPath_Guides_Alliance_Human_Starter
+    elseif faction == "Alliance" and race == "NightElf" then
+        guide = IronPath_Guides_Alliance_NightElf_Starter
+    end
+
+    if guide then
+        self:SetCurrentGuide(guide)
     else
         self:Print(string.format("No guide for %s %s.", faction, race))
     end
 
     if IronPathUI and IronPathUI.Show then
         IronPathUI:Show()
-        IronPathUI:ShowStep()
     end
 end
+
+
+function IronPath:SwitchGuideByName(name)
+    for _, guide in ipairs(IronPath_Guides) do
+        if guide.easyName == name or guide.zone == name then
+            self:SetCurrentGuide(guide)
+            return
+        end
+    end
+    self:Print("|cffff0000Guide not found:|r " .. name)
+end
+

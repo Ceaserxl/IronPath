@@ -1,8 +1,8 @@
 -- ================================================================
 -- QuestHandler.lua – Auto Accept / Auto Turnin Logic
 -- ================================================================
-local IronPath = _G.IronPath
-local UI       = _G.IronPathUI
+local IronPath     = _G.IronPath
+local GuideViewer  = _G.IronPathViewer
 
 local function DebugPrint(msg)
     if IronPath.db and IronPath.db.profile and IronPath.db.profile.debug then
@@ -12,7 +12,7 @@ end
 
 -- Helper: Get current visible step
 local function GetCurrentStep()
-    return UI:GetVisibleSteps()[UI.currentStep]
+    return GuideViewer:GetVisibleSteps()[GuideViewer.currentStep]
 end
 
 local function Normalize(str)
@@ -29,16 +29,19 @@ function IronPath:HandleQuestDetail()
     local step = GetCurrentStep()
     if not step then return end
 
-    local questTitle = GetTitleText()
-    DebugPrint("NPC Quest Title: " .. tostring(questTitle))
-    DebugPrint("Step Title: " .. tostring(step.quest or step.title or "nil"))
+    C_Timer.After(0.1, function()
+        local questTitle = GetTitleText()
+        DebugPrint("NPC Quest Title: " .. tostring(questTitle))
+        DebugPrint("Step Title: " .. tostring(step.quest or step.title or "nil"))
 
-    if questTitle and (questTitle == step.quest or questTitle == step.title) then
-        DebugPrint("Matching quest. Accepting: " .. questTitle)
-        AcceptQuest()
-        print("|cff00ff00IronPath: Auto-accepted quest.|r")
-    end
+        if questTitle and (questTitle == step.quest or questTitle == step.title) then
+            DebugPrint("Matching quest. Accepting: " .. questTitle)
+            AcceptQuest()
+            print("|cff00ff00IronPath: Auto-accepted quest.|r")
+        end
+    end)
 end
+
 
 -- ------------------------------------------------
 -- QUEST_COMPLETE – Auto Reward Selection
@@ -114,8 +117,8 @@ end
 -- QUEST_LOG_UPDATE – Refresh collect steps
 -- ------------------------------------------------
 function IronPath:HandleQuestLogUpdate()
-    DebugPrint("QUEST_LOG_UPDATE: refreshing UI.")
-    UI:ShowStep()
+    DebugPrint("QUEST_LOG_UPDATE: refreshing GuideViewer.")
+    GuideViewer:ShowStep()
 end
 
 -- ------------------------------------------------
@@ -131,27 +134,26 @@ end
 function IronPath:HandleQuestAccepted()
     DebugPrint("|cff00ff00QUEST_ACCEPTED fired|r")
 
-    local step = UI:GetVisibleSteps()[UI.currentStep]
+    local step = GuideViewer:GetVisibleSteps()[GuideViewer.currentStep]
     if step and step._wasComplete then
         DebugPrint("✅ Step already marked complete. Advancing.")
-        UI.currentStep = UI.currentStep + 1
-        IronPath.db.profile.lastStep = UI.currentStep
-        UI:ShowStep()
+        GuideViewer.currentStep = GuideViewer.currentStep + 1
+        GuideViewer:ShowStep()
     end
 end
 
 -- ------------------------------------------------
 -- QUEST_TURNED_IN – Advance if step marked complete
 -- ------------------------------------------------
-function IronPath:HandleQuestTurnedIn()
-    DebugPrint("|cff00ff00QUEST_TURNED_IN fired|r")
+function IronPath:HandleQuestTurnedIn(event, questID)
+    DebugPrint("|cff00ff00QUEST_TURNED_IN fired for qid=" .. tostring(questID))
 
-    local step = UI:GetVisibleSteps()[UI.currentStep]
-    if step and step._wasComplete then
-        DebugPrint("✅ Step already marked complete. Advancing.")
-        UI.currentStep = UI.currentStep + 1
-        IronPath.db.profile.lastStep = UI.currentStep
-        UI:ShowStep()
+    local step = GuideViewer:GetVisibleSteps()[GuideViewer.currentStep]
+    if step and step.qid == questID then
+        DebugPrint("✅ Quest matched current step. Marking complete and advancing.")
+        step._wasComplete = true
+        GuideViewer.currentStep = GuideViewer.currentStep + 1
+        GuideViewer:ShowStep()
     end
 end
 
@@ -226,7 +228,7 @@ function IronPath:HandleGreetingShow()
                 DebugPrint("AUTO ACCEPT: Matching greeting quest found: " .. title)
                 SelectAvailableQuest(i)
                 print("|cff00ff00IronPath: Greeting quest auto-accepted.|r")
-                UI:ShowStep()
+                GuideViewer:ShowStep()
 
                 -- Retry in case more quests remain
                 C_Timer.After(0.2, function()
@@ -248,7 +250,7 @@ function IronPath:HandleGreetingShow()
                 DebugPrint("AUTO TURNIN: Matching greeting turnin found: " .. title)
                 SelectActiveQuest(i)
                 print("|cff00ff00IronPath: Greeting quest auto-turned in.|r")
-                UI:ShowStep()
+                GuideViewer:ShowStep()
 
                 -- Retry in case more quests remain
                 C_Timer.After(0.2, function()
