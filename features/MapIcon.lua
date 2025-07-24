@@ -17,10 +17,12 @@ local dataObj = LDB:NewDataObject("IronPath", {
                 Settings.OpenToCategory("IronPath")
             end
         else
-            if IronPathFrame:IsShown() then
-                IronPathFrame:Hide()
-            else
-                IronPathFrame:Show()
+            if IronPathUI and IronPathUI:IsShown() then
+                IronPathUI:Hide()
+                if arrowFrame then arrowFrame:Hide() end
+            elseif IronPathUI then
+                IronPathUI:Show()
+                if arrowFrame then arrowFrame:Show() end
             end
         end
     end,

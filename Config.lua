@@ -12,7 +12,7 @@ local function GetGuideOptions()
     local opts = {}
     for _, guide in ipairs(IronPath_Guides or {}) do
         local label = guide.easyName or (guide.race or "Unknown") .. " (" .. (guide.levelRange or "?") .. ")"
-        opts[label] = label -- key and value are the same
+        opts[label] = label
     end
     return opts
 end
@@ -35,16 +35,16 @@ local options = {
             order = 1,
         },
 
-        behaviorGroup = {
+        automationGroup = {
             type  = "group",
-            name  = "Behavior",
+            name  = "Automation",
             inline = true,
             order = 10,
             args = {
                 autoAccept = {
                     type = "toggle",
-                    name = "Auto-Accept Quests",
-                    desc = "Automatically accept quests when they become available.",
+                    name = "Auto Accept Quests",
+                    desc = "Automatically accept quests when available.",
                     order = 1,
                     get = function() return IronPath.db.profile.autoAccept end,
                     set = function(_, val) IronPath.db.profile.autoAccept = val end,
@@ -59,16 +59,16 @@ local options = {
                 },
                 autoAdvanceStep = {
                     type = "toggle",
-                    name = "Auto Advance Steps",
-                    desc = "Automatically skip to the next step if the current one is complete.",
+                    name = "Auto Advance Step",
+                    desc = "Move to the next step automatically when complete.",
                     order = 3,
                     get = function() return IronPath.db.profile.autoAdvanceStep end,
                     set = function(_, val) IronPath.db.profile.autoAdvanceStep = val end,
                 },
                 autoSellGrey = {
                     type = "toggle",
-                    name = "Auto-Sell Grey Items",
-                    desc = "Sell poor-quality items automatically when visiting a vendor.",
+                    name = "Auto Sell Grey Items",
+                    desc = "Automatically sell poor-quality (grey) items at vendors.",
                     order = 4,
                     get = function() return IronPath.db.profile.autoSellGrey end,
                     set = function(_, val) IronPath.db.profile.autoSellGrey = val end,
@@ -76,26 +76,43 @@ local options = {
                 autoRepair = {
                     type = "toggle",
                     name = "Auto Repair Gear",
-                    desc = "Repair gear automatically when at a vendor that offers repairs.",
+                    desc = "Automatically repair your gear at vendors.",
                     order = 5,
                     get = function() return IronPath.db.profile.autoRepair end,
                     set = function(_, val) IronPath.db.profile.autoRepair = val end,
                 },
+            },
+        },
+
+        devGroup = {
+            type  = "group",
+            name  = "Development",
+            inline = true,
+            order = 20,
+            args = {
                 debug = {
                     type = "toggle",
                     name = "Enable Debug Logging",
-                    desc = "Log detailed debug messages to the chat.",
-                    order = 6,
+                    desc = "Log debug messages to the chat.",
+                    order = 1,
                     get = function() return IronPath.db.profile.debug end,
                     set = function(_, val) IronPath.db.profile.debug = val end,
                 },
                 stepDebug = {
                     type = "toggle",
                     name = "Show Step Debug Info",
-                    desc = "Ignore conditions and show all steps (for testing).",
-                    order = 7,
+                    desc = "Show all steps and ignore conditions (for testing).",
+                    order = 2,
                     get = function() return IronPath.db.profile.stepDebug end,
                     set = function(_, val) IronPath.db.profile.stepDebug = val end,
+                },
+                showAllSteps = {
+                    type = "toggle",
+                    name = "Show All Steps",
+                    desc = "Bypass filters and show every step regardless of logic.",
+                    order = 3,
+                    get = function() return IronPath.db.profile.showAllSteps end,
+                    set = function(_, val) IronPath.db.profile.showAllSteps = val end,
                 },
             },
         },
@@ -104,12 +121,12 @@ local options = {
             type  = "group",
             name  = "Guide Selection",
             inline = true,
-            order = 20,
+            order = 30,
             args = {
                 selectedGuide = {
                     type = "select",
                     name = "Active Guide",
-                    desc = "Select which guide to use.",
+                    desc = "Choose the guide you want to follow.",
                     order = 1,
                     values = GetGuideOptions,
                     get = function() return IronPath.db.char.lastGuide or "" end,
@@ -129,7 +146,7 @@ local options = {
                 reset = {
                     type = "execute",
                     name = "Reset Guide Progress",
-                    desc = "Start the current guide over from Step 1.",
+                    desc = "Reset the current guide back to Step 1.",
                     order = 2,
                     func = function()
                         IronPath.db.char.lastStep = 1

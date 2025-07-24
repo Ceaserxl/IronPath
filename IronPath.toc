@@ -34,15 +34,11 @@ Config.lua
 UI.lua
 
 # Handlers
-handlers\ActionHandler.lua
-handlers\ConditionHandler.lua
-handlers\EventHandler.lua
-handlers\StepHandler.lua
-handlers\QuestHandler.lua
+handlers\GuideHandler.lua
 
 # Features
-features\Arrow.lua
+#features\Arrow.lua
 features\MapIcon.lua
 
 # Guides
-guides\alliance\Human(1-15).lua
+guides\alliance\alliance.lua

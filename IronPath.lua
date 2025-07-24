@@ -15,6 +15,56 @@ _G.IronPath         = IronPath
 _G.IronPathNavBar   = NavBar
 _G.IronPathViewer   = GuideViewer
 
+-- ------------------------------------------------
+-- Questie Detection Ticker (every 0.25s, max 10s)
+-- ------------------------------------------------
+_G.hasQuestie = false
+
+local questieCheck = {
+    elapsed = 0,
+    interval = 0.25,
+    maxTime = 10,
+}
+
+questieCheck.ticker = C_Timer.NewTicker(questieCheck.interval, function()
+    questieCheck.elapsed = questieCheck.elapsed + questieCheck.interval
+
+    for i = 1, GetNumAddOns() do
+        local name, _, _, enabled = GetAddOnInfo(i)
+        if name and name:lower():find("questie") then
+            _G.hasQuestie = true
+            print("|cff00ff00Questie detected via ticker:|r " .. name)
+            questieCheck.ticker:Cancel()
+            ------------------------------------------------------------
+            -- One-time Questie module initialization
+            ------------------------------------------------------------
+            if _G.hasQuestie and not (_G.QuestieDB and _G.QuestieQuest) and _G.QuestieLoader then
+                local db = _G.QuestieLoader:ImportModule("QuestieDB")
+                local quest = _G.QuestieLoader:ImportModule("QuestieQuest")
+                if db and quest then
+                    _G.QuestieDB = db
+                    _G.QuestieQuest = quest
+                    print("|cff00ff00Questie modules initialized.|r")
+                    return
+                end
+            end
+            return
+        end
+    end
+
+    if questieCheck.elapsed >= questieCheck.maxTime then
+        print("|cffff0000Questie not detected after 10s.|r")
+        questieCheck.ticker:Cancel()
+    end
+end)
+
+function IronPath:DebugPrint(msg)
+    if IronPath.db and IronPath.db.profile and IronPath.db.profile.debug then
+        print("|cff8888ff[IronPath Debug]:|r " .. msg)
+    end
+end
+
+
 -- Global guide table
 IronPath_Guides = {}
 
@@ -30,6 +80,7 @@ local defaults = {
         autoRepair = true,
         debug = false,
         stepDebug = false,
+        showAllSteps = false,
     },
     char = {
         lastStep = 1,
@@ -84,7 +135,7 @@ function IronPath:SetCurrentGuide(guide)
     end
 
     if IronPathViewer and IronPathViewer.ShowStep then
-        IronPathViewer:ShowStep()
+        --IronPathViewer:ShowStep()
     end
 
     self:Print(string.format("|cff00ff00Guide loaded:|r %s", guide.easyName or guide.zone))
