@@ -34,11 +34,19 @@ Config.lua
 UI.lua
 
 # Handlers
-handlers\GuideHandler.lua
+handlers\ConditionHandler.lua
+handlers\Parser.lua
+handlers\GuideLoader.lua
+handlers\ActionHandler.lua
+handlers\QuestHandler.lua
+handlers\StepHandler.lua
 
 # Features
-#features\Arrow.lua
+features\arrowFrame.lua
+features\Arrow.lua
 features\MapIcon.lua
 
 # Guides
-guides\alliance\alliance.lua
+guides\alliance\STARTER.lua
+guides\alliance\LEVELING.lua
+

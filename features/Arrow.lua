@@ -1,57 +1,28 @@
 -- ================================================================
--- IronPath_Arrow.lua – Waypoint Arrow & Pin System (Ace3 Style)
+-- Arrow.lua – Logic Only (Points Arrow to Coordinates + Pins)
 -- ================================================================
-
 local IronPath = _G.IronPath
 local addonName = "IronPath"
-local HBD       = LibStub("HereBeDragons-2.0")
-local HBDPins   = LibStub("HereBeDragons-Pins-2.0")
+local GuideViewer = _G.IronPathViewer
+local HBD = LibStub("HereBeDragons-2.0")
+local HBDPins = LibStub("HereBeDragons-Pins-2.0")
 
--- Internal state
-local arrowFrame, worldPin, miniPin
 local currentX, currentY = nil, nil
+local worldPin, miniPin = nil, nil
 
-function IronPath:CreateArrowFrame()
-    if arrowFrame then return end
-
-    arrowFrame = CreateFrame("Frame", addonName .. "_ArrowFrame", IronPathNavBar)
-    arrowFrame:SetSize(90, 90)
-    arrowFrame:SetPoint("BOTTOM", IronPathNavBar, "TOP", 0, 0)
-    arrowFrame:SetAlpha(1)
-    arrowFrame:Hide()
-
-    local bg = arrowFrame:CreateTexture(nil, "BACKGROUND")
-    bg:SetAtlas("NavalMap-SmallBonusCircle")
-    bg:SetSize(64, 64)
-    bg:SetPoint("CENTER")
-
-    local arrow = arrowFrame:CreateTexture(nil, "ARTWORK")
-    arrow:SetTexture("Interface\\WorldMap\\WorldMapArrow")
-    arrow:SetSize(40, 40)
-    arrow:SetPoint("CENTER")
-
-    local distanceFrame = CreateFrame("Frame", nil, arrowFrame)
-    distanceFrame:SetSize(90, 25)
-    distanceFrame:SetPoint("TOP", arrowFrame, "BOTTOM", 0, 20)
-    distanceFrame:Show()
-
-    local dbg = distanceFrame:CreateTexture(nil, "BACKGROUND")
-    dbg:SetAtlas("UI-Frame-Neutral-Ribbon", true)
-    dbg:SetSize(128, 32)
-    dbg:SetPoint("CENTER")
-
-    local text = distanceFrame:CreateFontString(nil, "OVERLAY")
-    text:SetFont("Fonts\\2002.TTF", 14, "")
-    text:SetPoint("TOP", distanceFrame, "BOTTOM", 0, 20)
-    text:SetTextColor(0, 0, 0)
-    text:SetText("")
-
-    arrowFrame.arrow = arrow
-    arrowFrame.distanceText = text
-    arrowFrame.orientation = 0
-    arrowFrame.forceUpdate = true
+------------------------------------------------------------
+-- Get Map ID from Zone Name
+------------------------------------------------------------
+function IronPath:GetMapIDFromZoneName(zoneName)
+    for id, data in pairs(HBD.mapData) do
+        if data.name == zoneName then return id end
+    end
+    return nil
 end
 
+------------------------------------------------------------
+-- Create Map + Minimap Pins
+------------------------------------------------------------
 function IronPath:CreatePins()
     if not worldPin then
         worldPin = CreateFrame("Frame", nil, UIParent)
@@ -59,9 +30,9 @@ function IronPath:CreatePins()
         local icon = worldPin:CreateTexture(nil, "OVERLAY")
         icon:SetAtlas("Target")
         icon:SetAllPoints()
-        worldPin:SetScript("OnEnter", function(self)
-            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-            GameTooltip:SetText("IronPath Pin", 1, 1, 1)
+        worldPin:SetScript("OnEnter", function()
+            GameTooltip:SetOwner(worldPin, "ANCHOR_RIGHT")
+            GameTooltip:SetText("IronPath World Pin", 1, 1, 1)
             GameTooltip:Show()
         end)
         worldPin:SetScript("OnLeave", GameTooltip_Hide)
@@ -73,74 +44,108 @@ function IronPath:CreatePins()
         local icon = miniPin:CreateTexture(nil, "OVERLAY")
         icon:SetAtlas("Target")
         icon:SetAllPoints()
-        miniPin:SetScript("OnEnter", function(self)
-            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-            GameTooltip:SetText("IronPath Pin", 1, 1, 1)
+        miniPin:SetScript("OnEnter", function()
+            GameTooltip:SetOwner(miniPin, "ANCHOR_RIGHT")
+            GameTooltip:SetText("IronPath Minimap Pin", 1, 1, 1)
             GameTooltip:Show()
         end)
         miniPin:SetScript("OnLeave", GameTooltip_Hide)
     end
 end
 
-function IronPath:OnArrowUpdate()
-    if not currentX or not currentY then
-        arrowFrame:Hide()
-        HBDPins:RemoveAllWorldMapIcons(addonName)
-        HBDPins:RemoveAllMinimapIcons(addonName)
+------------------------------------------------------------
+-- Set Arrow to Coordinates
+------------------------------------------------------------
+function IronPath:GoToCoords(x, y, zone)
+    if not x or not y then return end
+
+    local mapID = zone and self:GetMapIDFromZoneName(zone)
+    if not mapID then
+        mapID = C_Map.GetBestMapForUnit("player")
+        if not mapID then return end
+    end
+
+    self:CreateArrowFrame()
+    local frame = self.arrowFrame
+    if not frame then return end
+
+    currentX, currentY = x, y
+    frame:SetScript("OnUpdate", function() self:OnArrowUpdate(mapID) end)
+    frame:Show()
+    frame.forceUpdate = true
+end
+
+------------------------------------------------------------
+-- Set Arrow to Objective
+------------------------------------------------------------
+function IronPath:GoToObjective(obj)
+    if not obj or obj.isComplete or not obj.coords then
+        self:ClearArrow()
+        return
+    end
+    self:GoToCoords(obj.coords.x, obj.coords.y, obj.coords.zone)
+end
+
+------------------------------------------------------------
+-- Arrow Frame Updater
+------------------------------------------------------------
+function IronPath:OnArrowUpdate(mapID)
+    local frame = self.arrowFrame
+    if not frame or not currentX or not currentY then
+        if frame then
+            frame:Hide()
+            HBDPins:RemoveAllWorldMapIcons("IronPathObjective")
+            HBDPins:RemoveAllMinimapIcons("IronPathObjective")
+        end
         return
     end
 
     local px, py, instance = HBD:GetPlayerWorldPosition()
     if not px or not py then return end
 
-    local mapID = C_Map.GetBestMapForUnit("player")
-    if not mapID then return end
-
     local zx, zy = currentX / 100, currentY / 100
-    local tx, ty, targetInstance = HBD:GetWorldCoordinatesFromZone(zx, zy, mapID)
+    self:CreatePins()
+
+    HBDPins:RemoveAllWorldMapIcons("IronPathObjective")
+    HBDPins:RemoveAllMinimapIcons("IronPathObjective")
+
+    HBDPins:AddWorldMapIconMap("IronPathObjective", worldPin, mapID, zx, zy,
+                               HBD_PINS_WORLDMAP_SHOW_WORLD)
+    HBDPins:AddMinimapIconMap("IronPathObjective", miniPin, mapID, zx, zy, true)
+
+    local tx, ty, targetInstance =
+        HBD:GetWorldCoordinatesFromZone(zx, zy, mapID)
     if not tx or not ty or instance ~= targetInstance then
-        arrowFrame:Hide()
-        HBDPins:RemoveAllWorldMapIcons(addonName)
-        HBDPins:RemoveAllMinimapIcons(addonName)
+        frame:Hide()
         return
     end
 
     local angle = HBD:GetWorldVector(instance, px, py, tx, ty)
-    if not angle then return end
-
-    local facing = GetPlayerFacing() or 0
-    local orientation = angle - facing
-
-    if math.abs(orientation - arrowFrame.orientation) > math.pi / 64 or arrowFrame.forceUpdate then
-        arrowFrame.arrow:SetRotation(orientation)
-        arrowFrame.orientation = orientation
-        arrowFrame.forceUpdate = false
+    if angle then
+        local facing = GetPlayerFacing() or 0
+        local orientation = angle - facing
+        if math.abs(orientation - frame.orientation) > math.pi / 64 or
+            frame.forceUpdate then
+            frame.arrow:SetRotation(orientation)
+            frame.orientation = orientation
+            frame.forceUpdate = false
+        end
     end
 
     local dx, dy = tx - px, ty - py
     local dist = math.sqrt(dx * dx + dy * dy)
-    arrowFrame.distanceText:SetText(string.format("%.0f yds", dist))
-
-    HBDPins:RemoveAllWorldMapIcons(addonName)
-    HBDPins:RemoveAllMinimapIcons(addonName)
-    HBDPins:AddWorldMapIconWorld(addonName, worldPin, targetInstance, tx, ty, HBD_PINS_WORLDMAP_SHOW_WORLD)
-    HBDPins:AddMinimapIconWorld(addonName, miniPin, targetInstance, tx, ty, true)
+    frame.distanceText:SetText(string.format("%.0f yds", dist))
 end
 
-function IronPath:GoTo(x, y)
-    if type(x) ~= "number" or type(y) ~= "number" then
-        currentX, currentY = nil, nil
-        if arrowFrame then arrowFrame:Hide() end
-        HBDPins:RemoveAllWorldMapIcons(addonName)
-        HBDPins:RemoveAllMinimapIcons(addonName)
-        return
+------------------------------------------------------------
+-- Clear Arrow
+------------------------------------------------------------
+function IronPath:ClearArrow()
+    currentX, currentY = nil, nil
+    local frame = self.arrowFrame
+    if frame then
+        frame:SetScript("OnUpdate", nil)
+        frame:Hide()
     end
-
-    currentX, currentY = x, y
-    self:CreateArrowFrame()
-    self:CreatePins()
-    arrowFrame:SetScript("OnUpdate", function() self:OnArrowUpdate() end)
-
-    arrowFrame:Show()
-    arrowFrame.forceUpdate = true
 end
+
