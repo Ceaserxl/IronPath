@@ -7,20 +7,29 @@ IronPath.Parser = {}
 -- Entry Point
 ------------------------------------------------------------
 function IronPath.Parser:ParseSteps(stepText)
-    local steps, block = {}, {}
+    local parsedSteps = {}
+    local rawSteps = {}
+    local block = {}
+
     for line in stepText:gmatch("[^\r\n]+") do
         line = line:match("^%s*(.-)%s*$")
         if line:lower() == "step" then
             if next(block) then
-                table.insert(steps, self:ParseSingleStep(block))
+                table.insert(rawSteps, block)
+                table.insert(parsedSteps, self:ParseSingleStep(block))
                 block = {}
             end
         else
             table.insert(block, line)
         end
     end
-    if next(block) then table.insert(steps, self:ParseSingleStep(block)) end
-    return steps
+
+    if next(block) then
+        table.insert(rawSteps, block)
+        table.insert(parsedSteps, self:ParseSingleStep(block))
+    end
+
+    return parsedSteps, rawSteps
 end
 
 ------------------------------------------------------------
@@ -145,13 +154,16 @@ function IronPath.Parser:HandleGenericNoteLine(line, step)
 
     local objType = popuptext and "popuptext" or "note"
 
+    -- Fix for _"quoted string"_ → "quoted string"
+    trimmed = trimmed:gsub('_(["\'][^"\']-["\'])_', '%1')
+
+    -- Now create the object
     local obj = {
         type = objType,
         label = trimmed ~= "" and trimmed or "(popup)",
         isComplete = nil,
         blankBox = true
     }
-
     if popuptext then obj.popuptext = popuptext end
     if notinsticky then obj.notinsticky = true end
     if condition then obj.condition = condition:match("^%s*(.-)%s*$") end
@@ -166,27 +178,31 @@ function IronPath.Parser:HandleObjectiveLine(line, step)
         "collect", "kill", "buy", "turnin", "accept", "use", "destroy", "learn",
         "train", "click", "talk", "complete", "home", "ding"
     }
-
     for _, action in ipairs(skipActions) do
         if line:match("^" .. action) then return end
     end
 
-    if line:find("|vendor") or line:find("|skillmax") or line:find("|complete") or
-        line:find("|confirm") or not line:match("|q%s+%d+") then return end
+    if line:find("|vendor") or line:find("|skillmax") or line:find("|confirm") then
+        return
+    end
 
-    local rawLabel = line:match("^(.-)|q") or "Explore area"
-    rawLabel = rawLabel:match("^%s*(.-)%s*$")
+    -- Extract label before first pipe
+    local label = line:match("^(.-)|") or line
+    label = label:match("^%s*(.-)%s*$")
 
-    -- Replace #5# with 5 and extract it as quantity
-    local quantity = tonumber(rawLabel:match("#(%d+)#"))
-    local label = rawLabel:gsub("#(%d+)#", "%1"):match("^%s*(.-)%s*$")
+    -- Quantity extraction (e.g. #5#)
+    local quantity = tonumber(label:match("#(%d+)#"))
+    label = label:gsub("#(%d+)#", "%1")
 
+    -- Quest ID and index
     local qid, qindex = line:match("|q%s+(%d+)/?(%d*)")
-    qid = qid and math.floor(tonumber(qid)) or nil
-    qindex = qindex and qindex ~= "" and math.floor(tonumber(qindex)) or nil
+    qid = qid and tonumber(qid) or nil
+    qindex = qindex ~= "" and tonumber(qindex) or nil
 
+    -- Coordinate extraction
     local zone, x, y = line:match("|goto%s+([^%d]+)%s+(%d+%.?%d*),(%d+%.?%d*)")
 
+    -- Build objective
     local obj = {
         type = "walkObj",
         label = label,
@@ -204,6 +220,20 @@ function IronPath.Parser:HandleObjectiveLine(line, step)
             x = tonumber(x),
             y = tonumber(y)
         }
+    end
+
+    -- Build condition from |havebuff and |only
+    local conditionParts = {}
+
+    local buffID = line:match("|havebuff%s+[%w%s]+##(%d+)")
+    if buffID then table.insert(conditionParts, "havebuff(" .. buffID .. ")") end
+
+    local only = line:match("|only if%s+([^|]+)") or
+                     line:match("|only%s+([^|]+)")
+    if only then table.insert(conditionParts, only:match("^%s*(.-)%s*$")) end
+
+    if #conditionParts > 0 then
+        obj.completeIf = table.concat(conditionParts, " and ")
     end
 
     table.insert(step.objectives, obj)
@@ -653,6 +683,13 @@ function IronPath.Parser:HandleTurninLine(line, step)
                 }
             end
 
+            -- Condition
+            local condition = line:match("|only if%s+(.+)$") or
+                                  line:match("|only%s+(.+)$")
+            if condition then
+                obj.condition = condition:match("^%s*(.-)%s*$")
+            end
+
             table.insert(step.objectives, obj)
         end
     end
@@ -697,7 +734,8 @@ function IronPath.Parser:HandleCollectLine(line, step)
 
     local obj = {
         type = "collect",
-        item = (num == 1 and item) or (quantity .. " " .. item), -- logic value used for completion
+        item = item, -- logic value used for completion
+        quantity = num,
         label = item, -- clean label (never shows 1)
         itemID = id and tonumber(id) or nil,
         isComplete = false,

@@ -18,21 +18,20 @@ function GuideViewer:ShowStep()
         IronPath:DebugPrint("No steps returned from GetVisibleSteps.", "warn")
         return
     end
-    -- -- 🔢 Count completed steps
-    -- local completed = 0
-    -- for _, step in ipairs(steps) do
-    --     if step._wasComplete then completed = completed + 1 end
-    -- end
-
-    -- -- 🖊️ Update step info UI
-    -- if FooterBar and FooterBar.stepInfo then
-    --     FooterBar.stepInfo:SetText(completed .. " of " .. #steps .. " completed")
-    -- end
 
     local totalSteps = #guide.steps
     self.currentStep = math.max(1, math.min(self.currentStep or 1, totalSteps))
     self.highestUnlockedStep = math.max(self.highestUnlockedStep or 1,
                                         self.currentStep)
+
+    -- 🔁 Reparse if debugging is enabled
+    if IronPath.db and IronPath.db.profile and IronPath.db.profile.stepDebug then
+        local raw = guide.rawSteps and guide.rawSteps[self.currentStep]
+        if raw then
+            guide.steps[self.currentStep] = IronPath.Parser:ParseSingleStep(raw)
+            IronPath:DebugPrint("Re-parsed step " .. self.currentStep, "parse")
+        end
+    end
 
     local step = steps[self.currentStep]
     if not step then return end
@@ -45,7 +44,6 @@ function GuideViewer:ShowStep()
 
     local function ProcessObjectives(objectives, parentStep, isSticky)
         local stickyHeaderShown = false
-
         for _, obj in ipairs(objectives or {}) do
             if obj._isSticky and not stickyHeaderShown then
                 GuideViewer:CreateObjectiveLine("blank",
@@ -54,7 +52,6 @@ function GuideViewer:ShowStep()
                 stickyHeaderShown = true
             end
 
-            -- ✅ Evaluate completeIf FIRST
             if type(obj.completeIf) == "string" then
                 local result = IronPath:EvaluateCondition(obj.completeIf)
                 if result then
@@ -65,7 +62,6 @@ function GuideViewer:ShowStep()
                 end
             end
 
-            -- ✅ Run handler only if not already complete
             local handler = self.ActionHandlers[obj.type]
             if handler and not obj.isComplete then
                 local _, _, updated = handler(self, parentStep, true)
@@ -87,27 +83,23 @@ function GuideViewer:ShowStep()
         end
     end
 
-    -- Process main step
     ProcessObjectives(step.objectives, step, false)
 
-    -- Process sticky steps
     if GuideViewer._stickySteps then
-        local headerShown = false
-        for _, stickyStep in pairs(GuideViewer._stickySteps) do end
+        for _, stickyStep in pairs(GuideViewer._stickySteps) do
+            ProcessObjectives(stickyStep.objectives, stickyStep, true)
+        end
     end
 
-    -- Update footer
     if NavBar and NavBar.stepInfo then
         NavBar.stepInfo:SetText("Step " .. self.currentStep .. " of " ..
                                     totalSteps)
     end
 
-    -- Save last step
     if IronPath.db and IronPath.db.char then
         IronPath.db.char.lastStep = self.currentStep
     end
 
-    -- Set arrow to next active main objective
     if #mainObjectiveList > 0 then
         IronPath:GoToObjective(mainObjectiveList[1])
     else

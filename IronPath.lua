@@ -155,9 +155,10 @@ function IronPath:SetCurrentGuide(guide)
     self:DebugPrint("Set guide: " .. (guide.easyName or "Unnamed"), "guide")
 
     if type(guide.steps[1]) == "string" then
-        local parsed = IronPath.Parser:ParseSteps(guide.steps[1])
+        local parsed, raw = IronPath.Parser:ParseSteps(guide.steps[1])
         if parsed and #parsed > 0 then
             guide.steps = parsed
+            guide.rawSteps = raw
             self:DebugPrint("Guide steps parsed successfully (" .. #parsed ..
                                 " steps).", "parse")
         else

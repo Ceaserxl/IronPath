@@ -388,7 +388,6 @@ GuideViewer.ActionHandlers.collect = function(self, step, silent)
                                        C_QuestLog.IsQuestFlaggedCompleted(
                                            obj.qid)
 
-            -- Passive complete (only if NOT marked as future)
             if completedQuest and not obj.future then
                 obj.isComplete = true
                 IronPath:DebugPrint("Quest " .. obj.qid ..
@@ -396,13 +395,14 @@ GuideViewer.ActionHandlers.collect = function(self, step, silent)
                                     "collect")
             end
 
-            -- Active tracking
+            -- With quest ID and index
             if not obj.isComplete and obj.qid and obj.qindex then
                 local q = C_QuestLog.GetQuestObjectives(obj.qid)
                 local o = q and q[obj.qindex]
                 if o then
                     local have, need = o.numFulfilled or 0, o.numRequired or 1
-                    obj.label = (obj.item or obj.target or "Item") .. " (" ..
+                    obj.label = obj.quantity .. " " ..
+                                    (obj.item or obj.target or "Item") .. " (" ..
                                     have .. "/" .. need .. ")"
                     if have >= need then
                         obj.isComplete = true
@@ -417,6 +417,22 @@ GuideViewer.ActionHandlers.collect = function(self, step, silent)
                     IronPath:DebugPrint("Collect objective[" .. index ..
                                             "] missing quest objective data",
                                         "collect")
+                end
+            end
+
+            -- Fallback: No QID, but has quantity
+            if not obj.isComplete and not obj.qid and obj.quantity then
+                local count = GetItemCount(obj.itemID or 0, true) or 0
+                obj.label = obj.quantity .. " " ..
+                                (obj.item or obj.target or "Item") .. " (" ..
+                                count .. "/" .. obj.quantity .. ")"
+                if count >= obj.quantity then
+                    obj.isComplete = true
+                    IronPath:DebugPrint(
+                        "Collect fallback complete (" .. count .. "/" ..
+                            obj.quantity .. ")", "collect")
+                else
+                    allComplete = false
                 end
             end
 

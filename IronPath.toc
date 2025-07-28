@@ -35,9 +35,9 @@ UI.lua
 
 # Handlers
 handlers\ConditionHandler.lua
-handlers\Parser.lua
+handlers\ParserHandler.lua
 handlers\ActionHandler.lua
-handlers\QuestHandler.lua
+handlers\EventHandler.lua
 
 # Functions
 functions\CheckAndAutoAdvance.lua

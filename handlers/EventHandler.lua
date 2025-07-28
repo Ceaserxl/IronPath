@@ -1,5 +1,5 @@
-local QuestHandler = {}
-IronPath.QuestHandler = QuestHandler
+local EventHandler = {}
+IronPath.EventHandler = EventHandler
 local GuideViewer = _G.IronPathViewer
 
 ------------------------------------------------------------
@@ -16,7 +16,6 @@ frame:RegisterEvent("QUEST_REMOVED")
 frame:RegisterEvent("QUEST_ACCEPTED")
 frame:RegisterEvent("QUEST_LOG_UPDATE")
 frame:RegisterEvent("LEARNED_SPELL_IN_TAB")
-frame:RegisterEvent("CHAT_MSG_COMBAT_XP_GAIN")
 frame:RegisterEvent("BAG_UPDATE")
 frame:RegisterEvent("CONFIRM_BINDER")
 frame:RegisterEvent("MERCHANT_SHOW")

@@ -86,6 +86,11 @@ function IronPath:EvaluateCondition(condition)
         end,
         subzone = function(name) return GetSubZoneText() == name end,
         GetMoney = GetMoney,
+        havebuff = function(spellID)
+            return C_UnitAuras and C_UnitAuras.GetPlayerAuraBySpellID and
+                       C_UnitAuras.GetPlayerAuraBySpellID(spellID) ~= nil or
+                       false
+        end,
 
         -- Dev only: block unknown ZGV references
         ZGV = setmetatable({}, {__index = function() return false end}),
@@ -112,6 +117,14 @@ function IronPath:EvaluateCondition(condition)
 
     local function smartAndInsert(str)
         local logic = {["and"] = true, ["or"] = true, ["not"] = true}
+        local comparators = {
+            ["<"] = true,
+            [">"] = true,
+            ["<="] = true,
+            [">="] = true,
+            ["=="] = true,
+            ["~="] = true
+        }
         local tokens, output = {}, {}
 
         for word in str:gmatch("%S+") do table.insert(tokens, word) end
@@ -119,28 +132,21 @@ function IronPath:EvaluateCondition(condition)
         local i = 1
         while i <= #tokens do
             local token = tokens[i]
+            local nextToken = tokens[i + 1]
 
-            -- Handle: not A B → not (A and B)
-            if token == "not" then
-                local a, b = tokens[i + 1], tokens[i + 2]
-                if a and b and not logic[a] and not logic[b] then
-                    table.insert(output, "not (" .. a .. " and " .. b .. ")")
-                    i = i + 3
-                elseif a and not logic[a] then
-                    table.insert(output, "not " .. a)
-                    i = i + 2
-                else
-                    table.insert(output, "not")
-                    i = i + 1
-                end
-            else
-                table.insert(output, token)
-                local a, b = tokens[i], tokens[i + 1]
-                if b and not logic[a] and not logic[b] then
+            table.insert(output, token)
+
+            -- Insert 'and' only between non-logic, non-comparison words
+            if nextToken then
+                local isTokenLogic = logic[token] or comparators[token]
+                local isNextLogic = logic[nextToken] or comparators[nextToken]
+
+                if not isTokenLogic and not isNextLogic then
                     table.insert(output, "and")
                 end
-                i = i + 1
             end
+
+            i = i + 1
         end
 
         return table.concat(output, " ")

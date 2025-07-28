@@ -208,6 +208,9 @@ function GuideViewer:CreateObjectiveLine(action, targetText, isComplete,
         objective.target then
         frame:SetAttribute("type", "macro")
         frame:SetAttribute("macrotext", "/targetexact " .. objective.target)
+    elseif action == "talk" and objective and objective.npc then
+        frame:SetAttribute("type", "macro")
+        frame:SetAttribute("macrotext", "/targetexact " .. objective.npc)
     end
 
     -- Custom click actions (non-secure)
