@@ -1,7 +1,7 @@
 local IronPath = _G.IronPath
 
 IronPath_Guide = {
-    easyName = "1-15 Human",
+    easyName = "A - 1-15 Human",
     minLevel = 1,
     maxLevel = 15,
     race = "Human",
@@ -2299,7 +2299,7 @@ fpath Menethil Harbor |goto Wetlands 9.49,59.69
 IronPath:RegisterGuide(IronPath_Guide)
 
 IronPath_Guide = {
-    easyName = "1-13 Night Elf",
+    easyName = "A - 1-13 Night Elf",
     minLevel = 1,
     maxLevel = 13,
     race = "NightElf",
@@ -4057,7 +4057,7 @@ trainer Jandria##4091 |goto Darnassus/0 37.91,82.80 |only if Priest |q 730
 IronPath:RegisterGuide(IronPath_Guide)
 
 IronPath_Guide = {
-    easyName = "1-13 Dwarf",
+    easyName = "A - 1-13 Dwarf",
     minLevel = 1,
     maxLevel = 13,
     race = "Dwarf",
@@ -6097,7 +6097,7 @@ Train Staves |complete weaponskill("TH_STAFF") > 0 |goto Darnassus 57.56,46.73
 IronPath:RegisterGuide(IronPath_Guide)
 
 IronPath_Guide = {
-    easyName = "1-13 Gnome",
+    easyName = "A - 1-13 Gnome",
     minLevel = 1,
     maxLevel = 13,
     race = "Gnome",

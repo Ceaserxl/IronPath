@@ -76,17 +76,18 @@ function IronPath.Parser:ParseSingleStep(lines)
         self:HandleGenericNoteLine(trimmed, step) -- Any unmatched line becomes a note objective
     end
 
-    -- 🔽 Detect and assign step-level condition from a standalone "|only if" or "|only" line
+    -- Detect and assign step-level condition from a standalone "|only if" or "|only" line
     for i = #lines, 1, -1 do
-        local line = lines[i]
+        local line = lines[i]:match("^%s*(.-)%s*$")
         local isOnly = line:match("^|only if%s+(.+)$") or
                            line:match("^|only%s+(.+)$")
         if isOnly then
+            -- Only strip trailing "|goto ..." specifically, not any "|"
+            isOnly = isOnly:match("^(.-)%s*|goto") or isOnly
             step.condition = isOnly:match("^%s*(.-)%s*$")
-            break -- only assign the last valid one
+            break
         end
     end
-
     return step
 
 end
@@ -99,7 +100,7 @@ function IronPath.Parser:HandleGenericNoteLine(line, step)
         "accept", "turnin", "collect", "destroy", "buy", "learn", "train",
         "use", "click", "talk", "home", "walk", "complete", "ding", "skillmax",
         "fpath", "vendor", "learnspell", "gossip", "label", "stickystart",
-        "stickystop"
+        "stickystop", "map", "path"
     }
 
     local trimmed = line:match("^%s*(.-)%s*$")
@@ -364,7 +365,6 @@ function IronPath.Parser:HandleKillLine(line, step)
     end
 
     obj.label = obj.target
-
     -- NPC ID
     local npcID = line:match("##(%d+%+?)")
     if npcID then
@@ -660,13 +660,14 @@ end
 
 function IronPath.Parser:HandleUseLine(line, step)
     if line:match("^use%s+.+##%d+") then
-        local item, id = line:match("^use%s+(.+)##(%d+)")
-        if item and id then
+        local fullItem, id = line:match("^use%s+(.+)##(%d+)")
+        if fullItem and id then
+            local item = fullItem:gsub("^the%s+", "") -- strip "the" only for item storage
             table.insert(step.objectives, {
                 type = "use",
                 item = item,
                 itemID = tonumber(id),
-                label = item,
+                label = "Use " .. fullItem,
                 isComplete = nil,
                 blankBox = true
             })

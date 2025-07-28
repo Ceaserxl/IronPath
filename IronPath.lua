@@ -1,44 +1,23 @@
 -- ================================================================
--- IronPath.lua – Ace3 Core + Initialization
+-- IronPath.lua – Combined Core Logic with GuideLoader
 -- ================================================================
+-- 1. Define and register addon core
 local IronPath = LibStub("AceAddon-3.0"):NewAddon("IronPath", "AceConsole-3.0",
                                                   "AceEvent-3.0")
 _G.IronPath = IronPath
+_G.IronPath.GuideLoader = {} -- reserved for external use
+local GuideLoader = _G.IronPath.GuideLoader
+local GuideViewer = _G.IronPathViewer
 
--- Global guide registry
+-- 2. Global guide registry
 IronPath_Guides = {}
 
--- Categorized debug printing
-function IronPath:DebugPrint(msg, category)
-    if not (self.db and self.db.profile and self.db.profile.debug) then
-        return
-    end
-
-    local color = {
-        info = "|cff8888ff", -- Blue
-        warn = "|cffffff00", -- Yellow
-        error = "|cffff4444", -- Red
-        success = "|cff33ff33", -- Bright Green
-        guide = "|cffffdd55", -- Orange-Yellow (changed from green)
-        event = "|cff55ffff", -- Cyan
-        parse = "|cffffaaff" -- Magenta
-    }
-
-    category = category or "info"
-    local prefixColor = color[category] or "|cffffffff"
-    local label = string.upper(category)
-
-    print(prefixColor .. "[IronPath " .. label .. "]:|r " .. msg)
-end
-
--- ------------------------------------------------
--- SavedVariables Defaults
--- ------------------------------------------------
+-- 3. SavedVariables defaults
 local defaults = {
     profile = {
-        autoAccept = false,
-        autoTurnin = false,
-        autoAdvanceStep = false,
+        autoAccept = true,
+        autoTurnin = true,
+        autoAdvanceStep = true,
         autoSellGrey = true,
         autoRepair = true,
         debug = false,
@@ -48,45 +27,72 @@ local defaults = {
     char = {lastStep = 1, lastGuide = ""}
 }
 
--- ------------------------------------------------
--- OnInitialize
--- ------------------------------------------------
+-- 4. Printers
+function IronPath:DebugPrint(msg, category)
+    if not (self.db and self.db.profile and self.db.profile.debug) then
+        return
+    end
+    local color = {
+        info = "|cff8888ff",
+        warn = "|cffffff00",
+        error = "|cffff4444",
+        success = "|cff33ff33",
+        guide = "|cffffdd55",
+        event = "|cff55ffff",
+        parse = "|cffffaaff"
+    }
+    local prefixColor = color[category or "info"] or "|cffffffff"
+    print(prefixColor .. "[IronPath " .. string.upper(category or "info") ..
+              "]:|r " .. msg)
+end
+
+function IronPath:Print(msg, category)
+    local color = {
+        info = "|cff8888ff",
+        warn = "|cffffff00",
+        error = "|cffff4444",
+        success = "|cff33ff33",
+        guide = "|cffffdd55",
+        event = "|cff55ffff",
+        parse = "|cffffaaff"
+    }
+    local prefixColor = color[category or "info"] or "|cffffffff"
+    print(prefixColor .. "[IronPath " .. string.upper(category or "info") ..
+              "]:|r " .. msg)
+end
+
+-- 5. Called first during addon load
 function IronPath:OnInitialize()
     self.db = LibStub("AceDB-3.0"):New("IronPath_Data", defaults, true)
     self:DebugPrint("IronPath Initialized!", "success")
 end
 
--- ------------------------------------------------
--- Register a New Guide
--- ------------------------------------------------
+-- 6. Queued guide registration before DB is ready
 function IronPath:RegisterGuide(guide)
-    if not self._pendingGuides then self._pendingGuides = {} end
+    self._pendingGuides = self._pendingGuides or {}
     table.insert(self._pendingGuides, guide)
 end
 
+-- 7. Registers guide into global registry
 function IronPath:ReRegisterGuide(guide)
     if not guide then
-        self:DebugPrint("Attempted to register invalid guide.", "error")
-        return
+        return self:DebugPrint("Attempted to register invalid guide.", "error")
     end
-
     guide.steps = guide.steps or {}
     table.insert(IronPath_Guides, guide)
 
-    -- Assign starter fallback by race/faction
+    -- Set default fallback
     if guide.faction == "Alliance" and guide.race == "Human" then
         IronPath_Guides_Alliance_Human_Starter = guide
     elseif guide.faction == "Alliance" and guide.race == "NightElf" then
         IronPath_Guides_Alliance_NightElf_Starter = guide
     end
 
-    local name = guide.easyName or guide.zone or "Unnamed"
-    self:DebugPrint("Registered guide: " .. name, "guide")
+    self:DebugPrint("Registered guide: " .. (guide.easyName or "Unnamed"),
+                    "guide")
 end
 
--- ------------------------------------------------
--- OnEnable
--- ------------------------------------------------
+-- 8. Called when player enters world
 function IronPath:OnEnable()
     self:DebugPrint("IronPath enabled. DB is ready.", "success")
     self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnPlayerLogin")
@@ -99,76 +105,21 @@ function IronPath:OnEnable()
     end
 end
 
--- ------------------------------------------------
--- Set Current Guide (without parsing)
--- ------------------------------------------------
-function IronPath:SetCurrentGuide(guide)
-    if not guide or not guide.steps then
-        self:DebugPrint("Invalid guide passed to SetCurrentGuide.", "error")
-        return
-    end
-
-    IronPath_CurrentGuide = guide
-    self:DebugPrint("Set guide: " .. (guide.easyName or "Unnamed"), "guide")
-
-    -- Parse steps if not already parsed
-    if type(guide.steps[1]) == "string" then
-        local parsed = IronPath.Parser:ParseSteps(guide.steps[1])
-        if parsed and #parsed > 0 then
-            guide.steps = parsed
-            self:DebugPrint("Guide steps parsed successfully (" .. #parsed ..
-                                " steps).", "parse")
-        else
-            self:DebugPrint("Failed to parse guide steps.", "error")
-            return
-        end
-    end
-
-    -- Set current step index
-    local db = self.db and self.db.char
-    if db then
-        if db.lastGuide ~= (guide.easyName or "Unnamed") then
-            db.lastStep = 1
-            IronPathViewer.currentStep = 1
-            db.lastGuide = guide.easyName or "Unnamed"
-        else
-            IronPathViewer.currentStep = db.lastStep or 1
-        end
-    end
-
-    -- Show the step in the viewer
-    if IronPathViewer and IronPathViewer.ShowStep then
-        IronPathViewer:ShowStep()
-    end
-end
-
--- ------------------------------------------------
--- Load Last or Default Guide
--- ------------------------------------------------
+-- 9. Called after PLAYER_ENTERING_WORLD fires
 function IronPath:OnPlayerLogin()
     self:DebugPrint("IronPath OnPlayerLogin!", "event")
-
     local lastGuideName = self.db.char.lastGuide
     local foundGuide = nil
 
-    -- Try to load previously selected guide
-    if lastGuideName ~= "" then
-        for _, guide in ipairs(IronPath_Guides) do
-            if guide.easyName == lastGuideName or guide.zone == lastGuideName then
-                foundGuide = guide
-                break
-            end
-        end
-        if not foundGuide then
-            self:DebugPrint("Last selected guide not found: " .. lastGuideName,
-                            "warn")
+    for _, guide in ipairs(IronPath_Guides) do
+        if guide.easyName == lastGuideName then
+            foundGuide = guide
+            break
         end
     end
 
-    -- Fallback to race/faction starter
     if not foundGuide then
-        local faction = UnitFactionGroup("player")
-        local race = UnitRace("player")
+        local faction, race = UnitFactionGroup("player"), UnitRace("player")
         if faction == "Alliance" and race == "Human" then
             foundGuide = IronPath_Guides_Alliance_Human_Starter
         elseif faction == "Alliance" and race == "NightElf" then
@@ -185,15 +136,52 @@ function IronPath:OnPlayerLogin()
     if IronPathUI and IronPathUI.Show then IronPathUI:Show() end
 end
 
--- ------------------------------------------------
--- Manual Switch by Name
--- ------------------------------------------------
+-- 10. Switch guides manually by name
 function IronPath:SwitchGuideByName(name)
     for _, guide in ipairs(IronPath_Guides) do
-        if guide.easyName == name or guide.zone == name then
-            self:SetCurrentGuide(guide)
-            return
-        end
+        if guide.easyName == name then return self:SetCurrentGuide(guide) end
     end
     self:DebugPrint("Guide not found: " .. name, "error")
+end
+
+-- 11. Sets and parses the current guide
+function IronPath:SetCurrentGuide(guide)
+    if not guide or not guide.steps then
+        return self:DebugPrint("Invalid guide passed to SetCurrentGuide.",
+                               "error")
+    end
+
+    IronPath_CurrentGuide = guide
+    self:DebugPrint("Set guide: " .. (guide.easyName or "Unnamed"), "guide")
+
+    if type(guide.steps[1]) == "string" then
+        local parsed = IronPath.Parser:ParseSteps(guide.steps[1])
+        if parsed and #parsed > 0 then
+            guide.steps = parsed
+            self:DebugPrint("Guide steps parsed successfully (" .. #parsed ..
+                                " steps).", "parse")
+        else
+            return self:DebugPrint("Failed to parse guide steps.", "error")
+        end
+    end
+
+    local db = self.db and self.db.char
+    if db then
+        if db.lastGuide ~= (guide.easyName or "Unnamed") then
+            db.lastStep, db.lastGuide = 1, guide.easyName or "Unnamed"
+            IronPathViewer.currentStep = 1
+        else
+            IronPathViewer.currentStep = db.lastStep or 1
+        end
+    end
+
+    -- Cache visible steps
+    if IronPathViewer and IronPathViewer.GetVisibleSteps then
+        IronPathViewer:GetVisibleSteps(guide)
+    end
+
+    -- Show current step
+    if IronPathViewer and IronPathViewer.ShowStep then
+        IronPathViewer:ShowStep()
+    end
 end

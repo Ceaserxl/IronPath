@@ -1,7 +1,6 @@
 local IronPath = _G.IronPath
-
 IronPath_Guide = {
-    easyName = "13-60 Alliance",
+    easyName = "Alliance - 13-60",
     minLevel = 13,
     maxLevel = 60,
     faction = "Alliance",

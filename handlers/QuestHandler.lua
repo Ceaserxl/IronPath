@@ -24,11 +24,14 @@ frame:RegisterEvent("TAXIMAP_OPENED")
 frame:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
 frame:RegisterEvent("PLAYER_TARGET_CHANGED")
 frame:RegisterEvent("MINIMAP_UPDATE_ZOOM")
+frame:RegisterEvent("PLAYER_REGEN_ENABLED")
 
 frame:SetScript("OnEvent", function(_, event, ...)
     local db = IronPath.db and IronPath.db.profile
     if not db then return end
     if event == "MINIMAP_UPDATE_ZOOM" then
+        GuideViewer:ShowStep()
+    elseif event == "PLAYER_REGEN_ENABLED" then
         GuideViewer:ShowStep()
     elseif event == "UPDATE_MOUSEOVER_UNIT" then
         local guid = UnitGUID("mouseover")

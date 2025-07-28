@@ -36,17 +36,23 @@ UI.lua
 # Handlers
 handlers\ConditionHandler.lua
 handlers\Parser.lua
-handlers\GuideLoader.lua
 handlers\ActionHandler.lua
 handlers\QuestHandler.lua
-handlers\StepHandler.lua
+
+# Functions
+functions\CheckAndAutoAdvance.lua
+functions\GetVisibleSteps.lua
+functions\ShowStep.lua
 
 # Features
 features\arrowFrame.lua
 features\Arrow.lua
 features\MapIcon.lua
 
-# Guides
+# Guides - Alliance
 guides\alliance\STARTER.lua
 guides\alliance\LEVELING.lua
 
+# Guides - Horde
+guides\horde\STARTER.lua
+guides\horde\LEVELING.lua

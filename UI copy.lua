@@ -151,29 +151,13 @@ ObjectiveStyleMap = {
     blank = {icon = "", label = "", color = {1, 1, 1}}
 }
 
-function GuideViewer:CreateObjectiveLine(action, targetText, isComplete,
-                                         blankBox, objective)
-    local parent = GuideViewer
-    parent._lastObjectiveLine = parent._lastObjectiveLine or
-                                    parent.objectivesAnchor
-    parent._objectiveTotalHeight = parent._objectiveTotalHeight or 0
-
-    local entry = ObjectiveStyleMap[action] or
-                      {
-            icon = "VignetteKillElite",
-            label = "",
-            color = {1, 1, 1}
-        }
-    local r, g, b = unpack(entry.color)
-
-    -- Secure button base
-    local frame = CreateFrame("Button", nil, parent,
-                              "SecureActionButtonTemplate,BackdropTemplate")
+local function CreateObjFrame(parent, isComplete, action, objective)
+    local frame = CreateFrame("Button", nil, parent, "BackdropTemplate")
     frame:SetSize(GlobalWidth, 0)
     frame:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8"})
+
     frame.checked = isComplete
 
-    -- Backdrop color logic
     local function UpdateColor()
         if frame.checked == true then
             frame:SetBackdropColor(0.05, 0.4, 0.05, 0.75)
@@ -184,37 +168,43 @@ function GuideViewer:CreateObjectiveLine(action, targetText, isComplete,
         end
         if action == "use" then frame:SetBackdropColor(0.1, 0.2, 0.6, 1) end
     end
+
     UpdateColor()
 
-    -- Hover highlight
     if action ~= "blank" then
         frame:SetScript("OnEnter", function()
             if not IronPath.db.profile.stepDebug then
                 frame:SetBackdropColor(0.7, 0.7, 0.7, 0.3)
             end
         end)
+
         frame:SetScript("OnLeave", UpdateColor)
     end
+    return frame
+end
 
-    -- Secure attributes
-    if action == "use" and objective then
-        frame:SetAttribute("type", "item")
-        if objective.itemID then
-            frame:SetAttribute("item", "item:" .. objective.itemID)
-        elseif objective.item then
-            frame:SetAttribute("item", objective.item)
-        end
-    elseif (action == "kill" or action == "note") and objective and
-        objective.target then
-        frame:SetAttribute("type", "macro")
-        frame:SetAttribute("macrotext", "/targetexact " .. objective.target)
-    end
+function GuideViewer:CreateObjectiveLine(action, targetText, isComplete,
+                                         blankBox, objective)
+    local parent = GuideViewer
+    parent._lastObjectiveLine = parent._lastObjectiveLine or
+                                    parent.objectivesLabel
+    parent._objectiveTotalHeight = parent._objectiveTotalHeight or 0
 
-    -- Custom click actions (non-secure)
-    frame:SetScript("PostClick", function()
+    local entry = ObjectiveStyleMap[action] or
+                      {
+            icon = "VignetteKillElite",
+            label = "",
+            color = {1, 1, 1}
+        }
+    local r, g, b = unpack(entry.color)
+
+    local frame = CreateObjFrame(parent, isComplete, action, objective)
+    frame.checked = isComplete
+
+    frame:SetScript("OnClick", function()
         if not objective then return end
 
-        local withCoords = {
+        local actionsWithCoords = {
             walk = true,
             kill = true,
             vendor = true,
@@ -225,20 +215,22 @@ function GuideViewer:CreateObjectiveLine(action, targetText, isComplete,
             fpath = true
         }
 
-        if withCoords[action] and type(objective.coords) == "table" then
+        if actionsWithCoords[action] and type(objective.coords) == "table" then
             IronPath:DebugPrint("Setting Arrow to objective!")
             IronPath:GoToObjective(objective)
+        elseif action == "use" then
+            IronPath:DebugPrint("Using Objective Item: " .. objective.item ..
+                                    ". ItemID: " .. objective.itemID)
         elseif action == "confirm" then
-            IronPath:DebugPrint("Confirm clicked!")
             objective.isComplete = true
             GuideViewer:ShowStep()
         elseif action == "popuptext" then
-            IronPath:DebugPrint("TODO: POPUPTEXT: " ..
-                                    tostring(objective.popuptext))
+            IronPath:DebugPrint("TODO: Add POPUPTEXT window! Stored text: " ..
+                                    objective.popuptext)
         end
     end)
 
-    -- Checkbox
+    -- Checkbox button
     local checkBtn = CreateFrame("Button", nil, frame)
     checkBtn:SetSize(14, 14)
     checkBtn:SetPoint("TOPLEFT", frame, "TOPLEFT", 6, -5)
@@ -257,20 +249,22 @@ function GuideViewer:CreateObjectiveLine(action, targetText, isComplete,
             frame.checked = not frame.checked
             checkIcon:SetAtlas(frame.checked and "checkmark-minimal" or
                                    "checkbox-minimal")
-            UpdateColor()
+            frame:SetBackdropColor(frame.checked and 0.1 or 0.1,
+                                   frame.checked and 0.3 or 0.1,
+                                   frame.checked and 0.1 or 0.1, 1)
+            -- ✅ Mark the data objective complete
             if objective then objective.isComplete = frame.checked end
         end)
     end
-
     if action == "blank" then frame:SetBackdropColor(0, 0, 0, 1) end
-
-    -- Icon
+    -- if action == "use" then frame:SetBackdropColor(0.1, 0.2, 0.6, 1) end
+    -- Action icon
     local icon = frame:CreateTexture(nil, "ARTWORK")
     icon:SetSize(16, 16)
     icon:SetAtlas(entry.icon or "VignetteKillElite")
     icon:SetPoint("TOPLEFT", checkBtn, "TOPRIGHT", 5, 3)
 
-    -- Label
+    -- Label text
     local label = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     label:SetPoint("TOPLEFT", icon, "TOPRIGHT", 6, -2)
     label:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -4, 0)
@@ -287,11 +281,12 @@ function GuideViewer:CreateObjectiveLine(action, targetText, isComplete,
     label:SetHeight(h)
     frame:SetHeight(h)
 
-    -- Anchor and display
+    -- Position and display
     frame:SetPoint("TOPLEFT", parent._lastObjectiveLine, "BOTTOMLEFT", 0, 0)
     parent._lastObjectiveLine = frame
     frame:Show()
 
+    -- Adjust overall height
     parent._objectiveTotalHeight = parent._objectiveTotalHeight + h
     GuideViewer:SetHeight(parent._objectiveTotalHeight)
 
@@ -315,10 +310,9 @@ end
 -- GuideViewer Contents
 ------------------------------------------------------------
 -- Objectives Label
-GuideViewer.objectivesAnchor = CreateFrame("Frame", nil, GuideViewer,
-                                           "BackdropTemplate")
-GuideViewer.objectivesAnchor:SetSize(1, 1)
-GuideViewer.objectivesAnchor:SetPoint("TOPLEFT", 0, 1)
+GuideViewer.objectivesLabel = GuideViewer:CreateFontString(nil, "OVERLAY",
+                                                           "GameFontHighlight")
+GuideViewer.objectivesLabel:SetPoint("TOPLEFT", 0, 1)
 
 -- Reset tracker for stacking
 GuideViewer:ResetObjectiveLines()
@@ -383,6 +377,7 @@ FooterBar._isFooter = true
 
 function GuideViewer:SkipToPreviousVisibleStep()
     local steps = _G.IronPath_CachedVisibleSteps or {}
+    local totalSteps = #steps
     local index = self.currentStep - 1
 
     while index >= 1 do
@@ -394,13 +389,13 @@ function GuideViewer:SkipToPreviousVisibleStep()
         index = index - 1
     end
 
-    IronPath:Print("No previous visible step found.", "warn")
+    IronPath:DebugPrint("No previous visible step found.", "warn")
 end
 
 function GuideViewer:SkipToNextVisibleStep()
     local steps = _G.IronPath_CachedVisibleSteps or {}
-    local index = self.currentStep + 1
     local totalSteps = #steps
+    local index = self.currentStep + 1
 
     while index <= totalSteps do
         local step = steps[index]
@@ -411,27 +406,19 @@ function GuideViewer:SkipToNextVisibleStep()
         index = index + 1
     end
 
-    IronPath:Print("No next visible step found.", "warn")
+    IronPath:DebugPrint("No next visible step found.", "warn")
 end
 
 -- ============================================================
 -- Navigation Buttons – Prev / Next
 -- ============================================================
 NavBar.nextBtn:SetScript("OnClick", function()
-    if InCombatLockdown() then
-        IronPath:Print("Cannot skip steps during combat.", "warn")
-        return
-    end
     GuideViewer:SkipToNextVisibleStep()
     IronPath:DebugPrint("Next step: " .. GuideViewer.currentStep, "info")
     GuideViewer:ShowStep()
 end)
 
 NavBar.prevBtn:SetScript("OnClick", function()
-    if InCombatLockdown() then
-        IronPath:Print("Cannot skip steps during combat.", "warn")
-        return
-    end
     GuideViewer:SkipToPreviousVisibleStep()
     IronPath:DebugPrint("Previous step: " .. GuideViewer.currentStep, "info")
     GuideViewer:ShowStep()
