@@ -17,7 +17,8 @@ function GuideViewer:CheckAndAutoAdvance(step)
         click = true,
         gossip = true,
         popuptext = true,
-        use = true
+        use = true,
+        walkNote = true
     }
 
     for index, obj in ipairs(step.objectives) do
@@ -56,7 +57,7 @@ function GuideViewer:CheckAndAutoAdvance(step)
                 IronPath:DebugPrint(
                     "➡️ Auto-advanced from step " .. oldStep .. " to " ..
                         GuideViewer.currentStep, "advance")
-                GuideViewer:ShowStep()
+                GuideViewer:SkipToNextVisibleStep()
             else
                 IronPath:DebugPrint("Auto-advance conditions not met.",
                                     "advance")

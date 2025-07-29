@@ -10979,7 +10979,7 @@ talk Kalaran Windblade##8479
 accept Divine Retribution##3441 |goto Searing Gorge 39.05,38.99
 step
 talk Kalaran Windblade##8479
-Select _"Tell me what drives this vengeance?"_
+Select _"Tell me what drives this vengeance?"_ 
 Listen to Kalaran's Story |q 3441/1 |goto Searing Gorge 39.05,38.99
 step
 talk Kalaran Windblade##8479
@@ -14782,7 +14782,7 @@ step
 talk Umber##11939
 |tip He walks around this area.
 accept Under the Chitin Was...##1185 |goto Moonglade 44.89,35.59 |instant
-        ]]
+]]
     }
 }
 IronPath:RegisterGuide(IronPath_Guide)

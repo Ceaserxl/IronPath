@@ -65,6 +65,27 @@ function IronPath:GoToCoords(x, y, zone)
         if not mapID then return end
     end
 
+    -- Check if the coordinates are on the same continent
+    local zx, zy = x / 100, y / 100
+    local tx, ty, targetInstance =
+        HBD:GetWorldCoordinatesFromZone(zx, zy, mapID)
+    local px, py, playerInstance = HBD:GetPlayerWorldPosition()
+
+    if not tx or not ty or not playerInstance or not targetInstance then
+        return
+    end
+
+    if targetInstance ~= playerInstance then
+        local instanceNames = {[0] = "Eastern Kingdoms", [1] = "Kalimdor"}
+
+        local targetName = instanceNames[targetInstance] or
+                               ("MapID " .. tostring(targetInstance))
+        print("|cffff4444[IronPath]|r Skipping arrow: Target is in " ..
+                  targetName)
+        self:ClearArrow()
+        return
+    end
+
     self:CreateArrowFrame()
     local frame = self.arrowFrame
     if not frame then return end

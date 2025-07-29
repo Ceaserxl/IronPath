@@ -86,73 +86,90 @@ GuideViewer:SetBackdropColor(0.15, 0.15, 0.15, 0.75)
 -- Objective Line Creator
 ------------------------------------------------------------
 ObjectiveStyleMap = {
+    -- Navigation
     goTo = {icon = "FlightMaster", label = "Go To: ", color = {0.6, 0.80, 1.0}},
     walk = {icon = "FlightMaster", label = "", color = {0.6, 0.80, 1.0}},
-    walkObj = {
-        icon = "Vehicle-TempleofKotmogu-CyanBall",
-        label = "",
-        color = {1, 1, 1}
-    },
-    complete = {
-        icon = "Vehicle-TempleofKotmogu-CyanBall",
-        label = "",
-        color = {1, 1, 1}
-    },
-    talk = {
-        icon = "voicechat-icon-STT",
-        label = "Talk To: ",
-        color = {0.1, 1.00, 0.1}
-    },
-    accept = {
-        icon = "QuestNormal",
-        label = "Accept: ",
-        color = {1.0, 0.80, 0.4}
-    },
-    ding = {icon = "VignetteEvent", label = "", color = {1.0, 0.85, 0.2}},
-    turnin = {
-        icon = "QuestTurnin",
-        label = "Turn In: ",
-        color = {1.0, 0.80, 0.4}
-    },
-    kill = {icon = "DungeonSkull", label = "", color = {1.0, 0.85, 0.2}},
-    vendor = {icon = "Auctioneer", label = "", color = {1.0, 1.0, 1.0}},
-    collect = {icon = "Banker", label = "Collect: ", color = {1.0, 0.85, 0.2}},
-    trash = {icon = "XMarksTheSpot", label = "", color = {0.4, 0.7, 1.0}},
-    home = {
-        icon = "Innkeeper",
-        label = "Set Hearth: ",
-        color = {1.0, 0.60, 1.0}
-    },
+    walkNote = {icon = "FlightMaster", label = "", color = {0.6, 0.80, 1.0}},
     fpath = {
         icon = "TaxiNode_Neutral",
         label = "Flight Path: ",
         color = {0.5, 0.80, 1.0}
     },
-    skillmax = {icon = "Profession", label = "", color = {0.8, 0.80, 1.0}},
-    trainer = {icon = "Class", label = "Train with: ", color = {1.0, 1.00, 0.4}},
+    home = {
+        icon = "Innkeeper",
+        label = "Set Hearth: ",
+        color = {1.0, 0.60, 1.0}
+    },
+
+    -- Quest Flow
+    accept = {
+        icon = "QuestNormal",
+        label = "Accept: ",
+        color = {1.0, 0.80, 0.4}
+    },
+    talk = {
+        icon = "voicechat-icon-STT",
+        label = "Talk to ",
+        color = {0.1, 1.00, 0.1}
+    },
+    complete = {
+        icon = "Vehicle-TempleofKotmogu-PurpleBall",
+        label = "",
+        color = {1, 1, 1}
+    },
+    turnin = {
+        icon = "QuestTurnin",
+        label = "Turn In: ",
+        color = {1.0, 0.80, 0.4}
+    },
+
+    -- Combat/Collection
+    kill = {icon = "DungeonSkull", label = "", color = {1.0, 0.85, 0.2}},
+    collect = {icon = "Banker", label = "Collect: ", color = {1.0, 0.85, 0.2}},
+    trash = {icon = "XMarksTheSpot", label = "", color = {0.4, 0.7, 1.0}},
+
+    -- Trainer/Profession
+    trainer = {icon = "Class", label = "", color = {1.0, 1.00, 0.4}},
     learnspell = {icon = "Class", label = "Learn: ", color = {1.0, 1.00, 0.4}},
-    buy = {icon = "Auctioneer", label = "Buy: ", color = {1.0, 0.85, 0.5}},
+    skillmax = {icon = "Profession", label = "", color = {0.8, 0.80, 1.0}},
+
+    -- Vendor/Items
+    vendor = {icon = "Auctioneer", label = "", color = {1.0, 1.0, 1.0}},
+    buy = {icon = "Auctioneer", label = "Buy ", color = {1.0, 0.85, 0.5}},
     use = {icon = "Focus", label = "", color = {0.9, 0.90, 1.0}},
-    click = {icon = "QuestObjective", label = "", color = {0.9, 0.90, 1.0}},
-    title = {icon = "Focus", label = "", color = {1.0, 0.80, 0.4}},
+    click = {
+        icon = "Vehicle-TempleofKotmogu-OrangeBall",
+        label = "",
+        color = {0.9, 0.90, 1.0}
+    },
+
+    -- Leveling/Progress
+    ding = {icon = "VignetteEvent", label = "", color = {1.0, 0.85, 0.2}},
+    confirm = {icon = "ArtifactQuest", label = "", color = {1, 1, 1}},
+
+    -- Misc UI
     note = {
         icon = "Vehicle-TempleofKotmogu-CyanBall",
         label = "",
         color = {1, 1, 1}
     },
     popuptext = {
-        icon = "Vehicle-TempleofKotmogu-CyanBall",
+        icon = "Rotating-MinimapGuideArrow",
         label = "",
         color = {1, 1, 1}
     },
     tip = {icon = "poi-workorders", label = "", color = {0.7, 0.70, 0.7}},
-    confirm = {icon = "ArtifactQuest", label = "", color = {1, 1, 1}},
     gossip = {icon = "ArtifactQuest", label = "", color = {1, 1, 1}},
+    obj = {icon = "QuestObjective", label = "", color = {1, 1, 1}},
     blank = {icon = "", label = "", color = {1, 1, 1}}
 }
 
-function GuideViewer:CreateObjectiveLine(action, targetText, isComplete,
-                                         blankBox, objective)
+function GuideViewer:CreateObjectiveLine(objective)
+    local action = objective.type or "note"
+    local targetText = objective.label or "(no label)"
+    local isComplete = objective.isComplete
+    local blankBox = objective.blankBox
+
     local parent = GuideViewer
     parent._lastObjectiveLine = parent._lastObjectiveLine or
                                     parent.objectivesAnchor
@@ -219,13 +236,15 @@ function GuideViewer:CreateObjectiveLine(action, targetText, isComplete,
 
         local withCoords = {
             walk = true,
+            walkNote = true,
             kill = true,
             vendor = true,
             accept = true,
             turnin = true,
             ding = true,
             collect = true,
-            fpath = true
+            fpath = true,
+            obj = true
         }
 
         if withCoords[action] and type(objective.coords) == "table" then
@@ -234,6 +253,23 @@ function GuideViewer:CreateObjectiveLine(action, targetText, isComplete,
         elseif action == "confirm" then
             IronPath:DebugPrint("Confirm clicked!")
             objective.isComplete = true
+
+            if objective.next then
+                IronPath:DebugPrint("Jumping to step labeled: " ..
+                                        tostring(objective.next))
+                local target = GuideViewer._stepLabels and
+                                   GuideViewer._stepLabels[objective.next]
+                if target and target._labelIndex then
+                    GuideViewer.currentStep = target._labelIndex
+                else
+                    IronPath:DebugPrint("Label not found: " ..
+                                            tostring(objective.next), "warn")
+                    GuideViewer:SkipToNextVisibleStep()
+                end
+            else
+                GuideViewer:SkipToNextVisibleStep()
+            end
+
             GuideViewer:ShowStep()
         elseif action == "popuptext" then
             IronPath:DebugPrint("TODO: POPUPTEXT: " ..
@@ -326,13 +362,61 @@ GuideViewer.objectivesAnchor:SetPoint("TOPLEFT", 0, 1)
 -- Reset tracker for stacking
 GuideViewer:ResetObjectiveLines()
 
--- Add dummy objectives
-GuideViewer:CreateObjectiveLine("goTo", "Goldshire", false)
-GuideViewer:CreateObjectiveLine("talk", "Marshal Dughan", false, true) -- ☐
-GuideViewer:CreateObjectiveLine("accept", "Westfall Stew", true, false) -- ✅
-GuideViewer:CreateObjectiveLine("kill", "10 Kobold Workers (0/10)", false, false) -- ☐
-GuideViewer:CreateObjectiveLine("note", "You can find more at 51,37", false,
-                                true)
+GuideViewer:CreateObjectiveLine({
+    type = "note",
+    label = "|cffFFD700Welcome to IronPath!|r",
+    isComplete = true,
+    blankBox = true
+})
+
+GuideViewer:CreateObjectiveLine({
+    type = "note",
+    label = "This addon provides optimized step-by-step leveling guides.",
+    isComplete = nil,
+    blankBox = true
+})
+
+GuideViewer:CreateObjectiveLine({
+    type = "tip",
+    label = "Pick a guide from the dropdown menu to get started.",
+    isComplete = nil,
+    blankBox = true
+})
+
+GuideViewer:CreateObjectiveLine({
+    type = "tip",
+    label = "Objectives will appear here when you're on an active step.",
+    isComplete = nil,
+    blankBox = true
+})
+
+GuideViewer:CreateObjectiveLine({
+    type = "tip",
+    label = "Click |cff00BFFFUse|r objectives to use quest items directly.",
+    isComplete = nil,
+    blankBox = true
+})
+
+GuideViewer:CreateObjectiveLine({
+    type = "tip",
+    label = "Click |cffff4040Kill|r objectives to target enemies instantly.",
+    isComplete = nil,
+    blankBox = true
+})
+
+GuideViewer:CreateObjectiveLine({
+    type = "tip",
+    label = "Click |cff66ccffTalkTo|r objectives to target NPCs for interaction.",
+    isComplete = nil,
+    blankBox = true
+})
+
+GuideViewer:CreateObjectiveLine({
+    type = "tip",
+    label = "Completed objectives turn green when finished.",
+    isComplete = nil,
+    blankBox = true
+})
 
 ------------------------------------------------------------
 -- Green Tint (Complete)
@@ -383,8 +467,20 @@ FooterBar._isFooter = true
 -- ===========================================================================
 -- ===========================================================================
 -- ===========================================================================
-
+function GuideViewer:CancelWalkPollers()
+    if self.activeStep and self.activeStep.objectives then
+        for _, obj in ipairs(self.activeStep.objectives) do
+            if obj._walkPoller then
+                obj._walkPoller:SetScript("OnUpdate", nil)
+                obj._walkPoller:Hide()
+                obj._walkPoller = nil
+                IronPath:DebugPrint("walk: polling canceled", "walk")
+            end
+        end
+    end
+end
 function GuideViewer:SkipToPreviousVisibleStep()
+    self:CancelWalkPollers()
     local steps = _G.IronPath_CachedVisibleSteps or {}
     local index = self.currentStep - 1
 
@@ -392,6 +488,7 @@ function GuideViewer:SkipToPreviousVisibleStep()
         local step = steps[index]
         if step and (step._isVisible or IronPath.db.profile.showAllSteps) then
             self.currentStep = index
+            self:ShowStep()
             return
         end
         index = index - 1
@@ -401,6 +498,7 @@ function GuideViewer:SkipToPreviousVisibleStep()
 end
 
 function GuideViewer:SkipToNextVisibleStep()
+    self:CancelWalkPollers()
     local steps = _G.IronPath_CachedVisibleSteps or {}
     local index = self.currentStep + 1
     local totalSteps = #steps
@@ -409,6 +507,7 @@ function GuideViewer:SkipToNextVisibleStep()
         local step = steps[index]
         if step and (step._isVisible or IronPath.db.profile.showAllSteps) then
             self.currentStep = index
+            self:ShowStep()
             return
         end
         index = index + 1
@@ -427,7 +526,6 @@ NavBar.nextBtn:SetScript("OnClick", function()
     end
     GuideViewer:SkipToNextVisibleStep()
     IronPath:DebugPrint("Next step: " .. GuideViewer.currentStep, "info")
-    GuideViewer:ShowStep()
 end)
 
 NavBar.prevBtn:SetScript("OnClick", function()
@@ -437,7 +535,6 @@ NavBar.prevBtn:SetScript("OnClick", function()
     end
     GuideViewer:SkipToPreviousVisibleStep()
     IronPath:DebugPrint("Previous step: " .. GuideViewer.currentStep, "info")
-    GuideViewer:ShowStep()
 end)
 
 -- Simple Parser Frame
@@ -518,22 +615,64 @@ parseButton:SetScript("OnClick", function()
     local function TableToString(t, indent)
         indent = indent or 0
         local str = ""
-        for k, v in pairs(t) do
+        local done = {}
+
+        -- First: Print numeric keys in order
+        for i = 1, #t do
+            local v = t[i]
             str = str .. string.rep("  ", indent)
-            if type(k) == "string" then str = str .. k .. " = " end
             if type(v) == "table" then
-                str = str .. "{\n" .. TableToString(v, indent + 1) ..
-                          string.rep("  ", indent) .. "},\n"
+                str = str .. "{\n" .. TableToString(v, indent + 1)
+                str = str .. string.rep("  ", indent) .. "},\n"
             elseif type(v) == "string" then
                 str = str .. "\"" .. v .. "\",\n"
             else
                 str = str .. tostring(v) .. ",\n"
             end
+            done[i] = true
         end
+
+        -- Second: Print all other keys (like "condition")
+        for k, v in pairs(t) do
+            if not done[k] then
+                str = str .. string.rep("  ", indent)
+                if type(k) == "string" then
+                    str = str .. k .. " = "
+                end
+                if type(v) == "table" then
+                    str = str .. "{\n" .. TableToString(v, indent + 1)
+                    str = str .. string.rep("  ", indent) .. "},\n"
+                elseif type(v) == "string" then
+                    str = str .. "\"" .. v .. "\",\n"
+                else
+                    str = str .. tostring(v) .. ",\n"
+                end
+            end
+        end
+
         return str
     end
 
-    outputBox:SetText(TableToString(parsed))
+    -- Always format as a list for output, even for 1 step
+    local toDisplay = parsed
+    if type(parsed) == "table" and not parsed[1] then toDisplay = {parsed} end
+
+    outputBox:SetText(TableToString(toDisplay))
+end)
+
+-- Copy Button
+local copyButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+copyButton:SetSize(100, 24)
+copyButton:SetText("Copy")
+copyButton:SetPoint("LEFT", parseButton, "RIGHT", 10, 0)
+
+copyButton:SetScript("OnClick", function()
+    outputBox:HighlightText()
+    outputBox:SetFocus()
+    C_Timer.After(0.1, function()
+        outputBox:ClearFocus()
+        print("Output copied to clipboard. Press Ctrl+C.")
+    end)
 end)
 
 -- Slash command

@@ -27,6 +27,8 @@ function IronPath:EvaluateCondition(condition)
 
     -- Environment for condition evaluation
     local env = {
+        -- Dev only: block unknown ZGV references
+        ZGV = setmetatable({}, {__index = function() return false end}),
         level = level,
         faction = faction,
         race = race,
@@ -56,7 +58,6 @@ function IronPath:EvaluateCondition(condition)
 
         walking = false,
 
-        -- Placeholder flags (for testing)
         hardcore = C_Seasons.GetActiveSeason() == Enum.SeasonID.Hardcore or
             C_Seasons.GetActiveSeason() == Enum.SeasonID.FreshHardcore,
         selfmade = function()
@@ -85,6 +86,7 @@ function IronPath:EvaluateCondition(condition)
                        C_QuestLog.IsQuestFlaggedCompleted(qid) or false
         end,
         subzone = function(name) return GetSubZoneText() == name end,
+        zone = function(name) return GetZoneText() == name end,
         GetMoney = GetMoney,
         havebuff = function(spellID)
             return C_UnitAuras and C_UnitAuras.GetPlayerAuraBySpellID and
@@ -92,8 +94,6 @@ function IronPath:EvaluateCondition(condition)
                        false
         end,
 
-        -- Dev only: block unknown ZGV references
-        ZGV = setmetatable({}, {__index = function() return false end}),
         _G = {
             IsIndoors = function()
                 return IsIndoors and IsIndoors() or false
@@ -108,6 +108,39 @@ function IronPath:EvaluateCondition(condition)
             end
             return 0
         end,
+        weaponskill = function(code)
+            local map = {
+                TH_SWORD = "Two-Handed Swords",
+                TH_MACE = "Two-Handed Maces",
+                TH_AXE = "Two-Handed Axes",
+                SWORD = "Swords",
+                MACE = "Maces",
+                AXE = "Axes",
+                DAGGER = "Daggers",
+                TH_STAFF = "Staves",
+                BOW = "Bows",
+                GUN = "Guns",
+                CROSSBOW = "Crossbows",
+                FIST = "Fist Weapons",
+                POLEARM = "Polearms",
+                THROWN = "Thrown",
+                WAND = "Wands",
+                DUALWIELD = "Dual Wield"
+            }
+
+            local name = map[code]
+            if not name then return 0 end
+
+            for i = 1, GetNumSkillLines() do
+                local skillName, isHeader, _, skillRank = GetSkillLineInfo(i)
+                if not isHeader and skillName == name then
+                    return skillRank or 0
+                end
+            end
+
+            return 0
+        end,
+
         guideflag = function(_) return false end,
         C_Container = C_Container
     }

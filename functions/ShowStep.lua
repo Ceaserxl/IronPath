@@ -1,11 +1,61 @@
 -- ============================================================
--- ShowStep.lua – Displays current step in the viewer
+-- ShowStep.lua – Displays the current guide step only
 -- ============================================================
 local IronPath = _G.IronPath
 local GuideViewer = _G.IronPathViewer
 local NavBar = _G.IronPathNavBar
-local FooterBar = _G.IronPathFooter
 
+-- ============================
+-- Reparse a single step safely
+-- ============================
+local function ReparseCurrentStep(self, guide, stepIndex)
+    local raw = guide.rawSteps and guide.rawSteps[stepIndex]
+    if not raw then return guide.steps[stepIndex] end
+
+    local parsed = IronPath.Parser:ParseSingleStep(raw)
+    if parsed then
+        for _, obj in ipairs(parsed.objectives or {}) do
+            if obj.condition and not IronPath:EvaluateCondition(obj.condition) then
+                obj._skip = true
+            end
+        end
+        return parsed -- do NOT overwrite guide.steps[stepIndex]
+    end
+end
+
+-- ============================
+-- Process and display objectives
+-- ============================
+local function ProcessObjectives(self, objectives, parentStep, objectiveList)
+    for _, obj in ipairs(objectives or {}) do
+        repeat
+            if obj._skip then break end
+
+            if type(obj.completeIf) == "string" and
+                IronPath:EvaluateCondition(obj.completeIf) then
+                obj.isComplete = true
+            end
+
+            local handler = self.ActionHandlers[obj.type]
+            if handler and not obj.isComplete then
+                local _, _, updated = handler(self, parentStep, true)
+                if updated then obj.isComplete = true end
+            end
+
+            self:CreateObjectiveLine(obj)
+
+            if obj.coords and not obj.isComplete and
+                (obj.type ~= "walk" or
+                    (obj.type == "walk" and obj.coords.condition)) then
+                table.insert(objectiveList, obj)
+            end
+        until true
+    end
+end
+
+-- ============================
+-- Main step display function
+-- ============================
 function GuideViewer:ShowStep()
     local guide = IronPath_CurrentGuide
     if not guide or not guide.steps or #guide.steps == 0 then
@@ -24,72 +74,38 @@ function GuideViewer:ShowStep()
     self.highestUnlockedStep = math.max(self.highestUnlockedStep or 1,
                                         self.currentStep)
 
-    -- 🔁 Reparse if debugging is enabled
-    if IronPath.db and IronPath.db.profile and IronPath.db.profile.stepDebug then
-        local raw = guide.rawSteps and guide.rawSteps[self.currentStep]
-        if raw then
-            guide.steps[self.currentStep] = IronPath.Parser:ParseSingleStep(raw)
-            IronPath:DebugPrint("Re-parsed step " .. self.currentStep, "parse")
-        end
-    end
-
     local step = steps[self.currentStep]
+    -- Reparse non-sticky objectives only
+    local parsed = ReparseCurrentStep(self, guide, self.currentStep)
+    if parsed and parsed.objectives then
+        -- Separate sticky objectives
+        local stickies = {}
+        for _, obj in ipairs(step.objectives or {}) do
+            if obj._isSticky then table.insert(stickies, obj) end
+        end
+
+        -- Replace with fresh objectives first
+        step.objectives = {}
+        for _, obj in ipairs(parsed.objectives or {}) do
+            if obj.condition and not IronPath:EvaluateCondition(obj.condition) then
+                obj._skip = true
+            end
+            table.insert(step.objectives, obj)
+        end
+
+        -- Then re-append stickies to bottom
+        for _, sticky in ipairs(stickies) do
+            table.insert(step.objectives, sticky)
+        end
+    end
+
     if not step then return end
-    GuideViewer.activeStep = step
 
+    self.activeStep = step
     self:ResetObjectiveLines()
-    GuideViewer.completeOverlay:Hide()
 
-    local mainObjectiveList = {}
-
-    local function ProcessObjectives(objectives, parentStep, isSticky)
-        local stickyHeaderShown = false
-        for _, obj in ipairs(objectives or {}) do
-            if obj._isSticky and not stickyHeaderShown then
-                GuideViewer:CreateObjectiveLine("blank",
-                                                "|cffffff00== Sticky Objective ==|r",
-                                                nil, true)
-                stickyHeaderShown = true
-            end
-
-            if type(obj.completeIf) == "string" then
-                local result = IronPath:EvaluateCondition(obj.completeIf)
-                if result then
-                    obj.isComplete = true
-                    IronPath:DebugPrint("Objective completeIf: " ..
-                                            obj.completeIf .. " => true",
-                                        "advance")
-                end
-            end
-
-            local handler = self.ActionHandlers[obj.type]
-            if handler and not obj.isComplete then
-                local _, _, updated = handler(self, parentStep, true)
-                if updated then obj.isComplete = true end
-            end
-
-            local action = obj.type or "note"
-            local targetText = obj.label or "Objective"
-            local isComplete = obj.isComplete
-            local blankBox = obj.blankBox
-
-            self:CreateObjectiveLine(action, targetText, isComplete, blankBox,
-                                     obj)
-
-            if not obj._isSticky and obj.coords and not obj.isComplete and
-                action ~= "walk" then
-                table.insert(mainObjectiveList, obj)
-            end
-        end
-    end
-
-    ProcessObjectives(step.objectives, step, false)
-
-    if GuideViewer._stickySteps then
-        for _, stickyStep in pairs(GuideViewer._stickySteps) do
-            ProcessObjectives(stickyStep.objectives, stickyStep, true)
-        end
-    end
+    local visibleObjectives = {}
+    ProcessObjectives(self, step.objectives, step, visibleObjectives)
 
     if NavBar and NavBar.stepInfo then
         NavBar.stepInfo:SetText("Step " .. self.currentStep .. " of " ..
@@ -100,12 +116,11 @@ function GuideViewer:ShowStep()
         IronPath.db.char.lastStep = self.currentStep
     end
 
-    if #mainObjectiveList > 0 then
-        IronPath:GoToObjective(mainObjectiveList[1])
+    if #visibleObjectives > 0 then
+        IronPath:GoToObjective(visibleObjectives[1])
     else
         IronPath:ClearArrow()
     end
 
-    GuideViewer:CheckAndAutoAdvance(step)
+    self:CheckAndAutoAdvance(step)
 end
-

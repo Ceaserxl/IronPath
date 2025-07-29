@@ -14026,7 +14026,7 @@ step
 talk Umber##11939
 |tip He walks around this area.
 accept Under the Chitin Was...##1185 |goto Moonglade 44.89,35.59 |instant
-        ]]
+]]
     }
 }
 IronPath:RegisterGuide(IronPath_Guide)

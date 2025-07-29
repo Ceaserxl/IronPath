@@ -77,15 +77,6 @@ function GuideViewer:GetVisibleSteps(guide)
             GuideViewer._visibleLabels[step._label] = true
         end
 
-        if showDebug and step.condition then
-            table.insert(filteredStep.objectives, {
-                type = "debug",
-                label = "[DEBUG] Step Condition: " .. step.condition,
-                isComplete = nil,
-                blankBox = true
-            })
-        end
-
         -- Add regular objectives
         if step.objectives then
             for _, obj in ipairs(step.objectives) do
@@ -95,19 +86,17 @@ function GuideViewer:GetVisibleSteps(guide)
                         IronPath:EvaluateCondition(obj.condition)
                     obj._conditionMatched = matched
                     passes = result or IronPath.db.profile.showAllSteps
-
-                    if showDebug then
-                        table.insert(filteredStep.objectives, {
-                            type = "debug",
-                            label = "[DEBUG] Obj Condition: " .. obj.condition ..
-                                " => " .. tostring(result),
-                            isComplete = nil,
-                            blankBox = true
-                        })
-                    end
                 end
                 if passes then
-                    table.insert(filteredStep.objectives, obj)
+                    local key = obj.type .. "::" .. (obj.label or "")
+                    if not filteredStep._seenObjectives then
+                        filteredStep._seenObjectives = {}
+                    end
+                    if not filteredStep._seenObjectives[key] then
+                        filteredStep._seenObjectives[key] = true
+                        table.insert(filteredStep.objectives, obj)
+                    end
+
                 end
             end
         end
@@ -128,16 +117,6 @@ function GuideViewer:GetVisibleSteps(guide)
                         not IronPath.db.profile.showAllSteps then
                         allowSticky = IronPath:EvaluateCondition(
                                           stickyStep.condition)
-                        if showDebug then
-                            table.insert(filteredStep.objectives, {
-                                type = "debug",
-                                label = "[DEBUG] Sticky Step: " ..
-                                    stickyStep.condition .. " => " ..
-                                    tostring(allowSticky),
-                                isComplete = nil,
-                                blankBox = true
-                            })
-                        end
                     end
 
                     if allowSticky then
@@ -154,22 +133,23 @@ function GuideViewer:GetVisibleSteps(guide)
                                                  IronPath.db.profile
                                                      .showAllSteps
 
-                                    if showDebug then
-                                        table.insert(filteredStep.objectives, {
-                                            type = "debug",
-                                            label = "[DEBUG] Sticky Obj: " ..
-                                                obj.condition .. " => " ..
-                                                tostring(result),
-                                            isComplete = nil,
-                                            blankBox = true
-                                        })
-                                    end
                                 end
 
                                 if passes and not obj.isComplete then
                                     local cloned = CopyTable(obj)
                                     cloned._isSticky = true
-                                    table.insert(filteredStep.objectives, cloned)
+                                    local key =
+                                        cloned.type .. "::" ..
+                                            (cloned.label or "")
+                                    if not filteredStep._seenObjectives then
+                                        filteredStep._seenObjectives = {}
+                                    end
+                                    if not filteredStep._seenObjectives[key] then
+                                        filteredStep._seenObjectives[key] = true
+                                        table.insert(filteredStep.objectives,
+                                                     cloned)
+                                    end
+
                                     injectedAny = true
                                 end
                             end

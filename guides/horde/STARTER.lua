@@ -1769,7 +1769,7 @@ Follow the road |goto Durotar 52.38,33.50 < 30 |only if walking
 Follow the road |goto Durotar 52.23,42.43 < 30 |only if walking
 talk Takrin Pathseeker##3336
 accept Conscript of the Horde##840 |goto Durotar 50.85,43.59
-        ]]
+]]
     }
 }
 IronPath:RegisterGuide(IronPath_Guide)
@@ -3093,7 +3093,7 @@ talk Doras##3310
 |tip At the top of the tower.
 |tip You are taking the time to get the Orgrimmar flight path now, so you can use it to travel faster in the future.
 fpath Orgrimmar |goto Orgrimmar 45.13,63.90
-        ]]
+]]
     }
 }
 IronPath:RegisterGuide(IronPath_Guide)
@@ -4981,7 +4981,7 @@ step
 Kill enemies around this area
 |tip You are grinding here to prepare yourself for the Barrens.
 |ding 12,3000 |goto Durotar 42.94,39.44
-        ]]
+]]
     }
 }
 IronPath:RegisterGuide(IronPath_Guide)
@@ -6869,7 +6869,7 @@ step
 Kill enemies around this area
 |tip You are grinding here to prepare yourself for the Barrens.
 |ding 12,3000 |goto Durotar 42.94,39.44
-        ]]
+]]
     }
 }
 IronPath:RegisterGuide(IronPath_Guide)

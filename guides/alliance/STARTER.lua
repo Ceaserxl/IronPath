@@ -4051,7 +4051,7 @@ trainer Denatharion##4218  |goto Darnassus/0 34.74,7.43 |only if Druid |q 730
 trainer Jandria##4091 |goto Darnassus/0 37.91,82.80 |only if Priest |q 730
 |tip In the basement of the tree. |only if Rogue
 |tip Train your spells.
-    ]]
+]]
     }
 }
 IronPath:RegisterGuide(IronPath_Guide)
@@ -6091,7 +6091,7 @@ talk Ilyenia Moonfire##11866
 |tip This will allow you to use staves.
 Train Staves |complete weaponskill("TH_STAFF") > 0 |goto Darnassus 57.56,46.73
 |only if Hunter
-    ]]
+]]
     }
 }
 IronPath:RegisterGuide(IronPath_Guide)
@@ -8131,7 +8131,7 @@ talk Ilyenia Moonfire##11866
 |tip This will allow you to use staves.
 Train Staves |complete weaponskill("TH_STAFF") > 0 |goto Darnassus 57.56,46.73
 |only if Hunter
-    ]]
+]]
     }
 }
 IronPath:RegisterGuide(IronPath_Guide)
