@@ -57,7 +57,6 @@ function GuideViewer:CheckAndAutoAdvance(step)
                 IronPath:DebugPrint(
                     "➡️ Auto-advanced from step " .. oldStep .. " to " ..
                         GuideViewer.currentStep, "advance")
-                GuideViewer:SkipToNextVisibleStep()
             else
                 IronPath:DebugPrint("Auto-advance conditions not met.",
                                     "advance")

@@ -39,50 +39,43 @@ GuideViewer.ActionHandlers = {}
 -- ============================================================
 GuideViewer.ActionHandlers.obj = function(self, step, silent)
     local allComplete = true
-
     for _, obj in ipairs(step.objectives or {}) do
         if obj.type == "obj" and not obj.isComplete then
             local isDone = false
-
             -- Extract and replace #12# with 12
             if not obj.quantity and obj.label then
                 local qty = tonumber(obj.label:match("#(%d+)#"))
                 if qty then
                     obj.quantity = qty
-                    obj.label = obj.label:gsub("#%d+#", tostring(qty)):gsub(
-                                    "^%s+", "")
+                    obj.label = obj.label:gsub("#%d+#", tostring(qty)):gsub("^%s+", "")
                 end
             end
-
             if obj.qid then
-                local objectives = C_QuestLog.GetQuestObjectives(obj.qid)
-                if objectives and obj.qindex and objectives[obj.qindex] then
-                    local o = objectives[obj.qindex]
-                    local have, need = o.numFulfilled or 0, o.numRequired or 1
-
-                    -- Strip old progress if present
-                    obj.label = obj.label:gsub("%s*%(%d+/%d+%)", "")
-
-                    -- Append fresh progress
-                    obj.label = string.format("%s (%d/%d)", obj.label, have,
-                                              obj.quantity or need)
-
-                    isDone = have >= (obj.quantity or need)
+                -- First check if the whole quest is flagged completed
+                if C_QuestLog.IsQuestFlaggedCompleted(obj.qid) then
+                    isDone = true
                 else
-                    isDone = C_QuestLog.IsQuestFlaggedCompleted(obj.qid)
+                    local objectives = C_QuestLog.GetQuestObjectives(obj.qid)
+                    if objectives and obj.qindex and objectives[obj.qindex] then
+                        local o = objectives[obj.qindex]
+                        local have = o.numFulfilled or 0
+                        local need = o.numRequired or 1
+                        -- Strip old progress if present
+                        obj.label = obj.label:gsub("%s*%(%d+/%d+%)", "")
+                        -- Append fresh progress
+                        obj.label = string.format("%s (%d/%d)", obj.label, have, obj.quantity or need)
+                        isDone = have >= (obj.quantity or need)
+                    end
                 end
             end
-
             if isDone then
                 obj.isComplete = true
-                IronPath:DebugPrint("obj complete: qid=" .. tostring(obj.qid),
-                                    "obj")
+                IronPath:DebugPrint("obj complete: qid=" .. tostring(obj.qid), "obj")
             else
                 allComplete = false
             end
         end
     end
-
     return allComplete, "obj", allComplete
 end
 
@@ -103,20 +96,16 @@ GuideViewer.ActionHandlers.walk = function(self, step, silent)
 
     for _, obj in ipairs(step.objectives or {}) do
         if obj.type == "walk" and obj.coords then
-
             local function CheckObjCondition()
                 if obj.condition then
                     local success, result = pcall(function()
                         return loadstring("return " .. obj.condition)()
                     end)
                     if not success then
-                        IronPath:DebugPrint(
-                            "walk: obj.condition error → " .. tostring(result),
-                            "walk")
+                        IronPath:DebugPrint("walk: obj.condition error → " .. tostring(result), "walk")
                         return false
                     end
-                    IronPath:DebugPrint("walk: obj.condition = " ..
-                                            tostring(result), "walk")
+                    IronPath:DebugPrint("walk: obj.condition = " .. tostring(result), "walk")
                     return result
                 end
                 return true
@@ -124,8 +113,7 @@ GuideViewer.ActionHandlers.walk = function(self, step, silent)
 
             local function CheckCoordsCondition()
                 local coords = obj.coords
-                if not coords or not coords.x or not coords.y or
-                    not coords.condition then
+                if not coords or not coords.x or not coords.y or not coords.condition then
                     return nil -- explicitly no condition
                 end
 
@@ -135,19 +123,13 @@ GuideViewer.ActionHandlers.walk = function(self, step, silent)
                 local x, y = coords.x / 100, coords.y / 100
                 local wx, wy = HBD:GetWorldCoordinatesFromZone(x, y, mapID)
                 local pwx, pwy = HBD:GetPlayerWorldPosition()
-                if not wx or not wy or not pwx or not pwy then
-                    return false
-                end
+                if not wx or not wy or not pwx or not pwy then return false end
 
                 local dist = HBD:GetWorldDistance(nil, pwx, pwy, wx, wy)
                 if not dist then return false end
 
                 local op, val = coords.condition:match("([<>=]+)%s*(%d+)")
                 val = tonumber(val)
-                -- IronPath:DebugPrint(string.format(
-                --                         "walk: %.1f yds from target vs %s %d",
-                --                         dist, op, val), "walk")
-
                 if op == "<" then
                     return dist < val
                 elseif op == ">" then
@@ -165,24 +147,19 @@ GuideViewer.ActionHandlers.walk = function(self, step, silent)
 
             -- Hide objective entirely if obj.condition is false
             if not passesObjCond then
-                IronPath:DebugPrint("walk: obj.condition false — hiding step",
-                                    "walk")
+                IronPath:DebugPrint("walk: obj.condition false — hiding step", "walk")
                 return nil, "walk", false
             end
 
             -- Prevent completion if neither condition exists
             if not hasObjCond and not hasCoordCond then
-                IronPath:DebugPrint(
-                    "walk: no conditions defined — objective is non-completable",
-                    "walk")
+                IronPath:DebugPrint("walk: no conditions defined — objective is non-completable", "walk")
                 return false, "walk", false
             end
 
             -- Complete only if both conditions pass
-            if (hasObjCond or hasCoordCond) and passesObjCond and
-                CheckCoordsCondition() then
-                IronPath:DebugPrint(
-                    "walk: all conditions passed — marking complete", "walk")
+            if (hasObjCond or hasCoordCond) and passesObjCond and CheckCoordsCondition() then
+                IronPath:DebugPrint("walk: all conditions passed — marking complete", "walk")
                 obj.isComplete = true
                 step._wasComplete = true
                 return true, "walk", true
@@ -196,17 +173,14 @@ GuideViewer.ActionHandlers.walk = function(self, step, silent)
 
                     -- Abort polling if no coords.condition (not completable)
                     if not hasCoordCond then
-                        IronPath:DebugPrint(
-                            "walk: poller exit — coords.condition missing",
-                            "walk")
+                        IronPath:DebugPrint("walk: poller exit — coords.condition missing", "walk")
                         self:SetScript("OnUpdate", nil)
                         obj._walkPoller = nil
                         return
                     end
 
                     if CheckCoordsCondition() then
-                        IronPath:DebugPrint(
-                            "walk: objective completed via polling", "walk")
+                        IronPath:DebugPrint("walk: objective completed via polling", "walk")
                         obj.isComplete = true
                         step._wasComplete = true
                         self:SetScript("OnUpdate", nil)
@@ -276,18 +250,19 @@ end
 -- ============================================================
 GuideViewer.ActionHandlers.turnin = function(self, step, silent)
     local allComplete, changed = true, false
+
     for index, obj in ipairs(step.objectives or {}) do
         if obj.type == "turnin" and not obj.isComplete and obj.qid then
             if C_QuestLog.IsQuestFlaggedCompleted(obj.qid) then
                 obj.isComplete = true
                 changed = true
-                IronPath:DebugPrint("Turnin objective[" .. index ..
-                                        "] complete. QID=" .. obj.qid, "turnin")
+                IronPath:DebugPrint("Turnin objective[" .. index .. "] complete. QID=" .. obj.qid, "turnin")
             else
                 allComplete = false
             end
         end
     end
+
     return allComplete, "turnin", allComplete
 end
 
@@ -321,9 +296,8 @@ GuideViewer.ActionHandlers.home = function(self, step, silent)
                 IronPath:DebugPrint("Hearth set to: " .. hearthZone, "home")
                 return true, "home", true
             else
-                IronPath:DebugPrint("Hearth not set yet. Current: " ..
-                                        hearthZone .. ", Wanted: " ..
-                                        obj.hearthLocation, "home")
+                IronPath:DebugPrint("Hearth not set yet. Current: " .. hearthZone .. ", Wanted: " .. obj.hearthLocation,
+                    "home")
                 return false, "home", false
             end
         end
@@ -361,36 +335,37 @@ GuideViewer.ActionHandlers.buy = function(self, step, silent)
             local have = 0
 
             -- Try by itemID first
-            if itemID then have = GetItemCount(itemID, false) end
+            if itemID then
+                have = GetItemCount(itemID, false)
+            end
 
             -- Fallback by name if needed
             if have < needed and obj.item then
                 have = GetItemCount(obj.item, false)
-                IronPath:DebugPrint("Fallback name check: " .. obj.item ..
-                                        ", count=" .. have .. "/" .. needed,
-                                    "buy")
+                IronPath:DebugPrint(
+                    "Fallback name check: " .. obj.item .. ", count=" .. have .. "/" .. needed,
+                    "buy"
+                )
             end
 
             -- Update label
             local qtyText = (needed > 1) and (needed .. " ") or ""
-            obj.label =
-                qtyText .. (obj.item or "Item") .. " (" .. have .. "/" .. needed ..
-                    ")"
+            obj.label = qtyText .. (obj.item or "Item") .. " (" .. have .. "/" .. needed .. ")"
 
             if have >= needed then
                 obj.isComplete = true
-                IronPath:DebugPrint("Buy complete: " ..
-                                        (obj.item or
-                                            ("itemID=" .. tostring(itemID))) ..
-                                        ", count=" .. have .. "/" .. needed,
-                                    "buy")
+                IronPath:DebugPrint(
+                    "Buy complete: " .. (obj.item or ("itemID=" .. tostring(itemID))) ..
+                    ", count=" .. have .. "/" .. needed,
+                    "buy"
+                )
             else
                 allComplete = false
-                IronPath:DebugPrint("Buy not complete: " ..
-                                        (obj.item or
-                                            ("itemID=" .. tostring(itemID))) ..
-                                        ", count=" .. have .. "/" .. needed,
-                                    "buy")
+                IronPath:DebugPrint(
+                    "Buy not complete: " .. (obj.item or ("itemID=" .. tostring(itemID))) ..
+                    ", count=" .. have .. "/" .. needed,
+                    "buy"
+                )
             end
         end
     end
@@ -441,7 +416,7 @@ GuideViewer.ActionHandlers.skillmax = function(self, step, silent)
                         allComplete = false
                         IronPath:DebugPrint(
                             "Skillmax not met: " .. name .. " max=" .. maxRank ..
-                                "/" .. requiredMax, "skillmax")
+                            "/" .. requiredMax, "skillmax")
                     end
                     break
                 end
@@ -450,7 +425,7 @@ GuideViewer.ActionHandlers.skillmax = function(self, step, silent)
             if not found then
                 allComplete = false
                 IronPath:DebugPrint("Skill not found: " .. tostring(skillName),
-                                    "skillmax")
+                    "skillmax")
             end
         end
     end
@@ -488,7 +463,7 @@ GuideViewer.ActionHandlers.trash = function(self, step, silent)
             local itemID = obj.itemID
             if not itemID then
                 IronPath:DebugPrint("Trash objective[" .. index ..
-                                        "] missing itemID.", "warn")
+                    "] missing itemID.", "warn")
                 allComplete = false
             else
                 local found = false
@@ -508,14 +483,74 @@ GuideViewer.ActionHandlers.trash = function(self, step, silent)
                 else
                     obj.isComplete = true
                     IronPath:DebugPrint("Trash objective[" .. index ..
-                                            "] complete. ItemID: " .. itemID,
-                                        "trash")
+                        "] complete. ItemID: " .. itemID,
+                        "trash")
                 end
             end
         end
     end
 
     return allComplete, "trash", allComplete
+end
+
+-- ============================================================
+-- Action: bank
+-- ============================================================
+-- Purpose:
+--   Checks if a specific item (by itemID) has been removed from
+--   the player's bags (i.e., "banked").
+--
+-- Logic:
+--   - For each "bank" objective:
+--       • If itemID is missing, print a warning and mark step incomplete.
+--       • Scan all player bags (0 to 4).
+--       • If the item is found, the objective is still incomplete.
+--       • If the item is NOT found, mark the objective as complete.
+--
+-- Returns:
+--   true/false, "bank", true/false
+--     → Whether all bank objectives are complete.
+--
+-- Example Objective:
+--   { type = "bank", item = "Copper Ore", itemID = 2770, ... }
+-- ============================================================
+GuideViewer.ActionHandlers.bank = function(self, step, silent)
+    if not step.objectives then return false end
+    local allComplete = true
+
+    for index, obj in ipairs(step.objectives) do
+        if obj.type == "bank" and not obj.isComplete then
+            local itemID = obj.itemID
+            if not itemID then
+                IronPath:DebugPrint("Bank objective[" .. index ..
+                    "] missing itemID.", "warn")
+                allComplete = false
+            else
+                local found = false
+                for bag = 0, 4 do
+                    local slots = C_Container.GetContainerNumSlots(bag)
+                    for slot = 1, slots do
+                        local item = C_Container.GetContainerItemInfo(bag, slot)
+                        if item and item.itemID == itemID then
+                            found = true
+                            break
+                        end
+                    end
+                    if found then break end
+                end
+                if found then
+                    allComplete = false
+                else
+                    obj.isComplete = true
+                    IronPath:DebugPrint("Bank objective[" .. index ..
+                        "] complete. ItemID: " .. itemID,
+                        "bank")
+                end
+            end
+        end
+    end
+
+    return allComplete, "bank", allComplete
 end
 
 -- ============================================================
@@ -549,51 +584,54 @@ end
 --   }
 -- ============================================================
 GuideViewer.ActionHandlers.fpath = function(self, step)
-    if not IronPath.db or not IronPath.db.char then return false, true, false end
+    if not IronPath.db or not IronPath.db.char then
+        IronPath:DebugPrint("No DB or character data found", "fpath")
+        return false, "fpath", false
+    end
+
     local fpaths = IronPath.db.char.fpaths or {}
     IronPath.db.char.fpaths = fpaths
 
-    local isComplete = false
-    local anyValid = false
-
+    -- Check if already complete
     for _, obj in ipairs(step.objectives or {}) do
-        if obj.type == "fpath" and obj.coords and obj.label then
-            local label = obj.label
-            local zone = obj.coords.zone
+        if obj.type == "fpath" and obj.label then
+            local label = obj.label:match("^(.-),") or obj.label
+            label = label:match("^%s*(.-)%s*$"):lower()
 
-            -- Check if already learned
-            if fpaths[label] then
-                obj.isComplete = true
-                isComplete = true
-            else
-                -- Check if we're near the coords
-                local mapID = IronPath:GetMapIDFromZoneName(zone)
-                if mapID then
-                    local px, py, inst = HBD:GetPlayerWorldPosition()
-                    local tx, ty, tinst =
-                        HBD:GetWorldCoordinatesFromZone(obj.coords.x / 100,
-                                                        obj.coords.y / 100,
-                                                        mapID)
-
-                    if px and py and tx and ty and inst == tinst then
-                        local dx, dy = px - tx, py - ty
-                        local dist = math.sqrt(dx * dx + dy * dy)
-                        if dist < 10 then -- within 10 yards
-                            fpaths[label] = true
-                            obj.isComplete = true
-                            isComplete = true
-                            IronPath:DebugPrint(
-                                "Discovered new fpath: " .. label, "fpath")
-                        end
-                    end
+            for knownName in pairs(fpaths) do
+                if knownName:find(label, 1, true) or
+                    label:find(knownName, 1, true) then
+                    obj.isComplete = true
+                    step._wasComplete = true
+                    IronPath:DebugPrint("Matched known fpath: " .. knownName ..
+                        " ~= " .. label, "fpath")
+                    return true, "fpath", true
                 end
             end
-
-            anyValid = true
         end
     end
 
-    return anyValid, "fpath", isComplete
+    -- Learn new nodes
+    if TaxiFrame and TaxiFrame:IsShown() then
+        for i = 1, NumTaxiNodes() do
+            local nodeType = TaxiNodeGetType(i)
+            if nodeType == "REACHABLE" or nodeType == "CURRENT" then
+                local name = TaxiNodeName(i)
+                if name and name ~= "" then
+                    local base = name:match("^(.-),") or name
+                    base = base:match("^%s*(.-)%s*$"):lower()
+
+                    if not fpaths[base] then
+                        fpaths[base] = true
+                        IronPath:DebugPrint("Discovered fpath: " .. base,
+                            "fpath")
+                    end
+                end
+            end
+        end
+    end
+
+    return false, "fpath", false
 end
 
 -- ============================================================
@@ -626,24 +664,19 @@ end
 --   }
 -- ============================================================
 GuideViewer.ActionHandlers.trainer = function(self, step, silent)
-    if step._wasComplete then return true, "trainer", true end
+    -- if step._wasComplete then return true, "trainer", true end
 
-    local function OnTrainerOpen()
-        IronPath:DebugPrint("TRAINER_SHOW fired.", "trainer")
-        step._wasComplete = true
-        for _, obj in ipairs(step.objectives or {}) do
-            if obj.type == "trainer" then obj.isComplete = true end
-        end
-        GuideViewer:ShowStep()
-    end
+    -- local function OnTrainerOpen()
 
-    local frame = CreateFrame("Frame")
-    frame:RegisterEvent("TRAINER_SHOW")
-    frame:SetScript("OnEvent", function(_, event)
-        if event == "TRAINER_SHOW" then OnTrainerOpen() end
-    end)
+    -- end
 
-    return false, "trainer", false
+    -- local frame = CreateFrame("Frame")
+    -- frame:RegisterEvent("TRAINER_SHOW")
+    -- frame:SetScript("OnEvent", function(_, event)
+    --     if event == "TRAINER_SHOW" then OnTrainerOpen() end
+    -- end)
+
+    -- return false, "trainer", false
 end
 
 -- ============================================================
@@ -681,65 +714,7 @@ end
 --   }
 -- ============================================================
 GuideViewer.ActionHandlers.vendor = function(self, step, silent)
-    local db = IronPath.db
     if step._wasComplete then return true, "vendor", true end
-
-    local activeStep = GuideViewer.activeStep
-    if not activeStep then
-        IronPath:DebugPrint("No active step available.", "vendor")
-        return false, "vendor", false
-    end
-
-    local function AutoSellAndRepair()
-        local profile = db.profile
-        if not profile then return end
-
-        if profile.autoSellGrey then
-            for bag = 0, NUM_BAG_SLOTS do
-                local slots = C_Container.GetContainerNumSlots(bag)
-                for slot = 1, slots do
-                    local itemLink = C_Container.GetContainerItemLink(bag, slot)
-                    if itemLink then
-                        local _, _, rarity, _, _, _, _, _, _, _, itemSellPrice =
-                            GetItemInfo(itemLink)
-                        local info = C_Container.GetContainerItemInfo(bag, slot)
-                        if info and rarity == 0 and itemSellPrice > 0 then
-                            C_Container.UseContainerItem(bag, slot)
-                            IronPath:DebugPrint("Sold: " .. itemLink, "vendor")
-                        end
-                    end
-                end
-            end
-        end
-
-        if profile.autoRepair and CanMerchantRepair() then
-            local cost = GetRepairAllCost()
-            if cost > 0 then
-                RepairAllItems()
-                IronPath:DebugPrint("Auto-repaired. Cost: " ..
-                                        GetCoinTextureString(cost), "vendor")
-            end
-        end
-    end
-
-    local function OnMerchantOpen()
-        IronPath:DebugPrint("MERCHANT_SHOW fired.", "merchant")
-        AutoSellAndRepair()
-
-        activeStep._wasComplete = true
-        for _, obj in ipairs(activeStep.objectives or {}) do
-            if obj.type == "vendor" then obj.isComplete = true end
-        end
-        GuideViewer:ShowStep()
-    end
-
-    local frame = CreateFrame("Frame")
-    frame:RegisterEvent("MERCHANT_SHOW")
-    frame:SetScript("OnEvent", function(_, event)
-        if event == "MERCHANT_SHOW" then OnMerchantOpen() end
-    end)
-
-    if MerchantFrame and MerchantFrame:IsShown() then OnMerchantOpen() end
 
     return false, "vendor", false
 end
@@ -834,78 +809,80 @@ GuideViewer.ActionHandlers.collect = function(self, step, silent)
 
     for index, obj in ipairs(step.objectives or {}) do
         if obj.type == "collect" then
-            -- Extract quantity from label if present
-            if not obj.quantity and obj.label then
-                local qty, rest = obj.label:match("^(%d+)%s+(.+)")
-                if qty and rest then
-                    obj.quantity = tonumber(qty)
-                    obj.item = rest
-                    obj.qid = nil -- Ignore quest tracking
-                    obj.qindex = nil
-                end
+            local skip = false
+
+            -- ✅ Early skip if quest is complete
+            if obj.qid and C_QuestLog.IsQuestFlaggedCompleted(obj.qid) and
+                not obj.future then
+                obj.isComplete = true
+                IronPath:DebugPrint("Collect objective[" .. index ..
+                    "] skipped: Quest " .. obj.qid ..
+                    " already completed.", "collect")
+                skip = true
             end
 
-            -- Default quantity
-            obj.quantity = obj.quantity or 1
-            obj.item = obj.item or obj.label or "Item"
-
-            -- Skip quest tracking if quantity was set from label
-            if obj.quantity > 1 or (obj.label and obj.label:match("^%d+%s")) then
-                local count = GetItemCount(obj.itemID or 0, true) or 0
-                local qtyText = obj.quantity > 1 and (obj.quantity .. " ") or ""
-                obj.label = qtyText .. obj.item .. " (" .. count .. "/" ..
-                                obj.quantity .. ")"
-
-                if count >= obj.quantity then
-                    obj.isComplete = true
-                    IronPath:DebugPrint("Collect (bag) complete (" .. count ..
-                                            "/" .. obj.quantity .. ")",
-                                        "collect")
-                else
-                    allComplete = false
+            if not skip then
+                -- Extract quantity from label if present
+                if not obj.quantity and obj.label then
+                    local qty, rest = obj.label:match("^(%d+)%s+(.+)")
+                    if qty and rest then
+                        obj.quantity = tonumber(qty)
+                        obj.item = rest
+                        obj.qid = nil -- Ignore quest tracking
+                        obj.qindex = nil
+                    end
                 end
-            else
-                -- Use quest objective tracking only if quantity was not in label
-                local completedQuest = obj.qid and
-                                           C_QuestLog.IsQuestFlaggedCompleted(
-                                               obj.qid)
-                if completedQuest and not obj.future then
-                    obj.isComplete = true
-                    IronPath:DebugPrint("Quest " .. obj.qid ..
-                                            " already complete. Marking collect objective done.",
-                                        "collect")
-                elseif obj.qid and obj.qindex then
-                    local q = C_QuestLog.GetQuestObjectives(obj.qid)
-                    local o = q and q[obj.qindex]
-                    if o then
-                        local have, need = o.numFulfilled or 0,
-                                           o.numRequired or obj.quantity
-                        local qtyText = (obj.quantity > 1) and
-                                            (obj.quantity .. " ") or ""
-                        obj.label =
-                            qtyText .. obj.item .. " (" .. have .. "/" .. need ..
-                                ")"
 
-                        if have >= need then
-                            obj.isComplete = true
-                            IronPath:DebugPrint(
-                                "Collect (quest) complete (" .. have .. "/" ..
+                obj.quantity = obj.quantity or 1
+                obj.item = obj.item or obj.label or "Item"
+
+                if obj.quantity > 1 or (obj.label and obj.label:match("^%d+%s")) then
+                    local count = GetItemCount(obj.itemID or 0, true) or 0
+                    local qtyText =
+                        obj.quantity > 1 and (obj.quantity .. " ") or ""
+                    obj.label = qtyText .. obj.item .. " (" .. count .. "/" ..
+                        obj.quantity .. ")"
+
+                    if count >= obj.quantity then
+                        obj.isComplete = true
+                        IronPath:DebugPrint(
+                            "Collect (bag) complete (" .. count .. "/" ..
+                            obj.quantity .. ")", "collect")
+                    else
+                        allComplete = false
+                    end
+                else
+                    -- Use quest tracking
+                    if obj.qid and obj.qindex then
+                        local q = C_QuestLog.GetQuestObjectives(obj.qid)
+                        local o = q and q[obj.qindex]
+                        if o then
+                            local have, need = o.numFulfilled or 0,
+                                o.numRequired or obj.quantity
+                            obj.label =
+                                obj.item .. " (" .. have .. "/" .. need .. ")"
+
+                            if have >= need then
+                                obj.isComplete = true
+                                IronPath:DebugPrint(
+                                    "Collect (quest) complete (" .. have .. "/" ..
                                     need .. ")", "collect")
+                            else
+                                allComplete = false
+                            end
                         else
                             allComplete = false
+                            IronPath:DebugPrint(
+                                "Collect objective[" .. index ..
+                                "] missing quest objective data", "collect")
                         end
                     else
                         allComplete = false
-                        IronPath:DebugPrint(
-                            "Collect objective[" .. index ..
-                                "] missing quest objective data", "collect")
                     end
-                else
-                    allComplete = false
                 end
-            end
 
-            if not obj.isComplete then allComplete = false end
+                if not obj.isComplete then allComplete = false end
+            end
         end
     end
 
@@ -954,8 +931,8 @@ GuideViewer.ActionHandlers.kill = function(self, step, silent)
             C_QuestLog.IsQuestFlaggedCompleted(obj.qid) then
             obj.isComplete = true
             IronPath:DebugPrint("Quest " .. obj.qid ..
-                                    " already complete. Marking kill objective done.",
-                                "kill")
+                " already complete. Marking kill objective done.",
+                "kill")
         end
     end
 
@@ -968,7 +945,7 @@ GuideViewer.ActionHandlers.kill = function(self, step, silent)
                 local have, need = o.numFulfilled or 0, o.numRequired or 1
                 obj.label =
                     "|cffFFFFFFKill:|r " .. obj.target .. " (" .. have .. "/" ..
-                        need .. ")"
+                    need .. ")"
                 if have >= need then
                     obj.isComplete = true
                     IronPath:DebugPrint(
@@ -979,7 +956,7 @@ GuideViewer.ActionHandlers.kill = function(self, step, silent)
             else
                 allComplete = false
                 IronPath:DebugPrint("Kill objective[" .. index ..
-                                        "] missing quest objective data", "kill")
+                    "] missing quest objective data", "kill")
             end
         end
     end
@@ -1030,7 +1007,7 @@ GuideViewer.ActionHandlers.goTo = function(self, step, silent)
                 local mapID = C_Map.GetBestMapForUnit("player")
                 local zx, zy = obj.coords.x / 100, obj.coords.y / 100
                 local tx, ty, inst2 = HBD:GetWorldCoordinatesFromZone(zx, zy,
-                                                                      mapID)
+                    mapID)
 
                 if tx and ty and instance == inst2 then
                     local dx, dy = tx - px, ty - py
@@ -1108,19 +1085,19 @@ GuideViewer.ActionHandlers.ding = function(self, step, silent)
                     if requiredXP > 0 then
                         percent = math.floor((xp / requiredXP) * 100)
                         obj.label = "Reach Level " .. requiredLevel .. " & " ..
-                                        requiredXP .. "xp " .. colorOpen .. "(" ..
-                                        percent .. "%)" .. colorClose
+                            requiredXP .. "xp " .. colorOpen .. "(" ..
+                            percent .. "%)" .. colorClose
                     else
                         percent = math.floor((xp / maxXP) * 100)
                         obj.label = "Reach Level " .. requiredLevel .. " " ..
-                                        colorOpen .. "(" .. percent .. "%)" ..
-                                        colorClose
+                            colorOpen .. "(" .. percent .. "%)" ..
+                            colorClose
                     end
                 else
                     percent = math.floor((xp / maxXP) * 100)
                     obj.label = "Reach Level " .. requiredLevel .. " " ..
-                                    colorOpen .. "(" .. percent .. "%)" ..
-                                    colorClose
+                        colorOpen .. "(" .. percent .. "%)" ..
+                        colorClose
                 end
             end
         end
@@ -1128,4 +1105,3 @@ GuideViewer.ActionHandlers.ding = function(self, step, silent)
 
     return allComplete, "ding", allComplete
 end
-

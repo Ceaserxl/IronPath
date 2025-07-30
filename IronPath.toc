@@ -32,6 +32,8 @@ libs\AceTimer-3.0\AceTimer-3.0.xml
 IronPath.lua
 Config.lua
 UI.lua
+Parse_UI.lua
+#UI_New.lua
 
 # Handlers
 handlers\ConditionHandler.lua

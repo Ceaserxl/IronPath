@@ -15,6 +15,10 @@ IronPath_Guides = {}
 -- 3. SavedVariables defaults
 local defaults = {
     profile = {
+        minimap = {
+            hide = false,
+            minimapPos = 220 -- default angle position
+        },
         autoAccept = true,
         autoTurnin = true,
         autoAdvanceStep = true,
@@ -166,13 +170,13 @@ function IronPath:SetCurrentGuide(guide)
         end
     end
 
-    local db = self.db and self.db.char
+    local db = self.db
     if db then
-        if db.lastGuide ~= (guide.easyName or "Unnamed") then
-            db.lastStep, db.lastGuide = 1, guide.easyName or "Unnamed"
+        if db.char.lastGuide ~= guide.easyName then
+            db.char.lastStep, db.char.lastGuide = 1, guide.easyName
             IronPathViewer.currentStep = 1
         else
-            IronPathViewer.currentStep = db.lastStep or 1
+            IronPathViewer.currentStep = db.char.lastStep or 1
         end
     end
 

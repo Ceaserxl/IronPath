@@ -37,7 +37,7 @@ end
 -- Step Parsing
 ------------------------------------------------------------
 function IronPath.Parser:ParseSingleStep(lines)
-    local step = {objectives = {}, condition = nil}
+    local step = { objectives = {}, condition = nil }
 
     for _, line in ipairs(lines) do
         if not line:match("^%s*'") then
@@ -82,6 +82,8 @@ function IronPath.Parser:ParseSingleStep(lines)
                 self:HandleHomeLine(trimmed, step)
             elseif trimmed:match("^trash%s") then
                 self:HandleTrashLine(trimmed, step)
+            elseif trimmed:match("^bank%s") then
+                self:HandleBankLine(trimmed, step)
             else
                 self:HandleObjectiveLine(trimmed, step)
             end
@@ -118,6 +120,7 @@ function IronPath.Parser:HandleObjectiveLine(line, step)
     local obj = self:BuildObjective(metadata, label)
     table.insert(step.objectives, obj)
 end
+
 function IronPath.Parser:IsLineSkippable(trimmed)
     if trimmed:match("^|") then return true end
 
@@ -134,6 +137,7 @@ function IronPath.Parser:IsLineSkippable(trimmed)
 
     return false
 end
+
 function IronPath.Parser:ExtractObjectiveMetadata(line)
     local meta = {
         isConfirm = line:find("|confirm") or nil,
@@ -144,9 +148,10 @@ function IronPath.Parser:ExtractObjectiveMetadata(line)
         notinsticky = line:find("|notinsticky") and true or nil,
         condition = line:match("|only if%s+([^|]+)") or
             line:match("|only%s+([^|]+)"),
-        completeIf = line:match("|complete%s+([^|]+)"),
+        completeIf = line:match("|complete%s+([^|]+)") or nil,
         future = line:find("|future") and true or nil,
-        notravel = line:find("|notravel") and true or nil
+        notravel = line:match("|notravel([^%a])") and true or nil,
+        n = line:match("|n([^%a])") and true or nil
     }
 
     meta.skillmax, meta.skillmaxLevel =
@@ -155,33 +160,36 @@ function IronPath.Parser:ExtractObjectiveMetadata(line)
     meta.qid, meta.qindex = line:match("|q%s+(%d+)/?(%d*)")
     meta.gossipID = tonumber(line:match("|gossip%s+(%d+)"))
     meta.gotoZoneRaw, meta.gotoX, meta.gotoY, meta.coordCond = line:match(
-                                                                   "|goto%s+([%w%s%p]-)%s+(%d+%.?%d*),%s*(%d+%.?%d*)%s*([<>=%s%d]*)")
+        "|goto%s+([%w%s%p]-)%s+(%d+%.?%d*),%s*(%d+%.?%d*)%s*([<>=%s%d]*)")
 
     if meta.gotoZoneRaw then
         meta.gotoZone, meta.mapIndex = meta.gotoZoneRaw:match("^(.-)/(%d+)$")
         meta.gotoZone = meta.gotoZone and meta.gotoZone:match("^%s*(.-)%s*$") or
-                            meta.gotoZoneRaw:match("^%s*(.-)%s*$")
+            meta.gotoZoneRaw:match("^%s*(.-)%s*$")
     end
 
     meta.zoneRaw, meta.x, meta.y = line:match(
-                                       "%[([^%[%],]+)%s+(%d+%.?%d*),%s*(%d+%.?%d*)%]")
+        "%[([^%[%],]+)%s+(%d+%.?%d*),%s*(%d+%.?%d*)%]")
     meta.rawX, meta.rawY = line:match("%[(%d+%.?%d*),%s*(%d+%.?%d*)%]")
 
     if meta.zoneRaw then
         meta.zone, meta.zoneMapIndex = meta.zoneRaw:match("^(.-)/(%d+)$")
         meta.zone = meta.zone and meta.zone:match("^%s*(.-)%s*$") or
-                        meta.zoneRaw:match("^%s*(.-)%s*$")
+            meta.zoneRaw:match("^%s*(.-)%s*$")
     end
-
+    if meta.completeIf then
+        meta.completeIf = meta.completeIf:match("^%s*(.-)%s*$") -- trim
+    end
     meta.isWalk = line:find("|walk")
     meta.isWalkNote = not meta.isWalk and
-                          ((meta.gotoZone and meta.gotoX and meta.gotoY) or
-                              (meta.zone and meta.x and meta.y) or
-                              (meta.rawX and meta.rawY))
+        ((meta.gotoZone and meta.gotoX and meta.gotoY) or
+            (meta.zone and meta.x and meta.y) or
+            (meta.rawX and meta.rawY))
 
     meta.line = line
     return meta
 end
+
 function IronPath.Parser:CleanLabel(trimmed, meta)
     local knownTags = {
         popuptext = true,
@@ -200,7 +208,10 @@ function IronPath.Parser:CleanLabel(trimmed, meta)
         havebuff = true,
         next = true,
         trainer = true,
+        n = true,
         -- TODO:
+        count = true,
+        zombiewalk = true,
         c = true,
         notravel = true,
         ["or"] = true
@@ -216,11 +227,11 @@ function IronPath.Parser:CleanLabel(trimmed, meta)
 
     if meta.zoneRaw and meta.x and meta.y then
         local pattern = "%[" ..
-                            meta.zoneRaw:gsub("%-", "%%-"):gsub("%s", "%%s*") ..
-                            "%s+" .. meta.x .. "," .. meta.y .. "%]"
+            meta.zoneRaw:gsub("%-", "%%-"):gsub("%s", "%%s*") ..
+            "%s+" .. meta.x .. "," .. meta.y .. "%]"
         cleaned = cleaned:gsub(pattern, string.format("[%d,%d]",
-                                                      tonumber(meta.x),
-                                                      tonumber(meta.y)))
+            tonumber(meta.x),
+            tonumber(meta.y)))
     end
 
     cleaned = cleaned:gsub("%[(%d+%.?%d*),%s*(%d+%.?%d*)%]", function(a, b)
@@ -228,10 +239,11 @@ function IronPath.Parser:CleanLabel(trimmed, meta)
     end)
 
     cleaned = cleaned:gsub("||", "|"):gsub("^_+", ""):gsub("_+$", ""):match(
-                  "^%s*(.-)%s*$")
+        "^%s*(.-)%s*$")
     if ParseDebug then cleaned = "[objective] " .. cleaned end
     return cleaned
 end
+
 function IronPath.Parser:BuildObjective(meta, label)
     local obj = {
         type = meta.isConfirm and "confirm" or meta.isVendor and "vendor" or
@@ -249,6 +261,7 @@ function IronPath.Parser:BuildObjective(meta, label)
         qindex = meta.qindex ~= "" and tonumber(meta.qindex) or nil,
         future = meta.future,
         notravel = meta.notravel,
+        n = meta.n,
         next = meta.next
     }
     if meta.gotoZone and meta.gotoX and meta.gotoY then
@@ -310,7 +323,7 @@ function IronPath.Parser:BuildObjective(meta, label)
         if meta.next then obj.next = meta.next end
     end
     if meta.completeIf then
-        obj.type = "complete"
+        -- obj.type = "complete"
         obj.isComplete = false
         obj.blankBox = true
     end
@@ -319,6 +332,7 @@ function IronPath.Parser:BuildObjective(meta, label)
         obj.completeIf = "havebuff(" .. meta.buffid .. ")"
     end
     if meta.gossipID then obj.type = "note" end
+    if meta.n then obj.type = "note" end
     return obj
 end
 
@@ -346,7 +360,7 @@ end
 -- ============================================================
 function IronPath.Parser:HandleStepConditionLine(line, step)
     local condition = line:match("^|only if%s+(.+)$") or
-                          line:match("^|only%s+(.+)$")
+        line:match("^|only%s+(.+)$")
     if condition then
         condition = condition:match("^(.-)%s*|") or condition
         step.condition = condition:match("^%s*(.-)%s*$")
@@ -368,7 +382,7 @@ function IronPath.Parser:HandleTalkLine(line, step)
 
     -- Extract and clean optional condition
     local condition = line:match("|only if%s+([^|]+)") or
-                          line:match("|only%s+([^|]+)")
+        line:match("|only%s+([^|]+)")
     if condition then
         condition = condition:gsub("|notinsticky", ""):match("^%s*(.-)%s*$")
     end
@@ -412,7 +426,7 @@ end
 function IronPath.Parser:HandleStickyStopLine(line, step)
     step.stickystop = step.stickystop or {}
     local label = line:match('^stickystop%s+"(.+)"') or
-                      line:match('^stickystop%s+(%S+)')
+        line:match('^stickystop%s+(%S+)')
     if label then table.insert(step.stickystop, label) end
 end
 
@@ -427,7 +441,7 @@ end
 function IronPath.Parser:HandleStickyStartLine(line, step)
     step.stickystart = step.stickystart or {}
     local label = line:match('^stickystart%s+"(.+)"') or
-                      line:match('^stickystart%s+(%S+)')
+        line:match('^stickystart%s+(%S+)')
     if label then table.insert(step.stickystart, label) end
 end
 
@@ -458,12 +472,12 @@ function IronPath.Parser:HandleTrainerLine(line, step)
 
         -- Optional condition
         local condition = line:match("|only if%s+([^\r\n|]+)") or
-                              line:match("|only%s+([^\r\n|]+)")
+            line:match("|only%s+([^\r\n|]+)")
         if condition then obj.condition = condition:match("^%s*(.-)%s*$") end
 
         -- Coordinates inside coords
         local zone, x, y = line:match(
-                               "|goto%s+([%w%s%'%-/]+)%s+(%d+%.?%d*),(%d+%.?%d*)")
+            "|goto%s+([%w%s%'%-/]+)%s+(%d+%.?%d*),(%d+%.?%d*)")
         if zone and x and y then
             obj.coords = {
                 zone = zone:gsub("/0$", ""),
@@ -486,18 +500,15 @@ end
 --   fpath Thorgrum Borrelson |goto Ironforge 55.50,47.75
 -- ============================================================
 function IronPath.Parser:HandleFpathLine(line, step)
-    local npc = line:match("^fpath%s+([^|]+)") or "Flight Master"
+    local fpath = line:match("^fpath%s+([^|]+)") or "Flight Master"
+    fpath = fpath:match("^%s*(.-)%s*$") -- trim leading/trailing whitespace
 
     local zone, x, y = line:match("|goto%s+([%a%s]+)%s+([%d%.]+),([%d%.]+)")
     if zone and x and y then
         local obj = {
             type = "fpath",
-            label = npc,
-            coords = {
-                x = math.floor(tonumber(x)),
-                y = math.floor(tonumber(y)),
-                zone = zone
-            },
+            label = fpath,
+            coords = { x = tonumber(x), y = tonumber(y), zone = zone },
             isComplete = false,
             blankBox = false
         }
@@ -516,12 +527,12 @@ end
 --   home Goldshire |q 54 |goto Elwynn Forest 43.77,65.80
 -- ============================================================
 function IronPath.Parser:HandleHomeLine(line, step)
-    local obj = {type = "home", isComplete = false, blankBox = false}
+    local obj = { type = "home", isComplete = false, blankBox = false }
 
     -- Hearth location
     local hearthLoc = line:match("^home%s+([^|]+)")
     obj.hearthLocation = hearthLoc and hearthLoc:match("^%s*(.-)%s*$") or
-                             "Unknown"
+        "Unknown"
     obj.label = obj.hearthLocation
 
     -- Optional quest ID
@@ -533,7 +544,7 @@ function IronPath.Parser:HandleHomeLine(line, step)
 
     -- Coordinates
     local zone, x, y = line:match(
-                           "|goto%s+([%w%s%'%-/]+)%s+(%d+%.?%d*),(%d+%.?%d*)")
+        "|goto%s+([%w%s%'%-/]+)%s+(%d+%.?%d*),(%d+%.?%d*)")
     if zone and x and y then
         obj.coords = {
             zone = zone:match("^%s*(.-)%s*$"),
@@ -568,9 +579,9 @@ function IronPath.Parser:HandleBuyLine(line, step)
 
         -- Parse coordinates
         local zone, x, y = line:match(
-                               "|goto%s+([%w%s%'%-]+)%s+(%d+%.?%d*),(%d+%.?%d*)")
+            "|goto%s+([%w%s%'%-]+)%s+(%d+%.?%d*),(%d+%.?%d*)")
 
-        local displayLabel = (qty > 1) and (qty .. " " .. label) or (label)
+        local displayLabel = (qty > 1) and (qty .. " " .. label) or label
 
         local obj = {
             type = "buy",
@@ -581,6 +592,14 @@ function IronPath.Parser:HandleBuyLine(line, step)
             isComplete = false,
             blankBox = false
         }
+
+        -- Convert to note if |n is present (must be done after base type assignment)
+        if line:find("|n%s") or line:find("|n$") then
+            obj.type = "note"
+            obj.label = "Buy " .. displayLabel
+            obj.isComplete = nil
+            obj.blankBox = false
+        end
 
         if zone and x and y then
             obj.coords = {
@@ -606,7 +625,7 @@ end
 --   kill Hogger##448 |goto Elwynn Forest 26.4,93.6
 -- ============================================================
 function IronPath.Parser:HandleKillLine(line, step)
-    local obj = {type = "kill", isComplete = false, blankBox = false}
+    local obj = { type = "kill", isComplete = false, blankBox = false }
 
     -- Quantity (optional)
     local qty, rest = line:match("^kill%s+(%d+)%s+(.+)")
@@ -648,7 +667,7 @@ function IronPath.Parser:HandleKillLine(line, step)
     end
     -- Coordinates
     local zone, x, y = line:match(
-                           "|goto%s+([%w%s%'%-]+)%s+(%d+%.?%d*),(%d+%.?%d*)")
+        "|goto%s+([%w%s%'%-]+)%s+(%d+%.?%d*),(%d+%.?%d*)")
     if zone and x and y then
         obj.coords = {
             zone = zone:match("^%s*(.-)%s*$"),
@@ -691,7 +710,7 @@ function IronPath.Parser:HandleDingLine(line, step)
 
         -- Parse |goto if present
         local zone, x, y = line:match(
-                               "|goto%s+([%w%s%'%-]+)%s+(%d+%.?%d*),(%d+%.?%d*)")
+            "|goto%s+([%w%s%'%-]+)%s+(%d+%.?%d*),(%d+%.?%d*)")
         if zone and x and y then
             obj.coords = {
                 zone = zone:match("^%s*(.-)%s*$"),
@@ -702,7 +721,7 @@ function IronPath.Parser:HandleDingLine(line, step)
 
         -- Parse |only or |only if condition
         obj.condition = line:match("|only if%s+([^\r\n|]+)") or
-                            line:match("|only%s+([^\r\n|]+)")
+            line:match("|only%s+([^\r\n|]+)")
 
         table.insert(step.objectives, obj)
     end
@@ -731,7 +750,7 @@ function IronPath.Parser:HandleTurninLine(line, step)
 
         -- Coordinates
         local zone, x, y = line:match(
-                               "|goto%s+([%w%s%'%-/]+)%s+(%d+%.?%d*),(%d+%.?%d*)")
+            "|goto%s+([%w%s%'%-/]+)%s+(%d+%.?%d*),(%d+%.?%d*)")
         if zone and x and y then
             obj.coords = {
                 zone = zone:match("^%s*(.-)%s*$"),
@@ -742,7 +761,7 @@ function IronPath.Parser:HandleTurninLine(line, step)
 
         -- Condition
         local condition = line:match("|only if%s+(.+)$") or
-                              line:match("|only%s+(.+)$")
+            line:match("|only%s+(.+)$")
         if condition then obj.condition = condition:match("^%s*(.-)%s*$") end
 
         table.insert(step.objectives, obj)
@@ -812,8 +831,9 @@ function IronPath.Parser:HandleCollectLine(line, step)
 
     if num and num > 1 then
         obj.label = ParseDebug and ("[collect] " .. quantity .. " " .. item) or
-                        (quantity .. " " .. item)
+            (quantity .. " " .. item)
     end
+
     -- Extract quest ID and index
     local qid, qindex = line:match("|q%s+(%d+)/?(%d*)")
     if qid then
@@ -823,9 +843,21 @@ function IronPath.Parser:HandleCollectLine(line, step)
 
     -- Extract coordinates
     local zone, x, y = line:match(
-                           "|goto%s+([%w%s%'%-/]+)%s+(%d+%.?%d*),(%d+%.?%d*)")
+        "|goto%s+([%w%s%'%-/]+)%s+(%d+%.?%d*),(%d+%.?%d*)")
     if zone and x and y then
-        obj.coords = {zone = zone:trim(), x = tonumber(x), y = tonumber(y)}
+        obj.coords = { zone = zone:trim(), x = tonumber(x), y = tonumber(y) }
+    end
+
+    -- Extract |only and |only if conditions
+    obj.condition = line:match("|only if%s+([^\r\n|]+)") or
+        line:match("|only%s+([^\r\n|]+)")
+
+    -- Convert to note if |n is present
+    if line:find("|n%s") or line:find("|n$") then
+        obj.type = "note"
+        obj.label = "Collect: |cffFFD933" .. obj.label .. "|r"
+        obj.isComplete = nil
+        obj.blankBox = false
     end
 
     table.insert(step.objectives, obj)
@@ -850,7 +882,7 @@ function IronPath.Parser:HandleClickLine(line, step)
 
     -- Clean label: remove ##object=123, ##123, trailing + and spaces
     label = label:gsub("##object=%d+", ""):gsub("##%d+", ""):gsub("+$", "")
-                :gsub("%s+$", "")
+        :gsub("%s+$", "")
 
     table.insert(step.objectives, {
         type = "click",
@@ -884,7 +916,7 @@ function IronPath.Parser:HandleLearnSpellLine(line, step)
 
         -- Coordinates
         local zone, x, y = line:match(
-                               "|goto%s+([%w%s%'%-/]+)%s+(%d+%.?%d*),(%d+%.?%d*)")
+            "|goto%s+([%w%s%'%-/]+)%s+(%d+%.?%d*),(%d+%.?%d*)")
         if zone and x and y then
             obj.coords = {
                 zone = zone:match("^%s*(.-)%s*$"),
@@ -920,7 +952,7 @@ function IronPath.Parser:HandleAcceptLine(line, step)
 
         -- Coordinates
         local zone, x, y = line:match(
-                               "|goto%s+([%w%s%'%-/]+)%s+(%d+%.?%d*),(%d+%.?%d*)")
+            "|goto%s+([%w%s%'%-/]+)%s+(%d+%.?%d*),(%d+%.?%d*)")
         if zone and x and y then
             obj.coords = {
                 zone = zone:match("^%s*(.-)%s*$"),
@@ -958,7 +990,7 @@ function IronPath.Parser:HandleWalkLine(line, step)
             label = ParseDebug and
                 string.format("[walk] %s [%s, %s]", zone, x, y) or
                 string.format("%s [%s, %s]", zone, x, y),
-            coords = {zone = zone:match("^%s*(.-)%s*$"), x = x, y = y},
+            coords = { zone = zone:match("^%s*(.-)%s*$"), x = x, y = y },
             isComplete = nil,
             blankBox = true
         })
@@ -974,7 +1006,7 @@ function IronPath.Parser:HandleWalkLine(line, step)
             type = "walk",
             label = ParseDebug and string.format("[walk] [%s, %s]", x, y) or
                 string.format("[%s, %s]", x, y),
-            coords = {x = x, y = y},
+            coords = { x = x, y = y },
             isComplete = nil,
             blankBox = true
         })
@@ -995,6 +1027,29 @@ function IronPath.Parser:HandleTrashLine(line, step)
     if item and id then
         table.insert(step.objectives, {
             type = "trash",
+            item = item,
+            itemID = tonumber(id),
+            label = item,
+            isComplete = false,
+            blankBox = false
+        })
+    end
+end
+
+-- ============================================================
+-- HandleBankLine
+-- ============================================================
+-- Usage: bank <Item Name>##<Item ID>
+-- Adds a "bank" objective to store a specific item in the bank.
+-- Used to ensure the item is no longer in player's bags.
+-- Example:
+--   bank Copper Ore##2770
+-- ============================================================
+function IronPath.Parser:HandleBankLine(line, step)
+    local item, id = line:match("^bank%s+(.+)##(%d+)")
+    if item and id then
+        table.insert(step.objectives, {
+            type = "bank",
             item = item,
             itemID = tonumber(id),
             label = item,

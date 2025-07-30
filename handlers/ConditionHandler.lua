@@ -20,86 +20,98 @@ function IronPath:EvaluateCondition(condition)
     condition = condition:gsub("^%s*|only%s*", "")
     condition = condition:match("^%s*(.-)%s*$") -- trim spaces
 
-    local _, class = UnitClass("player") -- internal class token (e.g. "WARRIOR")
-    local _, race = UnitRace("player") -- internal race token (e.g. "Orc")
-    local faction = UnitFactionGroup("player") -- "Alliance" or "Horde"
-    local level = UnitLevel("player") -- numeric level
+    local _, class = UnitClass("player")        -- internal class token (e.g. "WARRIOR")
+    local _, race = UnitRace("player")          -- internal race token (e.g. "Orc")
+    local faction = UnitFactionGroup("player")  -- "Alliance" or "Horde"
+    local level = UnitLevel("player")           -- numeric level
+    local isdead = UnitIsDeadOrGhost("player")
+    local selfmade = C_UnitAuras.GetPlayerAuraBySpellID(431567) ~= nil
 
+    -- ============================================================
     -- Environment for condition evaluation
+    -- ============================================================
     local env = {
-        -- Dev only: block unknown ZGV references
-        ZGV = setmetatable({}, {__index = function() return false end}),
-        level = level,
-        faction = faction,
-        race = race,
-        class = class,
-        Class = class,
+        -- Dev-only: block unknown ZGV references
+        ZGV         = setmetatable({}, { __index = function() return false end }),
+
+        -- Basic character info
+        level       = level,
+        faction     = faction,
+        race        = race,
+        class       = class,
+        Class       = class,
 
         -- Race flags
-        Human = race == "Human",
-        Dwarf = race == "Dwarf",
-        NightElf = race == "NightElf",
-        Gnome = race == "Gnome",
-        Orc = race == "Orc",
-        Troll = race == "Troll",
-        Tauren = race == "Tauren",
-        Undead = race == "Scourge",
+        Human       = race == "Human",
+        Dwarf       = race == "Dwarf",
+        NightElf    = race == "NightElf",
+        Gnome       = race == "Gnome",
+        Orc         = race == "Orc",
+        Troll       = race == "Troll",
+        Tauren      = race == "Tauren",
+        Undead      = race == "Scourge",
 
         -- Class flags
-        Warrior = class == "WARRIOR",
-        Warlock = class == "WARLOCK",
-        Mage = class == "MAGE",
-        Rogue = class == "ROGUE",
-        Paladin = class == "PALADIN",
-        Priest = class == "PRIEST",
-        Druid = class == "DRUID",
-        Shaman = class == "SHAMAN",
-        Hunter = class == "HUNTER",
+        Warrior     = class == "WARRIOR",
+        Warlock     = class == "WARLOCK",
+        Mage        = class == "MAGE",
+        Rogue       = class == "ROGUE",
+        Paladin     = class == "PALADIN",
+        Priest      = class == "PRIEST",
+        Druid       = class == "DRUID",
+        Shaman      = class == "SHAMAN",
+        Hunter      = class == "HUNTER",
 
-        walking = false,
-
-        hardcore = C_Seasons.GetActiveSeason() == Enum.SeasonID.Hardcore or
+        -- Flags and booleans
+        walking     = false,
+        hardcore    = C_Seasons.GetActiveSeason() == Enum.SeasonID.Hardcore or
             C_Seasons.GetActiveSeason() == Enum.SeasonID.FreshHardcore,
-        selfmade = function()
-            if C_UnitAuras.GetPlayerAuraBySpellID(431567) then
-                return true
-            end
-            return false
-        end,
-
-        -- Booleans
-        ["true"] = true,
-        ["false"] = false,
+        selfmade    = selfmade,
+        isdead      = isdead,
+        ["true"]    = true,
+        ["false"]   = false,
 
         -- Logic helpers
-        itemcount = function(id) return GetItemCount(tonumber(id)) or 0 end,
-        readyq = function(qid)
-            return C_QuestLog and C_QuestLog.IsComplete and
-                       C_QuestLog.IsComplete(qid) or false
-        end,
-        haveq = function(qid)
-            return C_QuestLog and C_QuestLog.IsOnQuest and
-                       C_QuestLog.IsOnQuest(qid) or false
-        end,
-        completedq = function(qid)
-            return C_QuestLog and C_QuestLog.IsQuestFlaggedCompleted and
-                       C_QuestLog.IsQuestFlaggedCompleted(qid) or false
-        end,
-        subzone = function(name) return GetSubZoneText() == name end,
-        zone = function(name) return GetZoneText() == name end,
-        GetMoney = GetMoney,
-        havebuff = function(spellID)
-            return C_UnitAuras and C_UnitAuras.GetPlayerAuraBySpellID and
-                       C_UnitAuras.GetPlayerAuraBySpellID(spellID) ~= nil or
-                       false
+        itemcount   = function(id)
+            return GetItemCount(tonumber(id)) or 0
         end,
 
-        _G = {
+        readyq      = function(qid)
+            return C_QuestLog and C_QuestLog.IsComplete and C_QuestLog.IsComplete(qid) or false
+        end,
+
+        haveq       = function(qid)
+            return C_QuestLog and C_QuestLog.IsOnQuest and C_QuestLog.IsOnQuest(qid) or false
+        end,
+
+        completedq  = function(qid)
+            return C_QuestLog and C_QuestLog.IsQuestFlaggedCompleted and C_QuestLog.IsQuestFlaggedCompleted(qid) or false
+        end,
+
+        subzone     = function(name)
+            return GetSubZoneText() == name
+        end,
+
+        zone        = function(name)
+            return GetZoneText() == name
+        end,
+
+        havebuff    = function(spellID)
+            return C_UnitAuras and C_UnitAuras.GetPlayerAuraBySpellID and
+                C_UnitAuras.GetPlayerAuraBySpellID(spellID) ~= nil or false
+        end,
+
+        GetMoney    = GetMoney,
+
+        -- Indoor check
+        _G          = {
             IsIndoors = function()
                 return IsIndoors and IsIndoors() or false
             end
         },
-        skill = function(name)
+
+        -- Skill check
+        skill       = function(name)
             for i = 1, GetNumSkillLines() do
                 local skillName, isHeader, _, skillRank = GetSkillLineInfo(i)
                 if not isHeader and skillName == name then
@@ -108,23 +120,48 @@ function IronPath:EvaluateCondition(condition)
             end
             return 0
         end,
+
+        -- Reputation constants
+        Hated       = 1,
+        Hostile     = 2,
+        Unfriendly  = 3,
+        Neutral     = 4,
+        Friendly    = 5,
+        Honored     = 6,
+        Revered     = 7,
+        Exalted     = 8,
+
+        rep         = function(factionName)
+            if not factionName then return 0 end
+            for i = 1, GetNumFactions() do
+                local name, _, standingID = GetFactionInfo(i)
+                if name == factionName then
+                    IronPath:DebugPrint("Rep check: " .. name .. " = " .. tostring(standingID), "rep")
+                    return standingID or 0
+                end
+            end
+            IronPath:DebugPrint("Rep check: " .. factionName .. " not found", "rep")
+            return 0
+        end,
+
+        -- Weapon skill check
         weaponskill = function(code)
             local map = {
-                TH_SWORD = "Two-Handed Swords",
-                TH_MACE = "Two-Handed Maces",
-                TH_AXE = "Two-Handed Axes",
-                SWORD = "Swords",
-                MACE = "Maces",
-                AXE = "Axes",
-                DAGGER = "Daggers",
-                TH_STAFF = "Staves",
-                BOW = "Bows",
-                GUN = "Guns",
-                CROSSBOW = "Crossbows",
-                FIST = "Fist Weapons",
-                POLEARM = "Polearms",
-                THROWN = "Thrown",
-                WAND = "Wands",
+                TH_SWORD  = "Two-Handed Swords",
+                TH_MACE   = "Two-Handed Maces",
+                TH_AXE    = "Two-Handed Axes",
+                SWORD     = "Swords",
+                MACE      = "Maces",
+                AXE       = "Axes",
+                DAGGER    = "Daggers",
+                TH_STAFF  = "Staves",
+                BOW       = "Bows",
+                GUN       = "Guns",
+                CROSSBOW  = "Crossbows",
+                FIST      = "Fist Weapons",
+                POLEARM   = "Polearms",
+                THROWN    = "Thrown",
+                WAND      = "Wands",
                 DUALWIELD = "Dual Wield"
             }
 
@@ -141,15 +178,19 @@ function IronPath:EvaluateCondition(condition)
             return 0
         end,
 
-        guideflag = function(_) return false end,
+        -- Guide flag stub
+        guideflag   = function(_) return false end,
+
+        -- Needed for item checking
         C_Container = C_Container
     }
+
 
     -- Strip "if" at beginning
     condition = condition:gsub("^%s*if%s+", "")
 
     local function smartAndInsert(str)
-        local logic = {["and"] = true, ["or"] = true, ["not"] = true}
+        local logic = { ["and"] = true, ["or"] = true, ["not"] = true }
         local comparators = {
             ["<"] = true,
             [">"] = true,
@@ -190,7 +231,7 @@ function IronPath:EvaluateCondition(condition)
     if not fn then
         IronPath:DebugPrint(
             "Condition parse error:\nOriginal: " .. condition .. "\nCleaned:  " ..
-                cleaned .. "\nError: " .. err, "error")
+            cleaned .. "\nError: " .. err, "error")
         return false, "parse error"
     end
 
@@ -201,8 +242,7 @@ function IronPath:EvaluateCondition(condition)
     else
         IronPath:DebugPrint(
             "Condition eval failed:\nOriginal: " .. condition .. "\nCleaned:  " ..
-                cleaned, "warn")
+            cleaned, "warn")
         return false, "eval error"
     end
 end
-

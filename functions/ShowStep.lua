@@ -31,9 +31,11 @@ local function ProcessObjectives(self, objectives, parentStep, objectiveList)
         repeat
             if obj._skip then break end
 
-            if type(obj.completeIf) == "string" and
-                IronPath:EvaluateCondition(obj.completeIf) then
-                obj.isComplete = true
+            if type(obj.completeIf) == "string" then
+                local result, debugInfo = IronPath:EvaluateCondition(obj.completeIf)
+                print("Evaluating: " .. obj.completeIf .. ". Response: " .. tostring(result))
+                obj._conditionMatched = debugInfo
+                obj.isComplete = result
             end
 
             local handler = self.ActionHandlers[obj.type]
@@ -72,7 +74,7 @@ function GuideViewer:ShowStep()
     local totalSteps = #guide.steps
     self.currentStep = math.max(1, math.min(self.currentStep or 1, totalSteps))
     self.highestUnlockedStep = math.max(self.highestUnlockedStep or 1,
-                                        self.currentStep)
+        self.currentStep)
 
     local step = steps[self.currentStep]
     -- Reparse non-sticky objectives only
@@ -109,7 +111,7 @@ function GuideViewer:ShowStep()
 
     if NavBar and NavBar.stepInfo then
         NavBar.stepInfo:SetText("Step " .. self.currentStep .. " of " ..
-                                    totalSteps)
+            totalSteps)
     end
 
     if IronPath.db and IronPath.db.char then
