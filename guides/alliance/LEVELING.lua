@@ -3601,7 +3601,7 @@ Enter the building |goto Stormwind City 43.05,34.48 < 10 |walk
 talk Brother Sarno##7917
 |tip Inside the building.
 accept Tinkmaster Overspark##2923 |goto Stormwind City 40.56,30.91
-|only if not ZGV.IsClassicSoD and (Hunter or Mage)
+|only if Hunter or Mage
 step
 talk Thomas##4982
 |tip He runs around inside the cathedral.
@@ -3768,7 +3768,7 @@ step
 Leave the building |goto Stormwind City 43.05,34.48 < 10 |walk |only if subzone("Cathedral of Light")
 talk Tinkmaster Overspark##7944
 turnin Tinkmaster Overspark##2923 |goto Ironforge 69.54,50.32
-|only if not ZGV.IsClassicSoD and (Hunter or Mage)
+|only if Hunter or Mage
 step
 Run up the stairs and enter the building |goto Ironforge 61.33,88.20 < 7 |walk
 talk Buliwyf Stonehand##11865
@@ -10979,7 +10979,7 @@ talk Kalaran Windblade##8479
 accept Divine Retribution##3441 |goto Searing Gorge 39.05,38.99
 step
 talk Kalaran Windblade##8479
-Select _"Tell me what drives this vengeance?"_ 
+Select _"Tell me what drives this vengeance?"_
 Listen to Kalaran's Story |q 3441/1 |goto Searing Gorge 39.05,38.99
 step
 talk Kalaran Windblade##8479
@@ -11412,7 +11412,6 @@ step
 talk Historian Karnik##2916
 |tip Inside the building.
 accept Passing the Burden##3448 |goto Ironforge 77.53,11.83
-|only if not ZGV.IsClassicSoD
 step
 Enter the building |goto Ironforge 53.24,7.33 < 7 |walk
 talk Jubahl Corpseseeker##6382
@@ -11429,7 +11428,6 @@ talk Tymor##8507
 turnin Passing the Burden##3448 |goto Ironforge 30.96,4.82
 accept Arcane Runes##3449 |goto Ironforge 30.96,4.82
 accept An Easy Pickup##3450 |goto Ironforge 30.96,4.82
-|only if not ZGV.IsClassicSoD
 step
 Enter the building |goto Ironforge 20.65,53.22 < 7 |walk
 talk Innkeeper Firebrew##5111
@@ -11450,12 +11448,10 @@ talk Xiggs Fuselighter##8517
 |tip Inside the building.
 turnin An Easy Pickup##3450 |goto Ironforge 70.88,94.55
 accept Signal for Pickup##3451 |goto Ironforge 70.88,94.55
-|only if not ZGV.IsClassicSoD
 step
 talk Xiggs Fuselighter##8517
 |tip Inside the building.
 turnin Signal for Pickup##3451 |goto Ironforge 70.88,94.55
-|only if not ZGV.IsClassicSoD
 step
 map Ironforge
 path	follow strict;	loop on;	ants curved;	dist 30;	markers none
@@ -12161,7 +12157,6 @@ talk Fuzruckle##3496
 |tip Collect these items from the bank.
 collect Drawing Kit##10445 |goto The Barrens 62.64,37.42 |q 3449
 collect Standard Issue Flare Gun##10444 |goto The Barrens 62.64,37.42 |q 3449
-|only if not ZGV.IsClassicSoD
 step
 talk Fuzruckle##3496
 |tip Desposit these items into the bank.
@@ -12182,13 +12177,13 @@ talk Fahran Silentblade##3969
 |tip Open your poison crafting window and purchase the ingredients you need.
 |tip You're about to travel to Un'goro where there aren't any poison vendors nearby.
 Visit the Vendor |vendor Fahran Silentblade##3969 |goto Ashenvale 36.49,49.46 |q 3449
-|only if Rogue and not ZGV.IsClassicSoD
+|only if Rogue
 step
 talk Brinna Valanaar##14301
 |tip Buy enough ammo to fill your ammo bag, plus 15-20 extra stacks.
 |tip You will be questing and grinding a while.
 Visit the Vendor |vendor Brinna Valanaar##14301 |goto Azshara 12.00,78.38 |q 3449
-|only if Hunter	and not ZGV.IsClassicSoD
+|only if Hunter
 step
 Follow the path |goto Azshara/0 20.32,67.98 < 25 |only if walking
 Continue following the path |goto Azshara/0 25.14,60.44 < 25 |only if walking
@@ -12198,26 +12193,22 @@ click Rune of Beth'Amara##149481
 |tip Spitelash Sirens may heal while fighting.		|only if hardcore
 |tip Watch for patrols and respawns while in the area.	|only if hardcore
 collect Rubbing: Rune of Beth'Amara##10563 |q 3449/1 |goto Azshara 36.87,53.19
-|only if not ZGV.IsClassicSoD
 step
 click Rune of Markri##149482
 |tip Spitelash Sirens may heal while fighting.		|only if hardcore
 |tip Watch for patrols and respawns while in the area.	|only if hardcore
 collect Rubbing: Rune of Markri##10565 |q 3449/3 |goto Azshara 39.30,55.48
-|only if not ZGV.IsClassicSoD
 step
 click Rune of Sael'hai##149483
 |tip Be careful not to run off the cliff, there's not an easy way back up.
 |tip Spitelash Sirens may heal while fighting.		|only if hardcore
 |tip Watch for patrols and respawns while in the area.	|only if hardcore
 collect Rubbing: Rune of Sael'hai##10566 |q 3449/4 |goto Azshara 42.34,64.13
-|only if not ZGV.IsClassicSoD
 step
 click Rune of Jin'yael##149480
 |tip Spitelash Sirens may heal while fighting.		|only if hardcore
 |tip Watch for patrols and respawns while in the area.	|only if hardcore
 collect Rubbing: Rune of Jin'yael##10564 |q 3449/2 |goto Azshara 39.56,50.31
-|only if not ZGV.IsClassicSoD
 step
 Follow the path down |goto Azshara 40.50,47.76 < 30 |only if walking |only if (subzone("Ruins of Eldarath ") or subzone("Temple of Zin-Malor") or subzone("The Shattered Strand")) and walking
 Follow the path |goto Azshara 46.94,41.46 < 30 |only if walking |only if walking and (subzone("Ruins of Eldarath ") or subzone("Temple of Zin-Malor") or subzone("The Shattered Strand"))
@@ -12225,7 +12216,6 @@ Follow the path |goto Azshara 45.16,36.79 < 40 |only if walking |only if walking
 talk Kim'jael##8420
 |tip On top of the big hill.
 accept Kim'jael Indeed!##3601 |goto Azshara 53.45,21.82
-|only if not ZGV.IsClassicSoD
 step
 click Kim'jael's Equipment##153123
 |tip They look like wooden boxes on the ground around this area.
@@ -12246,13 +12236,11 @@ You can find more around: |notinsticky
 [58.55,29.05]
 [58.76,28.71]
 [59.61,30.93]
-|only if not ZGV.IsClassicSoD
 step
 talk Kim'jael##8420
 |tip On top of the big hill.
 turnin Kim'jael Indeed!##3601 |goto Azshara 53.45,21.82
 accept Kim'jael's "Missing" Equipment##5534 |goto Azshara 53.45,21.82
-|only if not ZGV.IsClassicSoD
 step
 Follow the path down |goto Azshara 45.27,37.16 < 50 |only if walking and not subzone("The Shattered Strand")
 Kill Spitelash enemies around this area
@@ -12261,13 +12249,11 @@ collect Some Rune##13815 |q 5534/1 |goto Azshara 47.65,43.93
 You can find more around: |notinsticky
 [46.76,53.80]
 [48.51,64.11]
-|only if not ZGV.IsClassicSoD
 step
 Follow the path up |goto Azshara 45.95,38.62 < 30 |only if walking and subzone("The Shattered Strand")
 talk Kim'jael##8420
 |tip On top of the big hill.
 turnin Kim'jael's "Missing" Equipment##5534 |goto Azshara 53.45,21.82
-|only if not ZGV.IsClassicSoD
 step
 Kill enemies around this area
 |tip You are about to go back to Un'Goro Crater soon, and have to fight higher level enemies, so being a level higher is important.
@@ -12279,7 +12265,7 @@ Kill enemies around this area
 |tip Watch for patrols and respawns while in the area.			|only if hardcore
 ding 54 |goto Azshara 56.94,29.30
 It's a long run, but you can get more arrows at [12.00,78.38]		|only if Hunter
-|only if not ZGV.IsClassicSoD and not Hardcore
+|only if not Hardcore
 step
 Follow the path down to the beach |goto Azshara 45.27,37.16 < 50 |only if walking and not subzone("The Shattered Strand")
 use the Standard Issue Flare Gun##10444
@@ -12291,17 +12277,14 @@ talk Pilot Xiggs Fuselighter##8392
 |tip It takes a little while for him to show up.
 turnin Arcane Runes##3449 |goto Azshara 77.80,91.32
 accept Return to Tymor##3461 |goto Azshara 77.80,91.32
-|only if not ZGV.IsClassicSoD
 step
 _Destroy This Item:_
 |tip It is no longer needed.
 trash Standard Issue Flare Gun##10444 |goto The Barrens 62.64,37.42
-|only if not ZGV.IsClassicSoD
 step
 talk Fuzruckle##3496
 |tip Deposit these items into the bank.
 bank Drawing Kit##10445 |goto The Barrens 62.64,37.42 |q 3461 |future
-|only if not ZGV.IsClassicSoD
 step
 talk Fuzruckle##3496
 |tip Collect these items from the bank.
@@ -13303,7 +13286,6 @@ Run up the stairs and enter the building |goto Ironforge 32.00,5.50 < 7 |walk
 talk Tymor##8507
 |tip Inside the building.
 turnin Return to Tymor##3461 |goto Ironforge 30.97,4.82
-|only if not ZGV.IsClassicSoD
 step
 Enter the building |goto Ironforge 20.65,53.22 < 7 |walk
 talk Innkeeper Firebrew##5111

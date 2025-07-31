@@ -31,9 +31,6 @@ function IronPath:EvaluateCondition(condition)
     -- Environment for condition evaluation
     -- ============================================================
     local env = {
-        -- Dev-only: block unknown ZGV references
-        ZGV         = setmetatable({}, { __index = function() return false end }),
-
         -- Basic character info
         level       = level,
         faction     = faction,

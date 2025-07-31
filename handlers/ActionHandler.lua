@@ -96,6 +96,10 @@ GuideViewer.ActionHandlers.walk = function(self, step, silent)
 
     for _, obj in ipairs(step.objectives or {}) do
         if obj.type == "walk" and obj.coords then
+            -- Colorize label if not already colored
+            if obj.label and not obj.label:find("|cff") then
+                obj.label = "|cff80dfff" .. obj.label .. "|r"
+            end
             local function CheckObjCondition()
                 if obj.condition then
                     local success, result = pcall(function()
@@ -838,16 +842,14 @@ GuideViewer.ActionHandlers.collect = function(self, step, silent)
 
                 if obj.quantity > 1 or (obj.label and obj.label:match("^%d+%s")) then
                     local count = GetItemCount(obj.itemID or 0, true) or 0
-                    local qtyText =
-                        obj.quantity > 1 and (obj.quantity .. " ") or ""
-                    obj.label = qtyText .. obj.item .. " (" .. count .. "/" ..
-                        obj.quantity .. ")"
+                    local qtyText = obj.quantity > 1 and (obj.quantity .. " ") or ""
+                    obj.label = "Collect: |cffff9900" ..
+                        qtyText .. obj.item .. "|r (" .. count .. "/" .. obj.quantity .. ")"
+
 
                     if count >= obj.quantity then
                         obj.isComplete = true
-                        IronPath:DebugPrint(
-                            "Collect (bag) complete (" .. count .. "/" ..
-                            obj.quantity .. ")", "collect")
+                        IronPath:DebugPrint("Collect (bag) complete (" .. count .. "/" .. obj.quantity .. ")", "collect")
                     else
                         allComplete = false
                     end
@@ -859,8 +861,7 @@ GuideViewer.ActionHandlers.collect = function(self, step, silent)
                         if o then
                             local have, need = o.numFulfilled or 0,
                                 o.numRequired or obj.quantity
-                            obj.label =
-                                obj.item .. " (" .. have .. "/" .. need .. ")"
+                            obj.label = "Collect: |cffff9900" .. obj.item .. "|r (" .. have .. "/" .. need .. ")"
 
                             if have >= need then
                                 obj.isComplete = true
@@ -944,8 +945,7 @@ GuideViewer.ActionHandlers.kill = function(self, step, silent)
             if o then
                 local have, need = o.numFulfilled or 0, o.numRequired or 1
                 obj.label =
-                    "|cffFFFFFFKill:|r " .. obj.target .. " (" .. have .. "/" ..
-                    need .. ")"
+                    "Kill|cffff4444 " .. obj.target .. "|r (" .. have .. "/" .. need .. ")"
                 if have >= need then
                     obj.isComplete = true
                     IronPath:DebugPrint(
@@ -1084,19 +1084,19 @@ GuideViewer.ActionHandlers.ding = function(self, step, silent)
                 if level == requiredLevel then
                     if requiredXP > 0 then
                         percent = math.floor((xp / requiredXP) * 100)
-                        obj.label = "Reach Level " .. requiredLevel .. " & " ..
-                            requiredXP .. "xp " .. colorOpen .. "(" ..
-                            percent .. "%)" .. colorClose
+                        obj.label = colorOpen ..
+                            "Reach Level " ..
+                            requiredLevel .. " & " .. requiredXP .. "xp " .. "(" .. percent .. "%)" .. colorClose
                     else
                         percent = math.floor((xp / maxXP) * 100)
-                        obj.label = "Reach Level " .. requiredLevel .. " " ..
-                            colorOpen .. "(" .. percent .. "%)" ..
+                        obj.label = colorOpen .. "Reach Level " .. requiredLevel .. " " ..
+                            "(" .. percent .. "%)" ..
                             colorClose
                     end
                 else
                     percent = math.floor((xp / maxXP) * 100)
-                    obj.label = "Reach Level " .. requiredLevel .. " " ..
-                        colorOpen .. "(" .. percent .. "%)" ..
+                    obj.label = colorOpen .. "Reach Level " .. requiredLevel .. " " ..
+                        "(" .. percent .. "%)" ..
                         colorClose
                 end
             end

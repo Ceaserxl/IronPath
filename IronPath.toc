@@ -47,8 +47,10 @@ functions\GetVisibleSteps.lua
 functions\ShowStep.lua
 
 # Features
+features\POI.lua
 features\arrowFrame.lua
 features\Arrow.lua
+features\ArrowMixin.xml
 features\MapIcon.lua
 
 # Guides - Alliance

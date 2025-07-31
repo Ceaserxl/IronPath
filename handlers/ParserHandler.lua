@@ -274,6 +274,7 @@ function IronPath.Parser:BuildObjective(meta, label)
                 nil,
             walk = true
         }
+        obj.label = "|cff80dfff" .. obj.label .. "|r"
     elseif meta.zone and meta.x and meta.y then
         obj.coords = {
             zone = meta.zone,
@@ -282,6 +283,7 @@ function IronPath.Parser:BuildObjective(meta, label)
             mapIndex = meta.zoneMapIndex and tonumber(meta.zoneMapIndex) or nil,
             walk = true
         }
+        obj.label = "|cff80dfff" .. obj.label .. "|r"
     elseif meta.rawX and meta.rawY then
         obj.coords = {
             x = tonumber(meta.rawX),
@@ -291,8 +293,18 @@ function IronPath.Parser:BuildObjective(meta, label)
 
         if meta.isWalkNote then
             obj.type = "walkNote"
+            -- Strip trailing space + pipe if present
+            obj.label = obj.label:gsub("%s+|$", "")
+
+            -- Then colorize
+            obj.label = "|cff80dfff" .. obj.label .. "|r"
         elseif meta.isWalk then
             obj.type = "walk"
+            -- Strip trailing space + pipe if present
+            obj.label = obj.label:gsub("%s+|$", "")
+
+            -- Then colorize
+            obj.label = "|cff80dfff" .. obj.label .. "|r"
         end
     end
 
@@ -300,12 +312,14 @@ function IronPath.Parser:BuildObjective(meta, label)
         obj.type = "obj"
         obj.isComplete = false
         obj.blankBox = false
+        obj.label = "|cffff9900" .. obj.label .. "|r"
     end
     if meta.skillmax then
         obj.type = "skillmax"
         obj.skillmax = meta.skillmax
         obj.skillmaxLevel = tonumber(meta.skillmaxLevel)
         obj.isComplete = false
+        obj.label = "|cff66ff66" .. obj.label .. "|r"
     end
     if meta.isVendor then
         local npc, npcID = meta.line:match("|vendor%s+(.+)##(%d+)")
@@ -314,8 +328,12 @@ function IronPath.Parser:BuildObjective(meta, label)
         obj.npcID = tonumber(npcID)
         obj.isComplete = false
         obj.blankBox = true
+        obj.label = "|cffffcc00" .. obj.label .. "|r"
     end
-    if meta.isTrainer then obj.type = "trainer" end
+    if meta.isTrainer then
+        obj.type = "trainer"
+        obj.label = "|cff66ff66" .. obj.label .. "|r"
+    end
     if meta.isConfirm then
         obj.type = "confirm"
         obj.isComplete = false
@@ -323,7 +341,7 @@ function IronPath.Parser:BuildObjective(meta, label)
         if meta.next then obj.next = meta.next end
     end
     if meta.completeIf then
-        -- obj.type = "complete"
+        obj.type = "obj"
         obj.isComplete = false
         obj.blankBox = true
     end
@@ -394,7 +412,7 @@ function IronPath.Parser:HandleTalkLine(line, step)
         type = "talk",
         npc = npc,
         npcID = tonumber(id),
-        label = npc,
+        label = "Talk to |cff00ff00" .. npc .. "|r",
         isComplete = nil,
         blankBox = true,
         condition = condition,
@@ -461,7 +479,7 @@ function IronPath.Parser:HandleTrainerLine(line, step)
             type = "trainer",
             npc = npc,
             npcID = tonumber(id),
-            label = "Train your spells.",
+            label = "|cff66ff66Train your spells.|r",
             isComplete = false,
             blankBox = false
         }
@@ -507,7 +525,7 @@ function IronPath.Parser:HandleFpathLine(line, step)
     if zone and x and y then
         local obj = {
             type = "fpath",
-            label = fpath,
+            label = "Flight Path: |cff80ccff" .. fpath .. "|r",
             coords = { x = tonumber(x), y = tonumber(y), zone = zone },
             isComplete = false,
             blankBox = false
@@ -533,7 +551,9 @@ function IronPath.Parser:HandleHomeLine(line, step)
     local hearthLoc = line:match("^home%s+([^|]+)")
     obj.hearthLocation = hearthLoc and hearthLoc:match("^%s*(.-)%s*$") or
         "Unknown"
-    obj.label = obj.hearthLocation
+    obj.label = "Set Hearth: |cffe066ff" .. obj.hearthLocation .. "|r"
+
+
 
     -- Optional quest ID
     local qid = line:match("|q%s+(%d+)")
@@ -638,10 +658,11 @@ function IronPath.Parser:HandleKillLine(line, step)
     end
 
     if obj.quantity and obj.target then
-        obj.label = "Kill " .. obj.quantity .. " " .. obj.target
+        obj.label = "Kill |cffff4444" .. obj.quantity .. " " .. obj.target .. "|r"
     else
-        obj.label = obj.target
+        obj.label = "|cffff4444" .. obj.target .. "|r"
     end
+
     -- NPC ID
     local npcID = line:match("##(%d+%+?)")
     if npcID then
@@ -703,7 +724,7 @@ function IronPath.Parser:HandleDingLine(line, step)
             type = "ding",
             level = tonumber(level),
             xp = tonumber(xp) or nil,
-            label = label,
+            label = "|cffffcc00" .. label .. "|r",
             isComplete = false,
             blankBox = false
         }
@@ -743,7 +764,7 @@ function IronPath.Parser:HandleTurninLine(line, step)
             type = "turnin",
             quest = quest,
             qid = tonumber(qid),
-            label = quest,
+            label = "Turn in |cffffcc00" .. quest .. "|r",
             isComplete = false,
             blankBox = false
         }
@@ -823,15 +844,14 @@ function IronPath.Parser:HandleCollectLine(line, step)
         type = "collect",
         item = item,
         quantity = num,
-        label = ParseDebug and ("[collect] " .. item) or item,
+        label = "Collect: |cffff9900" .. item .. "|r",
         itemID = id and tonumber(id) or nil,
         isComplete = false,
         blankBox = false
     }
 
     if num and num > 1 then
-        obj.label = ParseDebug and ("[collect] " .. quantity .. " " .. item) or
-            (quantity .. " " .. item)
+        obj.label = "Collect: |cffff9900" .. quantity .. " " .. item .. "|r"
     end
 
     -- Extract quest ID and index
@@ -909,7 +929,7 @@ function IronPath.Parser:HandleLearnSpellLine(line, step)
             type = "learnspell",
             spell = spell,
             spellID = tonumber(id),
-            label = spell,
+            label = "Learn |cff66ff66" .. spell .. "|r",
             isComplete = false,
             blankBox = false
         }
@@ -945,7 +965,7 @@ function IronPath.Parser:HandleAcceptLine(line, step)
             type = "accept",
             quest = quest,
             qid = tonumber(qid),
-            label = quest,
+            label = "Accept |cffffcc00" .. quest .. "|r",
             isComplete = false,
             blankBox = false
         }
@@ -985,11 +1005,14 @@ function IronPath.Parser:HandleWalkLine(line, step)
     if zone and x and y then
         x = math.floor(tonumber(x))
         y = math.floor(tonumber(y))
+
+        local labelText = ParseDebug and
+            string.format("[walk] %s [%s, %s]", zone, x, y) or
+            string.format("%s [%s, %s]", zone, x, y)
+
         table.insert(step.objectives, {
             type = "walk",
-            label = ParseDebug and
-                string.format("[walk] %s [%s, %s]", zone, x, y) or
-                string.format("%s [%s, %s]", zone, x, y),
+            label = "|cff80dfff" .. labelText .. "|r",
             coords = { zone = zone:match("^%s*(.-)%s*$"), x = x, y = y },
             isComplete = nil,
             blankBox = true
@@ -1002,10 +1025,14 @@ function IronPath.Parser:HandleWalkLine(line, step)
     if x and y then
         x = math.floor(tonumber(x))
         y = math.floor(tonumber(y))
+
+        local labelText = ParseDebug and
+            string.format("[walk] [%s, %s]", x, y) or
+            string.format("[%s, %s]", x, y)
+
         table.insert(step.objectives, {
             type = "walk",
-            label = ParseDebug and string.format("[walk] [%s, %s]", x, y) or
-                string.format("[%s, %s]", x, y),
+            label = "|cff80dfff" .. labelText .. "|r",
             coords = { x = x, y = y },
             isComplete = nil,
             blankBox = true
@@ -1029,7 +1056,7 @@ function IronPath.Parser:HandleTrashLine(line, step)
             type = "trash",
             item = item,
             itemID = tonumber(id),
-            label = item,
+            label = "|cffffb000" .. item .. "|r",
             isComplete = false,
             blankBox = false
         })
@@ -1086,7 +1113,7 @@ function IronPath.Parser:HandleTipLine(line, step)
     -- Final object
     local obj = {
         type = "tip",
-        label = ParseDebug and "[tip] " .. cleaned or cleaned,
+        label = "|cffaaaaaa" .. cleaned .. "|r",
         isComplete = nil,
         blankBox = true,
         condition = condition and condition:match("^%s*(.-)%s*$") or nil,

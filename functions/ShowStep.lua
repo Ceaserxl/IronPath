@@ -33,7 +33,6 @@ local function ProcessObjectives(self, objectives, parentStep, objectiveList)
 
             if type(obj.completeIf) == "string" then
                 local result, debugInfo = IronPath:EvaluateCondition(obj.completeIf)
-                print("Evaluating: " .. obj.completeIf .. ". Response: " .. tostring(result))
                 obj._conditionMatched = debugInfo
                 obj.isComplete = result
             end
@@ -120,9 +119,32 @@ function GuideViewer:ShowStep()
 
     if #visibleObjectives > 0 then
         IronPath:GoToObjective(visibleObjectives[1])
+
+        IronPath_CurrentStep = {
+            objectives = visibleObjectives
+        }
+
+
+        -- Place minimap pins for all visible objectives
+        IronPath:PlaceMinimapPinsForObjectives(visibleObjectives)
+
+        -- Refresh world map pins if map is open
+        if WorldMapFrame:IsShown() then
+            WorldMapFrame:RefreshAllDataProviders()
+        end
     else
         IronPath:ClearArrow()
+        IronPath:ClearMinimapPins()
+
+        -- Remove world map pins if map is open
+        if WorldMapFrame:IsShown() then
+            WorldMapFrame:RefreshAllDataProviders()
+        end
     end
+
+
+
+
 
     self:CheckAndAutoAdvance(step)
 end

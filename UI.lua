@@ -12,29 +12,29 @@ local Padding = 3
 -- ============================================================
 -- Icons =====================================================
 -- ============================================================
-talkIcon = "voicechat-icon-STT"
-acceptIcon = "QuestNormal"
-turninIcon = "QuestTurnin"
-trainIcon = "Profession"
-checkmarkIcon = "checkmark-minimal"
-checkboxIcon = "checkbox-minimal"
-killIcon = "DungeonSkull"
-collectIcon = "Banker"
-destroyIcon = "XMarksTheSpot"
-hearthIcon = "Innkeeper"
-fpathIcon = "TaxiNode_Neutral"
-learnIcon = "Class"
-buyIcon = "Auctioneer"
-useIcon = "Focus"
-noteIcon = "poi-workorders"
-goToIcon = "FlightMaster"
-blankIcon = "DungeonSkulls"
+-- talkIcon = "voicechat-icon-STT"
+-- acceptIcon = "QuestNormal"
+-- turninIcon = "QuestTurnin"
+-- trainIcon = "Profession"
+-- checkmarkIcon = "checkmark-minimal"
+-- checkboxIcon = "checkbox-minimal"
+-- killIcon = "DungeonSkull"
+-- collectIcon = "Banker"
+-- destroyIcon = "common-icon-redx"
+-- hearthIcon = "Innkeeper"
+-- fpathIcon = "TaxiNode_Neutral"
+-- learnIcon = "Class"
+-- buyIcon = "Auctioneer"
+-- useIcon = "Focus"
+-- noteIcon = "poi-workorders"
+-- goToIcon = "FlightMaster"
+-- blankIcon = "DungeonSkulls"
 
 ------------------------------------------------------------
 -- NavBar – Main Frame
 ------------------------------------------------------------
 local NavBar = CreateFrame("Frame", "IronPathNavBar", UIParent,
-                           "BackdropTemplate")
+    "BackdropTemplate")
 _G.IronPathUI = NavBar
 
 NavBar:SetSize(GlobalWidth, 28)
@@ -44,7 +44,7 @@ NavBar:EnableMouse(true)
 NavBar:SetClampedToScreen(true)
 NavBar:SetScript("OnMouseDown", NavBar.StartMoving)
 NavBar:SetScript("OnMouseUp", NavBar.StopMovingOrSizing)
-NavBar:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8"})
+NavBar:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8" })
 NavBar:SetBackdropColor(0.05, 0.08, 0.16, 1)
 NavBar:SetBackdropBorderColor(0.10, 0.14, 0.22, 1.0)
 
@@ -55,7 +55,7 @@ NavBar.title:SetText("|cff00ccffIronPath |cffffcc00Classic|r")
 
 -- Step Info
 NavBar.stepInfo = NavBar:CreateFontString(nil, "OVERLAY",
-                                          "GameFontHighlightSmall")
+    "GameFontHighlightSmall")
 NavBar.stepInfo:SetPoint("LEFT", NavBar.title, "RIGHT", 10, 0)
 NavBar.stepInfo:SetText("Step X of X")
 
@@ -74,12 +74,12 @@ NavBar.nextBtn:SetText("Next")
 -- GuideViewer – Attached Below NavBar
 ------------------------------------------------------------
 local GuideViewer = CreateFrame("Frame", "IronPathViewer", NavBar,
-                                "BackdropTemplate")
+    "BackdropTemplate")
 _G.IronPathViewer = GuideViewer
 
 GuideViewer:SetSize(GlobalWidth, 200)
 GuideViewer:SetPoint("TOP", NavBar, "BOTTOM", 0, 0)
-GuideViewer:SetBackdrop({bgFile = "Interface\\ChatFrame\\ChatFrameBackground"})
+GuideViewer:SetBackdrop({ bgFile = "Interface\\ChatFrame\\ChatFrameBackground" })
 GuideViewer:SetBackdropColor(0.15, 0.15, 0.15, 0.75)
 
 ------------------------------------------------------------
@@ -87,87 +87,48 @@ GuideViewer:SetBackdropColor(0.15, 0.15, 0.15, 0.75)
 ------------------------------------------------------------
 ObjectiveStyleMap = {
     -- Navigation
-    goTo = {icon = "FlightMaster", label = "Go To: ", color = {0.6, 0.80, 1.0}},
-    walk = {icon = "FlightMaster", label = "", color = {0.6, 0.80, 1.0}},
-    walkNote = {icon = "FlightMaster", label = "", color = {0.6, 0.80, 1.0}},
-    fpath = {
-        icon = "TaxiNode_Neutral",
-        label = "Flight Path: ",
-        color = {0.5, 0.80, 1.0}
-    },
-    home = {
-        icon = "Innkeeper",
-        label = "Set Hearth: ",
-        color = {1.0, 0.60, 1.0}
-    },
+    goTo       = { icon = "FlightMaster" },
+    walk       = { icon = "FlightMaster" },
+    walkNote   = { icon = "FlightMaster" },
+    fpath      = { icon = "TaxiNode_Neutral" },
+    home       = { icon = "Innkeeper" },
+    talk       = { icon = "voicechat-icon-STT" },
 
     -- Quest Flow
-    accept = {
-        icon = "QuestNormal",
-        label = "Accept: ",
-        color = {1.0, 0.80, 0.4}
-    },
-    talk = {
-        icon = "voicechat-icon-STT",
-        label = "Talk to ",
-        color = {0.1, 1.00, 0.1}
-    },
-    complete = {
-        icon = "Vehicle-TempleofKotmogu-PurpleBall",
-        label = "",
-        color = {1, 1, 1}
-    },
-    turnin = {
-        icon = "QuestTurnin",
-        label = "Turn In: ",
-        color = {1.0, 0.80, 0.4}
-    },
+    accept     = { icon = "QuestNormal" },
+    complete   = { icon = "Vehicle-TempleofKotmogu-PurpleBall" },
+    turnin     = { icon = "QuestTurnin" },
 
     -- Combat/Collection
-    kill = {icon = "DungeonSkull", label = "", color = {1.0, 0.85, 0.2}},
-    collect = {
-        icon = "QuestObjective",
-        label = "Collect: ",
-        color = {1.0, 0.85, 0.2}
-    },
-    bank = {icon = "Banker", label = "Deposit: ", color = {1.0, 0.85, 0.2}},
-    trash = {icon = "XMarksTheSpot", label = "", color = {1.0, 0.85, 0.2}},
+    kill       = { icon = "DungeonSkull" },
+    collect    = { icon = "QuestObjective" },
+    bank       = { icon = "Banker" },
+    trash      = { icon = "common-icon-redx" },
 
     -- Trainer/Profession
-    trainer = {icon = "Class", label = "", color = {1.0, 1.00, 0.4}},
-    learnspell = {icon = "Class", label = "Learn: ", color = {1.0, 1.00, 0.4}},
-    skillmax = {icon = "Profession", label = "", color = {0.8, 0.80, 1.0}},
+    trainer    = { icon = "Class" },
+    learnspell = { icon = "Class" },
+    skillmax   = { icon = "Profession" },
 
     -- Vendor/Items
-    vendor = {icon = "Auctioneer", label = "", color = {1.0, 1.0, 1.0}},
-    buy = {icon = "Auctioneer", label = "Buy ", color = {1.0, 0.85, 0.5}},
-    use = {icon = "Focus", label = "", color = {0.9, 0.90, 1.0}},
-    click = {
-        icon = "Vehicle-TempleofKotmogu-OrangeBall",
-        label = "",
-        color = {0.9, 0.90, 1.0}
-    },
+    vendor     = { icon = "Auctioneer" },
+    buy        = { icon = "Auctioneer" },
+    use        = { icon = "Focus" },
+    click      = { icon = "Vehicle-TempleofKotmogu-OrangeBall" },
 
     -- Leveling/Progress
-    ding = {icon = "VignetteEvent", label = "", color = {1.0, 0.85, 0.2}},
-    confirm = {icon = "ArtifactQuest", label = "", color = {1, 1, 1}},
+    ding       = { icon = "VignetteEvent" },
+    confirm    = { icon = "ArtifactQuest" },
 
     -- Misc UI
-    note = {
-        icon = "Vehicle-TempleofKotmogu-CyanBall",
-        label = "",
-        color = {1, 1, 1}
-    },
-    popuptext = {
-        icon = "Rotating-MinimapGuideArrow",
-        label = "",
-        color = {1, 1, 1}
-    },
-    tip = {icon = "poi-workorders", label = "", color = {0.7, 0.70, 0.7}},
-    gossip = {icon = "ArtifactQuest", label = "", color = {1, 1, 1}},
-    obj = {icon = "QuestObjective", label = "", color = {1, 1, 1}},
-    blank = {icon = "", label = "", color = {1, 1, 1}}
+    note       = { icon = "Vehicle-TempleofKotmogu-CyanBall" },
+    popuptext  = { icon = "Rotating-MinimapGuideArrow" },
+    tip        = { icon = "poi-workorders" },
+    gossip     = { icon = "ArtifactQuest" },
+    obj        = { icon = "QuestObjective" },
+    blank      = { icon = "" }
 }
+
 
 function GuideViewer:CreateObjectiveLine(objective)
     local action = objective.type or "note"
@@ -176,23 +137,15 @@ function GuideViewer:CreateObjectiveLine(objective)
     local blankBox = objective.blankBox
 
     local parent = GuideViewer
-    parent._lastObjectiveLine = parent._lastObjectiveLine or
-                                    parent.objectivesAnchor
+    parent._lastObjectiveLine = parent._lastObjectiveLine or parent.objectivesAnchor
     parent._objectiveTotalHeight = parent._objectiveTotalHeight or 0
 
-    local entry = ObjectiveStyleMap[action] or
-                      {
-            icon = "VignetteKillElite",
-            label = "",
-            color = {1, 1, 1}
-        }
-    local r, g, b = unpack(entry.color)
+    local entry = ObjectiveStyleMap[action] or { icon = "VignetteKillElite", }
 
     -- Secure button base
-    local frame = CreateFrame("Button", nil, parent,
-                              "SecureActionButtonTemplate,BackdropTemplate")
+    local frame = CreateFrame("Button", nil, parent, "SecureActionButtonTemplate,BackdropTemplate")
     frame:SetSize(GlobalWidth, 0)
-    frame:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8"})
+    frame:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8" })
     frame.checked = isComplete
 
     -- Backdrop color logic
@@ -240,16 +193,16 @@ function GuideViewer:CreateObjectiveLine(objective)
         if not objective then return end
 
         local withCoords = {
-            walk = true,
+            walk     = true,
             walkNote = true,
-            kill = true,
-            vendor = true,
-            accept = true,
-            turnin = true,
-            ding = true,
-            collect = true,
-            fpath = true,
-            obj = true
+            kill     = true,
+            vendor   = true,
+            accept   = true,
+            turnin   = true,
+            ding     = true,
+            collect  = true,
+            fpath    = true,
+            obj      = true
         }
 
         if withCoords[action] and type(objective.coords) == "table" then
@@ -260,32 +213,27 @@ function GuideViewer:CreateObjectiveLine(objective)
             objective.isComplete = true
 
             if objective.next then
-                IronPath:DebugPrint("Jumping to step labeled: " ..
-                                        tostring(objective.next))
-                local target = GuideViewer._stepLabels and
-                                   GuideViewer._stepLabels[objective.next]
+                IronPath:DebugPrint("Jumping to step labeled: " .. tostring(objective.next))
+                local target = GuideViewer._stepLabels and GuideViewer._stepLabels[objective.next]
                 if target and target._labelIndex then
                     GuideViewer.currentStep = target._labelIndex
                 else
-                    IronPath:DebugPrint("Label not found: " ..
-                                            tostring(objective.next), "warn")
+                    IronPath:DebugPrint("Label not found: " .. tostring(objective.next), "warn")
                     GuideViewer:SkipToNextVisibleStep()
                 end
             else
                 GuideViewer:SkipToNextVisibleStep()
             end
-
             GuideViewer:ShowStep()
         elseif action == "popuptext" then
-            IronPath:DebugPrint("TODO: POPUPTEXT: " ..
-                                    tostring(objective.popuptext))
+            IronPath:DebugPrint("TODO: POPUPTEXT: " .. tostring(objective.popuptext))
         end
     end)
 
     -- Checkbox
     local checkBtn = CreateFrame("Button", nil, frame)
-    checkBtn:SetSize(14, 14)
-    checkBtn:SetPoint("TOPLEFT", frame, "TOPLEFT", 6, -5)
+    checkBtn:SetSize(16, 16)
+    checkBtn:SetPoint("TOPLEFT", frame, "TOPLEFT", 6, -2)
 
     local checkIcon = checkBtn:CreateTexture(nil, "ARTWORK")
     checkIcon:SetAllPoints()
@@ -295,12 +243,10 @@ function GuideViewer:CreateObjectiveLine(objective)
         checkIcon:SetTexture("Interface\\Buttons\\WHITE8x8")
         checkIcon:SetVertexColor(0, 0, 0, 0)
     else
-        checkIcon:SetAtlas(isComplete and "checkmark-minimal" or
-                               "checkbox-minimal")
+        checkIcon:SetAtlas(isComplete and "common-icon-checkmark" or "checkbox-minimal")
         checkBtn:SetScript("OnClick", function()
             frame.checked = not frame.checked
-            checkIcon:SetAtlas(frame.checked and "checkmark-minimal" or
-                                   "checkbox-minimal")
+            checkIcon:SetAtlas(frame.checked and "common-icon-checkmark" or "checkbox-minimal")
             UpdateColor()
             if objective then objective.isComplete = frame.checked end
         end)
@@ -312,19 +258,17 @@ function GuideViewer:CreateObjectiveLine(objective)
     local icon = frame:CreateTexture(nil, "ARTWORK")
     icon:SetSize(16, 16)
     icon:SetAtlas(entry.icon or "VignetteKillElite")
-    icon:SetPoint("TOPLEFT", checkBtn, "TOPRIGHT", 5, 3)
+    icon:SetPoint("LEFT", checkBtn, "RIGHT", 5, 0)
 
     -- Label
     local label = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    label:SetPoint("TOPLEFT", icon, "TOPRIGHT", 6, -2)
-    label:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -4, 0)
+    label:SetPoint("LEFT", icon, "RIGHT", 6, 0)
+    label:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -4, -3)
     label:SetJustifyH("LEFT")
     label:SetJustifyV("TOP")
     label:SetWordWrap(true)
     label:SetWidth(GlobalWidth - 50)
-    label:SetText(string.format("|cffffffff%s|r|cff%02x%02x%02x%s|r",
-                                entry.label, r * 255, g * 255, b * 255,
-                                targetText))
+    label:SetText(targetText)
 
     label:SetHeight(0)
     local h = label:GetStringHeight() + 8
@@ -343,7 +287,7 @@ function GuideViewer:CreateObjectiveLine(objective)
 end
 
 function GuideViewer:ResetObjectiveLines()
-    for _, child in ipairs({self:GetChildren()}) do
+    for _, child in ipairs({ self:GetChildren() }) do
         if child ~= self.objectivesLabel and not child._isSticky and
             not child._isFooter then
             child:Hide()
@@ -360,7 +304,7 @@ end
 ------------------------------------------------------------
 -- Objectives Label
 GuideViewer.objectivesAnchor = CreateFrame("Frame", nil, GuideViewer,
-                                           "BackdropTemplate")
+    "BackdropTemplate")
 GuideViewer.objectivesAnchor:SetSize(1, 1)
 GuideViewer.objectivesAnchor:SetPoint("TOPLEFT", 0, 1)
 
@@ -448,11 +392,11 @@ _G.IronPathFooter = FooterBar
 FooterBar:SetHeight(24)
 FooterBar:SetPoint("TOPLEFT", GuideViewer, "BOTTOMLEFT", 0, 0)
 FooterBar:SetPoint("TOPRIGHT", GuideViewer, "BOTTOMRIGHT", 0, 0)
-FooterBar:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8"})
+FooterBar:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8" })
 FooterBar:SetBackdropColor(0.06, 0.12, 0.22, 1) -- slightly more visible contrast
 
 FooterBar.guideTitle = FooterBar:CreateFontString(nil, "OVERLAY",
-                                                  "GameFontHighlightSmall")
+    "GameFontHighlightSmall")
 FooterBar.guideTitle:SetPoint("LEFT", Padding, 0)
 FooterBar.guideTitle:SetText("GuideName by Author")
 
@@ -463,7 +407,7 @@ FooterBar.guideTitle:SetText("GuideName by Author")
 -- FooterBar.stepInfo:SetText("Step X of X completed")
 
 FooterBar.version = FooterBar:CreateFontString(nil, "OVERLAY",
-                                               "GameFontDisableSmall")
+    "GameFontDisableSmall")
 FooterBar.version:SetPoint("RIGHT", -Padding, 0)
 FooterBar.version:SetText("v0.9.2")
 FooterBar._isFooter = true
@@ -542,4 +486,3 @@ NavBar.prevBtn:SetScript("OnClick", function()
     GuideViewer:SkipToPreviousVisibleStep()
     IronPath:DebugPrint("Previous step: " .. GuideViewer.currentStep, "info")
 end)
-

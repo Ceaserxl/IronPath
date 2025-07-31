@@ -121,67 +121,9 @@ accept Encrypted Letter##3102 |goto Elwynn Forest 48.92,41.61		|only Human Rogue
 accept Hallowed Letter##3103 |goto Elwynn Forest 48.92,41.61		|only Human Priest
 accept Consecrated Letter##3101 |goto Elwynn Forest 48.92,41.61	|only Human Paladin
 step
-talk Llane Beshere##911
-|tip Inside the building, on the ground floor.
-turnin Simple Letter##3100 |goto Elwynn Forest 50.24,42.28
-accept The Lost Rune##77616 |goto Elwynn Forest 50.24,42.28 |only if ZGV.IsClassicSoD
-|only if Human Warrior and ZGV.IsClassicSoD
-step
-talk Brother Sammuel##925
-|tip Inside the building, on the ground floor.
-turnin Consecrated Letter##3101 |goto Elwynn Forest 50.43,42.12
-accept Relics of the Light##77617 |goto Elwynn Forest 50.43,42.12 |only if ZGV.IsClassicSoD
-|only if Human Paladin and ZGV.IsClassicSoD
-step
-talk Priestess Anetta##375
-|tip Inside the building, on the ground floor.
-turnin Hallowed Letter##3103 |goto Elwynn Forest 49.81,39.49
-accept Meditation on the Light##77619 |goto Elwynn Forest 49.81,39.49 |only if ZGV.IsClassicSoD
-|only if Human Priest and ZGV.IsClassicSoD
-step
-Gain the Meditation on the Light Buff |complete hasbuff(410935) |goto Elwynn Forest 49.81,39.49 |q 77619
-|tip Use the "/kneel" emote while standing inside the building.
-|tip You will gain a buff that allows you to learn Priest runes.
-|only if Human Priest and ZGV.IsClassicSoD
-step
-Kill Kobold enemies around this area
-|tip Inside the mine.
-collect Memory of a Troubled Acolyte##205951 |goto Elwynn Forest 47.66,31.86 |q 77619
-|only if Human Priest and ZGV.IsClassicSoD
-step
-use the Memory of a Troubled Acolyte##205951
-Learn Spell: Engrave Gloves - Penance |q 77619/1
-|only if Human Priest and ZGV.IsClassicSoD
-step
-Enter the building |goto Elwynn Forest 48.31,41.99 < 10 |walk
-talk Priestess Anetta##375
-|tip Inside the building, on the ground floor.
-turnin Meditation on the Light##77619 |goto Elwynn Forest 49.81,39.49
-|only if Human Priest and ZGV.IsClassicSoD
-step
-talk Khelden Bremen##198
-|tip Upstairs inside the building, on the middle floor.
-turnin Glyphic Letter##3104 |goto Elwynn Forest 49.66,39.40
-learnspell Arcane Intellect##1459 |goto Elwynn Forest 49.66,39.40
-learnspell Conjure Water##5504 |goto Elwynn Forest 49.66,39.40
-learnspell Frostbolt##116 |goto Elwynn Forest 49.66,39.40
-accept Spell Research##77620 |goto Elwynn Forest 49.66,39.40 |only if ZGV.IsClassicSoD
-|only if Human Mage and ZGV.IsClassicSoD
-step
 Leave the building |goto Elwynn Forest 48.30,42.00 < 10 |walk |only if _G.IsIndoors()
 kill 10 Kobold Worker##257 |q 15/1 |goto Elwynn Forest 47.49,36.15
 You can find more around [Elwynn Forest 51.18,37.25]
-step
-Enter the mine |goto Elwynn Forest 47.67,31.88 < 15 |walk
-click Kobold Stashbox##397987
-|tip It looks like a wooden chest on the ground.
-|tip Inside the mine.
-collect Rune of Victory Rush##204806 |goto Elwynn Forest 50.63,27.27 |q 77616
-|only if Human Warrior and ZGV.IsClassicSoD
-step
-use the Rune of Victory Rush##204806
-Learn: Engrave Gloves - Victory Rush |q 77616/1
-|only if Human Warrior and ZGV.IsClassicSoD
 step
 Kill enemies around this area
 |tip Getting this far into level 3 will allow you to reach level 4 when you turn in a quest soon.
@@ -220,11 +162,6 @@ learnspell Power Word: Fortitude##1243 |goto Elwynn Forest 49.81,39.49
 turnin Hallowed Letter##3103 |goto Elwynn Forest 49.81,39.49
 |only if Human Priest
 step
-talk Llane Beshere##911
-|tip Inside the building.
-turnin The Lost Rune##77616 |goto Elwynn Forest 50.24,42.28
-|only if Human Warrior and ZGV.IsClassicSoD
-step
 talk Khelden Bremen##198
 |tip Upstairs inside the building, on the middle floor.
 turnin Glyphic Letter##3104 |goto Elwynn Forest 49.66,39.40
@@ -242,7 +179,6 @@ talk Drusilla La Salle##459
 |tip Outside, next to the building.
 turnin Tainted Letter##3105 |goto Elwynn Forest 49.87,42.65
 accept The Stolen Tome##1598 |goto Elwynn Forest 49.87,42.65
-accept Stolen Power##77621 |goto Elwynn Forest 49.87,42.65 |only if ZGV.IsClassicSoD
 learnspell Corruption##172 |goto Elwynn Forest 49.87,42.65
 |only if Human Warlock
 step
@@ -261,69 +197,10 @@ Summon Your Imp |complete warlockpet("Imp") |q 18 |future
 |tip Use the "Summon Imp" ability.
 |only if Human Warlock and not warlockpet("Imp")
 step
-click Defias Stashbox##387477
-collect Rune of Haunting##205230 |goto Elwynn Forest 52.54,51.92 |q 77621
-|only if Human Warlock and ZGV.IsClassicSoD
-step
-use the Rune of Haunting##205230
-Learn Engrave Gloves - Haunt |q 77621/1
-|only if Human Warlock and ZGV.IsClassicSoD
-step
-talk Drusilla La Salle##459
-|tip Outside, next to the building.
-turnin Stolen Power##77621 |goto Elwynn Forest 49.87,42.65
-|only if Human Warlock and ZGV.IsClassicSoD
-step
-_NOTE:_
-Learn the Judgement Ability
-|tip Make sure to learn the Judgement ability from your class trainer.
-|tip You will need it to get a rune soon.
-Click Here to Continue |confirm |q 77617
-|only if Human Paladin and ZGV.IsClassicSoD
-step
-kill Defias Thug##38+
-collect Libram of Judgement##205420 |goto Elwynn Forest 56.09,42.35 |q 77617
-You can find more around [Elwynn Forest 53.20,50.30]
-|only if Human Paladin and ZGV.IsClassicSoD
-step
-Equip the Libram of Judgement |equipped Libram of Judgement##205420 |q 77617
-|only if Human Paladin and ZGV.IsClassicSoD
-step
-kill Defias Thug##38+
-|tip Use your "Seal of Righteousness" ability, and then use your "Judgement" ability on them.
-|tip You will gain a buff.
-|tip Repeat this process until you have 10 stacks of the Building Inspiration buff.
-Gain the Inspired Buff |havebuff Inspired##408828 |goto Elwynn Forest 56.09,42.35 |q 77617
-You can find more around [53.20,50.30]
-|only if Human Paladin and ZGV.IsClassicSoD
-step
-use the Libram of Judgement##205420
-Learn the Spell: Engrave Gloves - Crusader Strike |q 77617/1
-|only if Human Paladin and ZGV.IsClassicSoD
-step
 talk Jorik Kerridan##915
 |tip Outside, in the stables behind the the building.
 turnin Encrypted Letter##3102 |goto Elwynn Forest 50.31,39.92
-accept Thrice Stolen##77618 |goto Elwynn Forest 50.31,39.92 |only if ZGV.IsClassicSoD
 |only if Human Rogue
-step
-click Defias Stashbox##387477
-collect Rune of Shadowstrike##204795 |goto Elwynn Forest 52.54,51.92 |q 77618
-|only if Human Rogue and ZGV.IsClassicSoD
-step
-use the Rune of Shadowstrike##204795
-Learn: Engrave Gloves - Shadowstrike |q 77618/1
-|only if Human Rogue and ZGV.IsClassicSoD
-step
-kill Defias Thug##38+
-|tip They look like humans.
-collect Spell Notes: CALE ENCI##203751 |goto Elwynn Forest 54.89,42.98 |q 77620
-You can find more around [Elwynn Forest 54.13,48.90]
-|only if Human Mage and ZGV.IsClassicSoD
-step
-use the Spell Notes: CALE ENCI##203751
-Learn: Engrave Gloves - Ice Lance |q 77620/1
-|only if Human Mage and ZGV.IsClassicSoD
 step
 label "Collect_Red_Burlap_Bandanas"
 kill Defias Thug##38+ |notinsticky
@@ -339,18 +216,6 @@ step
 talk Godric Rothgar##1213
 Sell your trash |vendor Godric Rothgar##1213 |q 6 |goto Elwynn Forest/0 47.69,41.42
 step
-Enter the building |goto Elwynn Forest 48.30,42.00 < 10 |walk
-talk Brother Sammuel##925
-|tip Inside the building, on the ground floor.
-turnin Relics of the Light##77617 |goto Elwynn Forest 50.43,42.12
-|only if Human Paladin and ZGV.IsClassicSoD
-step
-Enter the building |goto Elwynn Forest 48.31,41.99 < 10 |walk
-talk Khelden Bremen##198
-|tip Upstairs inside the building.
-turnin Spell Research##77620 |goto Elwynn Forest 49.66,39.40
-|only if Human Mage and ZGV.IsClassicSoD
-step
 kill 12 Kobold Laborer##80 |q 21/1 |goto Elwynn Forest 47.67,31.86
 |tip Inside the mine.
 step
@@ -363,11 +228,6 @@ talk Milly Osworth##9296
 |tip Outside, behind the building.
 turnin Milly Osworth##3903 |goto Elwynn Forest 50.69,39.35
 accept Milly's Harvest##3904 |goto Elwynn Forest 50.69,39.35
-step
-talk Jorik Kerridan##915
-|tip Inside the building.
-turnin Thrice Stolen##77618 |goto Elwynn Forest 50.31,39.92
-|only if Human Rogue and ZGV.IsClassicSoD
 step
 kill Garrick Padfoot##103
 collect Garrick's Head##182 |q 6/1 |goto Elwynn Forest 57.51,48.25
@@ -2364,38 +2224,25 @@ talk Alyissia##3593
 |tip Inside the building.
 |tip Train your class spells while you are here.
 turnin Simple Sigil##3116 |goto Teldrassil 59.63,38.45
-accept Amidst the Shadowed Webs##77575 |goto Teldrassil 59.64,38.44 |only if ZGV.IsClassicSoD
 |only if NightElf Warrior
 step
 Run up the ramp |goto Teldrassil 59.97,41.90 < 10 |walk
 talk Shanda##3595
 |tip Upstairs inside the building.
 turnin Hallowed Sigil##3119 |goto Teldrassil 59.17,40.44
-accept Meditation on Elune##77574 |goto Teldrassil 59.17,40.44 |only if ZGV.IsClassicSoD
 |only if NightElf Priest
 step
 Gain the Meditation on Elune Buff |complete hasbuff(419307) |goto Teldrassil 59.94,33.07 |q 77574
 |tip Use the "/kneel" emote while standing in the moonwell.
 |tip You will gain a buff that allows you to learn Priest runes.
-|only if NightElf Priest and ZGV.IsClassicSoD
 step
 use the Memory of a Troubled Acolyte##205951
 Learn Spell: Engrave Gloves - Penance |q 77574/1
-|only if NightElf Priest and ZGV.IsClassicSoD
 step
 Run up the ramp |goto Teldrassil 59.97,41.90 < 10 |walk
 talk Shanda##3595
 |tip Upstairs inside the building.
 turnin Meditation on Elune##77574 |goto Teldrassil 59.17,40.44
-|only if NightElf Priest and ZGV.IsClassicSoD
-step
-Run up the large ramp |goto Teldrassil 57.53,41.63 < 15 |only if walking
-Enter the building |goto Teldrassil 58.51,40.71 < 10 |walk
-talk Ayanna Everstride##3596
-|tip Up in the tall tree, inside the building.
-turnin Etched Sigil##3117 |goto Teldrassil 58.65,40.45
-accept A Hunter's Strength##77568 |goto Teldrassil 58.65,40.45 |only if ZGV.IsClassicSoD
-|only if NightElf Hunter and ZGV.IsClassicSoD
 step
 Run up the large ramp |goto Teldrassil 57.53,41.63 < 15 |only if walking
 Enter the building |goto Teldrassil 58.51,40.71 < 10 |walk
@@ -2403,7 +2250,6 @@ talk Mardant Strongoak##3597
 |tip Up in the tall tree, inside the building.
 |tip Train your class spells.
 turnin Verdant Sigil##3120 |goto Teldrassil 58.63,40.29
-accept Relics of the Kaldorei##77571 |goto Teldrassil 58.63,40.29 |only if ZGV.IsClassicSoD
 |only if NightElf Druid
 step
 talk Tarindrella##1992
@@ -2433,15 +2279,6 @@ talk Dirania Silvershine##8583
 turnin A Friend in Need##3519 |goto Teldrassil 60.90,41.96
 accept Iverron's Antidote##3521 |goto Teldrassil 60.90,41.96
 step
-label "Learn_Engrave_Gloves_Victory_Rush_Night_Elf_Warrior"
-kill Webwood Spider##1986+
-|tip They look like green spiders.
-|tip Inside and outside the cave.
-collect Rune of Victory Rush##204806 |n
-use the Rune of Victory Rush##204806
-Learn: Engrave Gloves - Victory Rush |q 77575/1 |goto Teldrassil 56.78,31.54
-|only if NightElf Warrior and ZGV.IsClassicSoD
-step
 label "Collect_Webwood_Venom_Sacs"
 kill Webwood Spider##1986+
 |tip Inside and outside the cave.
@@ -2468,12 +2305,6 @@ step
 talk Conservator Ilthalaine##2079
 turnin The Balance of Nature##457 |goto Teldrassil 58.70,44.26
 step
-Run up the ramp inside the building |goto Teldrassil 59.19,40.00 < 15 |walk
-talk Alyissia##3593
-|tip Inside the building.
-turnin Amidst the Shadowed Webs##77575 |goto Teldrassil 59.64,38.44
-|only if NightElf Warrior and ZGV.IsClassicSoD
-step
 Run up the ramp inside the building |goto Teldrassil 59.19,40.00 < 10 |walk
 talk Frahun Shadewhisper##3594
 |tip Inside the building.
@@ -2486,37 +2317,6 @@ talk Ayanna Everstride##3596
 |tip Up in the tall tree, inside the building.
 |tip Consider not training your spells to buy a better bow and more ammo instead.
 turnin Etched Sigil##3117 |goto Teldrassil 58.65,40.45
-step
-_NOTE:_
-Learn the Moonfire Ability
-|tip Make sure to learn the Moonfire ability from your class trainer.
-|tip You will need it to get the rune.
-Click Here to Continue |confirm
-|only if NightElf Druid and ZGV.IsClassicSoD
-step
-kill Grellkin##1989+
-collect Lunar Idol##208414 |goto Teldrassil 54.33,39.11 |q 77571
-|only if NightElf Druid and ZGV.IsClassicSoD
-step
-Equip the Lunar Idol |equipped Lunar Idol##208414 |q 77571
-|only if NightElf Druid and ZGV.IsClassicSoD
-step
-Kill enemies around this area
-|tip Make sure they die while affected by your "Moonfire" ability.
-|tip You will gain a buff.
-|tip Repeat this process until you have 6 stacks of the Building Inspiration buff.
-Gain the Inspired Buff |havebuff Inspired##408828 |goto Teldrassil 55.67,42.46 |q 77571
-|only if NightElf Druid and ZGV.IsClassicSoD
-step
-use the Lunar Idol##208414
-Learn Engrave Chest - Fury of Stormrage |q 77571/1
-|only if NightElf Druid and ZGV.IsClassicSoD
-step
-Run up the ramp |goto Teldrassil 57.52,41.62 < 10 |walk
-talk Mardant Strongoak##3597
-|tip Inside the top of the tree.
-turnin Relics of the Kaldorei##77571 |goto Teldrassil 58.63,40.29
-|only if NightElf Druid and ZGV.IsClassicSoD
 step
 click Moonpetal Lily##152095+
 |tip They look like tall flowers with orange petals on the ground around this area.
@@ -2531,14 +2331,6 @@ click Webwood Eggs##4406
 |tip Watch for respawns while in the area. |only if hardcore
 collect Webwood Egg##5167 |q 917/1 |goto Teldrassil 56.80,26.43
 step
-kill Githyiss the Vile##1994
-|tip It looks like a larger green spider.
-|tip Upstairs inside the cave.
-collect Rune of the Chimera##206168 |n
-use the Rune of the Chimera##206168
-Learn: Engrave Gloves - Chimera Shot |q 77568/1 |goto Teldrassil 56.65,26.31
-|only if NightElf Hunter and ZGV.IsClassicSoD
-step
 label "Collect_Webwood_Ichor"
 kill Webwood Spider##1986+
 |tip Inside and outside the cave.
@@ -2549,13 +2341,6 @@ kill Grell##1988+
 collect 8 Fel Moss##3297 |q 459/1 |goto Teldrassil 56.08,45.83
 collect 7 Hyacinth Mushroom##10639 |q 3521/1 |goto Teldrassil 56.08,45.83
 You can find more around [54.75,44.01]
-step
-Run up the large ramp |goto Teldrassil 57.53,41.63 < 15 |only if walking
-Enter the building |goto Teldrassil 58.51,40.71 < 10 |walk
-talk Ayanna Everstride##3596
-|tip Up in the tall tree, inside the building.
-turnin A Hunter's Strength##77568 |goto Teldrassil 58.65,40.45
-|only if NightElf Hunter and ZGV.IsClassicSoD
 step
 talk Tarindrella##1992
 turnin The Woodland Protector##459 |goto Teldrassil 57.83,45.20
@@ -4153,89 +3938,49 @@ talk Thran Khorman##912
 |tip Inside the building.
 |tip Train your class spells.
 turnin Simple Rune##3106 |goto Dun Morogh 28.83,67.24
-accept The Lost Rune##77655 |goto Dun Morogh 28.83,67.24 |only if ZGV.IsClassicSoD
 |only if Dwarf Warrior
 step
 talk Solm Hargrin##916
 |tip Inside the building.
 |tip Train your class spells.
 turnin Encrypted Rune##3109 |goto Dun Morogh 28.37,67.51
-accept Thrice Stolen##77658 |goto Dun Morogh 28.37,67.51 |only if ZGV.IsClassicSoD
 |only if Dwarf Rogue
 step
 talk Branstock Khalder##837
 |tip Inside the building.
 |tip Train your class spells.
 turnin Hallowed Rune##3110 |goto Dun Morogh 28.60,66.39
-accept Meditation on the Light##77661 |goto Dun Morogh 28.60,66.39 |only if ZGV.IsClassicSoD
 |only if Dwarf Priest
-step
-Gain the Meditation on the Light Buff |complete hasbuff(410935) |goto Dun Morogh 28.92,66.42 |q 77661
-|tip Target the Altar of the Light.
-|tip It looks like a stone pedastal inside the building.
-|tip Use the "/kneel" emote while standing next to it.
-|tip You will gain a buff that allows you to learn Priest runes.
-|only if Dwarf Priest and ZGV.IsClassicSoD
-step
-Leave the building |goto Dun Morogh 28.79,69.07 < 10 |walk |only if subzone("Anvilmar")
-click Rockjaw Footlocker##405633
-collect Memory of a Troubled Acolyte##205951 |goto Dun Morogh 26.73,72.55 |q 77661
-|only if Dwarf Priest and ZGV.IsClassicSoD
-step
-use the Memory of a Troubled Acolyte##205951
-Learn Spell: Engrave Gloves - Penance |q 77661/1
-|only if Dwarf Priest and ZGV.IsClassicSoD
 step
 talk Bromos Grummner##926
 |tip Inside the building.
 |tip Train your class spells.
 turnin Consecrated Rune##3107 |goto Dun Morogh 28.83,68.33
-accept Relics of the Light##77657 |goto Dun Morogh 28.83,68.33 |only if ZGV.IsClassicSoD
 |only if Dwarf Paladin
-step
-_NOTE:_
-Learn the Judgement Ability
-|tip Make sure to learn the Judgement ability from your class trainer.
-|tip You will need it to get the rune.
-Click Here to Continue |confirm |q 77657
-|only if Dwarf Paladin and ZGV.IsClassicSoD
 step
 talk Thorgas Grimson##895
 |tip Inside the building.
 |tip Consider not training any spells, you will need 4s 14c for a big weapon upgrade when you leave this zone.
 turnin Etched Rune##3108 |goto Dun Morogh 29.18,67.46
-accept Trek Through the Caves##77660 |goto Dun Morogh 29.18,67.46 |only if ZGV.IsClassicSoD
 |only if Dwarf Hunter
 step
 talk Thran Khorman##912
 |tip Inside the building.
 |tip Train your class spells.
 turnin Simple Memorandum##3112 |goto Dun Morogh 28.83,67.24
-accept The Lost Rune##77656 |goto Dun Morogh 28.83,67.24 |only if ZGV.IsClassicSoD
 |only if Gnome Warrior
 step
 talk Solm Hargrin##916
 |tip Inside the building.
 |tip Train your class spells.
 turnin Encrypted Memorandum##3113 |goto Dun Morogh 28.37,67.51
-accept Thrice Stolen##77659 |goto Dun Morogh 28.37,67.51 |only if ZGV.IsClassicSoD
 |only if Gnome Rogue
 step
 talk Marryk Nurribit##944
 |tip Inside the building.
 |tip Train your class spells.
 turnin Glyphic Memorandum##3114 |goto Dun Morogh 28.71,66.36
-accept Spell Research##77667 |goto Dun Morogh 28.71,66.37 |only if ZGV.IsClassicSoD
 |only if Gnome Mage
-step
-Leave the building |goto Dun Morogh 28.79,69.07 < 10 |walk |only if subzone("Anvilmar")
-click Rockjaw Footlocker##405633
-collect Spell Notes: CALE ENCI##203751 |goto Dun Morogh 26.73,72.55 |q 77667
-|only if Gnome Mage and ZGV.IsClassicSoD
-step
-use the Spell Notes: CALE ENCI##203751
-Learn: Engrave Gloves - Ice Lance |q 77667/1
-|only if Gnome Mage and ZGV.IsClassicSoD
 step
 Leave the building |goto Dun Morogh 28.79,69.07 < 10 |walk |only if subzone("Anvilmar")
 talk Alamar Grimm##460
@@ -4243,17 +3988,7 @@ talk Alamar Grimm##460
 |tip Train your class spells.
 turnin Tainted Memorandum##3115 |goto Dun Morogh 28.65,66.14
 accept Beginnings##1599 |goto Dun Morogh 28.65,66.14
-accept Stolen Power##77666 |goto Dun Morogh 28.65,66.14 |only if ZGV.IsClassicSoD
 |only if Gnome Warlock
-step
-Leave the building |goto Dun Morogh 28.79,69.07 < 10 |walk |only if subzone("Anvilmar")
-click Rockjaw Footlocker##405633
-collect Rune of Haunting##205230 |goto Dun Morogh 26.73,72.55 |q 77666
-|only if Gnome Warlock and ZGV.IsClassicSoD
-step
-use the Rune of Haunting##205230
-Learn Engrave Gloves - Haunt |q 77666/1
-|only if Gnome Warlock and ZGV.IsClassicSoD
 step
 Leave the building |goto Dun Morogh 28.79,69.07 < 10 |walk |only if subzone("Anvilmar")
 talk Nori Pridedrift##12738
@@ -4281,7 +4016,6 @@ Enter the building |goto Dun Morogh 28.79,69.05 < 10 |walk
 talk Alamar Grimm##460
 |tip Upstairs inside the building.
 turnin Beginnings##1599 |goto Dun Morogh 28.65,66.14
-turnin Stolen Power##77666 |goto Dun Morogh 28.65,66.14 |only if ZGV.IsClassicSoD
 |only if Gnome Warlock
 step
 Summon Your Imp |complete warlockpet("Imp") |q 218
@@ -4299,31 +4033,6 @@ stickystart "Learn_Engrave_Gloves_Victory_Rush_Dwarf_Warrior"
 stickystart "Learn_Engrave_Gloves_Victory_Rush_Gnome_Warrior"
 stickystart "Kill_Frostmane_Troll_Whelps"
 step
-kill Frostmane Troll Whelp##706+
-collect Libram of Judgement##205420 |goto Dun Morogh 21.04,76.30 |q 77657
-You can find more around: |notinsticky
-[Dun Morogh 22.77,79.78]
-[Dun Morogh 26.81,79.90]
-|only if Dwarf Paladin and ZGV.IsClassicSoD
-step
-Equip the Libram of Judgement |equipped Libram of Judgement##205420 |q 77657
-|only if Dwarf Paladin and ZGV.IsClassicSoD
-step
-kill Frostmane Troll Whelp##706+
-|tip Use your "Seal of Righteousness" ability, and then use your "Judgement" ability on them.
-|tip You will gain a buff.
-|tip Repeat this process until you have 10 stacks of the Building Inspiration buff.
-Gain the Inspired Buff |havebuff Inspired##408828 |goto Dun Morogh 26.78,79.83 |q 77657
-|tip Inside and outside the cave. |notinsticky
-You can find more outside the cave around: |notinsticky
-[22.78,79.72]
-[21.02,76.15]
-|only if Dwarf Paladin and ZGV.IsClassicSoD
-step
-use the Libram of Judgement##205420
-Learn the Spell: Engrave Gloves - Crusader Strike |q 77657/1
-|only if Dwarf Paladin and ZGV.IsClassicSoD
-step
 Leave the building |goto Dun Morogh 28.79,69.05 < 10 |walk |only if subzone("Anvilmar")
 click Felix's Box
 collect Felix's Box##10438 |q 3361/1 |goto Dun Morogh 20.88,76.07
@@ -4336,24 +4045,6 @@ step
 click Felix's Bucket of Bolts
 collect Felix's Bucket of Bolts##16314 |q 3361/3 |goto Dun Morogh 26.33,79.27
 |tip Grind enemies between each of Felix's parts to reduce a grind later.
-step
-label "Learn_Engrave_Gloves_Victory_Rush_Dwarf_Warrior"
-Kill Frostmane enemies around this area
-|tip They look like trolls.
-|tip Inside and outside the cave.
-collect Rune of Victory Rush##204806 |n
-use the Rune of Victory Rush##204806
-Learn: Engrave Gloves - Victory Rush |q 77655/1 |goto Dun Morogh 26.79,79.88
-|only if Dwarf Warrior and ZGV.IsClassicSoD
-step
-label "Learn_Engrave_Gloves_Victory_Rush_Gnome_Warrior"
-Kill Frostmane enemies around this area
-|tip They look like trolls.
-|tip Inside and outside the cave.
-collect Rune of Victory Rush##204806 |n
-use the Rune of Victory Rush##204806
-Learn: Engrave Gloves - Victory Rush |q 77656/1 |goto Dun Morogh 26.79,79.88
-|only if Gnome Warrior and ZGV.IsClassicSoD
 step
 label "Kill_Frostmane_Troll_Whelps"
 kill 14 Frostmane Troll Whelp##706 |q 182/1 |goto Dun Morogh 26.78,79.83
@@ -4375,33 +4066,6 @@ Continue down the path |goto Dun Morogh 29.06,78.87 < 10 |walk
 kill Grik'nir the Cold##808
 |tip Inside the cave.
 collect Grelin Whitebeard's Journal##2004 |q 218/1 |goto Dun Morogh 30.49,80.16
-step
-click Frostmane Loot Chest
-|tip Inside the cave, up on a ledge.
-collect Rune of the Chimera##206168 |goto Dun Morogh 30.78,80.06
-|only if Dwarf Hunter and ZGV.IsClassicSoD
-step
-use the Rune of the Chimera##206168
-Learn Engrave Gloves - Chimera Shot |q 77660/1
-|only if Dwarf Hunter and ZGV.IsClassicSoD
-step
-click Frostmane Loot Cache##405628
-|tip Inside the cave, up on a ledge.
-collect Rune of Shadowstrike##204795 |goto Dun Morogh 30.78,80.06 |q 77658
-|only if Dwarf Rogue and ZGV.IsClassicSoD
-step
-use the Rune of Shadowstrike##204795
-Learn Engrave Gloves - Shadowstrike |q 77658/1
-|only if Dwarf Rogue and ZGV.IsClassicSoD
-step
-click Frostmane Loot Cache##405628
-|tip Inside the cave, up on a ledge.
-collect Rune of Shadowstrike##204795 |goto Dun Morogh 30.78,80.06 |q 77659
-|only if Gnome Rogue and ZGV.IsClassicSoD
-step
-use the Rune of Shadowstrike##204795
-Learn Engrave Gloves - Shadowstrike |q 77659/1
-|only if Gnome Rogue and ZGV.IsClassicSoD
 step
 Leave the cave |goto Dun Morogh 26.78,79.83 < 15 |walk |only if subzone("Coldridge Valley") and _G.IsIndoors()
 talk Grelin Whitebeard##786
@@ -4435,46 +4099,6 @@ Enter the building |goto Dun Morogh 28.79,69.05 < 10 |walk
 talk Felix Whindlebolt##8416
 |tip He walks around this area inside the building.
 turnin A Refugee's Quandary##3361 |goto Dun Morogh 28.55,67.65
-step
-talk Thorgas Grimson##895
-|tip Inside the building.
-turnin Trek Through the Caves##77660 |goto Dun Morogh 29.18,67.46
-|only if Dwarf Hunter and ZGV.IsClassicSoD
-step
-talk Bromos Grummner##926
-|tip Inside the building.
-turnin Relics of the Light##77657 |goto Dun Morogh 28.83,68.33
-|only if Dwarf Paladin and ZGV.IsClassicSoD
-step
-talk Solm Hargrin##916
-|tip Outside, in the stables behind the the building.
-turnin Thrice Stolen##77658 |goto Dun Morogh 50.31,39.92
-|only if Dwarf Rogue and ZGV.IsClassicSoD
-step
-talk Solm Hargrin##916
-|tip Outside, in the stables behind the the building.
-turnin Thrice Stolen##77659 |goto Dun Morogh 50.31,39.92
-|only if Gnome Rogue and ZGV.IsClassicSoD
-step
-talk Thran Khorman##912
-|tip Inside the building.
-turnin The Lost Rune##77655 |goto Dun Morogh 28.83,67.24
-|only if Dwarf Warrior and ZGV.IsClassicSoD
-step
-talk Thran Khorman##912
-|tip Inside the building.
-turnin The Lost Rune##77656 |goto Dun Morogh 28.83,67.24
-|only if Gnome Warrior and ZGV.IsClassicSoD
-step
-talk Marryk Nurribit##944
-|tip Inside the building.
-turnin Spell Research##77667 |goto Dun Morogh 28.71,66.37
-|only if Gnome Mage and ZGV.IsClassicSoD
-step
-talk Branstock Khalder##837
-|tip Inside the building.
-turnin Meditation on the Light##77661 |goto Dun Morogh 28.60,66.39
-|only if Dwarf Priest and ZGV.IsClassicSoD
 step
 Leave the building |goto Dun Morogh 28.79,69.05 < 10 |walk |only if subzone("Anvilmar")
 talk Mountaineer Thalos##1965
@@ -6193,89 +5817,49 @@ talk Thran Khorman##912
 |tip Inside the building.
 |tip Train your class spells.
 turnin Simple Rune##3106 |goto Dun Morogh 28.83,67.24
-accept The Lost Rune##77655 |goto Dun Morogh 28.83,67.24 |only if ZGV.IsClassicSoD
 |only if Dwarf Warrior
 step
 talk Solm Hargrin##916
 |tip Inside the building.
 |tip Train your class spells.
 turnin Encrypted Rune##3109 |goto Dun Morogh 28.37,67.51
-accept Thrice Stolen##77658 |goto Dun Morogh 28.37,67.51 |only if ZGV.IsClassicSoD
 |only if Dwarf Rogue
 step
 talk Branstock Khalder##837
 |tip Inside the building.
 |tip Train your class spells.
 turnin Hallowed Rune##3110 |goto Dun Morogh 28.60,66.39
-accept Meditation on the Light##77661 |goto Dun Morogh 28.60,66.39 |only if ZGV.IsClassicSoD
 |only if Dwarf Priest
-step
-Gain the Meditation on the Light Buff |complete hasbuff(410935) |goto Dun Morogh 28.92,66.42 |q 77661
-|tip Target the Altar of the Light.
-|tip It looks like a stone pedastal inside the building.
-|tip Use the "/kneel" emote while standing next to it.
-|tip You will gain a buff that allows you to learn Priest runes.
-|only if Dwarf Priest and ZGV.IsClassicSoD
-step
-Leave the building |goto Dun Morogh 28.79,69.07 < 10 |walk |only if subzone("Anvilmar")
-click Rockjaw Footlocker##405633
-collect Memory of a Troubled Acolyte##205951 |goto Dun Morogh 26.73,72.55 |q 77661
-|only if Dwarf Priest and ZGV.IsClassicSoD
-step
-use the Memory of a Troubled Acolyte##205951
-Learn Spell: Engrave Gloves - Penance |q 77661/1
-|only if Dwarf Priest and ZGV.IsClassicSoD
 step
 talk Bromos Grummner##926
 |tip Inside the building.
 |tip Train your class spells.
 turnin Consecrated Rune##3107 |goto Dun Morogh 28.83,68.33
-accept Relics of the Light##77657 |goto Dun Morogh 28.83,68.33 |only if ZGV.IsClassicSoD
 |only if Dwarf Paladin
-step
-_NOTE:_
-Learn the Judgement Ability
-|tip Make sure to learn the Judgement ability from your class trainer.
-|tip You will need it to get the rune.
-Click Here to Continue |confirm |q 77657
-|only if Dwarf Paladin and ZGV.IsClassicSoD
 step
 talk Thorgas Grimson##895
 |tip Inside the building.
 |tip Consider not training any spells, you will need 4s 14c for a big weapon upgrade when you leave this zone.
 turnin Etched Rune##3108 |goto Dun Morogh 29.18,67.46
-accept Trek Through the Caves##77660 |goto Dun Morogh 29.18,67.46 |only if ZGV.IsClassicSoD
 |only if Dwarf Hunter
 step
 talk Thran Khorman##912
 |tip Inside the building.
 |tip Train your class spells.
 turnin Simple Memorandum##3112 |goto Dun Morogh 28.83,67.24
-accept The Lost Rune##77656 |goto Dun Morogh 28.83,67.24 |only if ZGV.IsClassicSoD
 |only if Gnome Warrior
 step
 talk Solm Hargrin##916
 |tip Inside the building.
 |tip Train your class spells.
 turnin Encrypted Memorandum##3113 |goto Dun Morogh 28.37,67.51
-accept Thrice Stolen##77659 |goto Dun Morogh 28.37,67.51 |only if ZGV.IsClassicSoD
 |only if Gnome Rogue
 step
 talk Marryk Nurribit##944
 |tip Inside the building.
 |tip Train your class spells.
 turnin Glyphic Memorandum##3114 |goto Dun Morogh 28.71,66.36
-accept Spell Research##77667 |goto Dun Morogh 28.71,66.37 |only if ZGV.IsClassicSoD
 |only if Gnome Mage
-step
-Leave the building |goto Dun Morogh 28.79,69.07 < 10 |walk |only if subzone("Anvilmar")
-click Rockjaw Footlocker##405633
-collect Spell Notes: CALE ENCI##203751 |goto Dun Morogh 26.73,72.55 |q 77667
-|only if Gnome Mage and ZGV.IsClassicSoD
-step
-use the Spell Notes: CALE ENCI##203751
-Learn: Engrave Gloves - Ice Lance |q 77667/1
-|only if Gnome Mage and ZGV.IsClassicSoD
 step
 Leave the building |goto Dun Morogh 28.79,69.07 < 10 |walk |only if subzone("Anvilmar")
 talk Alamar Grimm##460
@@ -6283,17 +5867,7 @@ talk Alamar Grimm##460
 |tip Train your class spells.
 turnin Tainted Memorandum##3115 |goto Dun Morogh 28.65,66.14
 accept Beginnings##1599 |goto Dun Morogh 28.65,66.14
-accept Stolen Power##77666 |goto Dun Morogh 28.65,66.14 |only if ZGV.IsClassicSoD
 |only if Gnome Warlock
-step
-Leave the building |goto Dun Morogh 28.79,69.07 < 10 |walk |only if subzone("Anvilmar")
-click Rockjaw Footlocker##405633
-collect Rune of Haunting##205230 |goto Dun Morogh 26.73,72.55 |q 77666
-|only if Gnome Warlock and ZGV.IsClassicSoD
-step
-use the Rune of Haunting##205230
-Learn Engrave Gloves - Haunt |q 77666/1
-|only if Gnome Warlock and ZGV.IsClassicSoD
 step
 Leave the building |goto Dun Morogh 28.79,69.07 < 10 |walk |only if subzone("Anvilmar")
 talk Nori Pridedrift##12738
@@ -6321,7 +5895,6 @@ Enter the building |goto Dun Morogh 28.79,69.05 < 10 |walk
 talk Alamar Grimm##460
 |tip Upstairs inside the building.
 turnin Beginnings##1599 |goto Dun Morogh 28.65,66.14
-turnin Stolen Power##77666 |goto Dun Morogh 28.65,66.14 |only if ZGV.IsClassicSoD
 |only if Gnome Warlock
 step
 Summon Your Imp |complete warlockpet("Imp") |q 218
@@ -6339,31 +5912,6 @@ stickystart "Learn_Engrave_Gloves_Victory_Rush_Dwarf_Warrior"
 stickystart "Learn_Engrave_Gloves_Victory_Rush_Gnome_Warrior"
 stickystart "Kill_Frostmane_Troll_Whelps"
 step
-kill Frostmane Troll Whelp##706+
-collect Libram of Judgement##205420 |goto Dun Morogh 21.04,76.30 |q 77657
-You can find more around: |notinsticky
-[Dun Morogh 22.77,79.78]
-[Dun Morogh 26.81,79.90]
-|only if Dwarf Paladin and ZGV.IsClassicSoD
-step
-Equip the Libram of Judgement |equipped Libram of Judgement##205420 |q 77657
-|only if Dwarf Paladin and ZGV.IsClassicSoD
-step
-kill Frostmane Troll Whelp##706+
-|tip Use your "Seal of Righteousness" ability, and then use your "Judgement" ability on them.
-|tip You will gain a buff.
-|tip Repeat this process until you have 10 stacks of the Building Inspiration buff.
-Gain the Inspired Buff |havebuff Inspired##408828 |goto Dun Morogh 26.78,79.83 |q 77657
-|tip Inside and outside the cave. |notinsticky
-You can find more outside the cave around: |notinsticky
-[22.78,79.72]
-[21.02,76.15]
-|only if Dwarf Paladin and ZGV.IsClassicSoD
-step
-use the Libram of Judgement##205420
-Learn the Spell: Engrave Gloves - Crusader Strike |q 77657/1
-|only if Dwarf Paladin and ZGV.IsClassicSoD
-step
 Leave the building |goto Dun Morogh 28.79,69.05 < 10 |walk |only if subzone("Anvilmar")
 click Felix's Box
 collect Felix's Box##10438 |q 3361/1 |goto Dun Morogh 20.88,76.07
@@ -6376,24 +5924,6 @@ step
 click Felix's Bucket of Bolts
 collect Felix's Bucket of Bolts##16314 |q 3361/3 |goto Dun Morogh 26.33,79.27
 |tip Grind enemies between each of Felix's parts to reduce a grind later.
-step
-label "Learn_Engrave_Gloves_Victory_Rush_Dwarf_Warrior"
-Kill Frostmane enemies around this area
-|tip They look like trolls.
-|tip Inside and outside the cave.
-collect Rune of Victory Rush##204806 |n
-use the Rune of Victory Rush##204806
-Learn: Engrave Gloves - Victory Rush |q 77655/1 |goto Dun Morogh 26.79,79.88
-|only if Dwarf Warrior and ZGV.IsClassicSoD
-step
-label "Learn_Engrave_Gloves_Victory_Rush_Gnome_Warrior"
-Kill Frostmane enemies around this area
-|tip They look like trolls.
-|tip Inside and outside the cave.
-collect Rune of Victory Rush##204806 |n
-use the Rune of Victory Rush##204806
-Learn: Engrave Gloves - Victory Rush |q 77656/1 |goto Dun Morogh 26.79,79.88
-|only if Gnome Warrior and ZGV.IsClassicSoD
 step
 label "Kill_Frostmane_Troll_Whelps"
 kill 14 Frostmane Troll Whelp##706 |q 182/1 |goto Dun Morogh 26.78,79.83
@@ -6415,33 +5945,6 @@ Continue down the path |goto Dun Morogh 29.06,78.87 < 10 |walk
 kill Grik'nir the Cold##808
 |tip Inside the cave.
 collect Grelin Whitebeard's Journal##2004 |q 218/1 |goto Dun Morogh 30.49,80.16
-step
-click Frostmane Loot Chest
-|tip Inside the cave, up on a ledge.
-collect Rune of the Chimera##206168 |goto Dun Morogh 30.78,80.06
-|only if Dwarf Hunter and ZGV.IsClassicSoD
-step
-use the Rune of the Chimera##206168
-Learn Engrave Gloves - Chimera Shot |q 77660/1
-|only if Dwarf Hunter and ZGV.IsClassicSoD
-step
-click Frostmane Loot Cache##405628
-|tip Inside the cave, up on a ledge.
-collect Rune of Shadowstrike##204795 |goto Dun Morogh 30.78,80.06 |q 77658
-|only if Dwarf Rogue and ZGV.IsClassicSoD
-step
-use the Rune of Shadowstrike##204795
-Learn Engrave Gloves - Shadowstrike |q 77658/1
-|only if Dwarf Rogue and ZGV.IsClassicSoD
-step
-click Frostmane Loot Cache##405628
-|tip Inside the cave, up on a ledge.
-collect Rune of Shadowstrike##204795 |goto Dun Morogh 30.78,80.06 |q 77659
-|only if Gnome Rogue and ZGV.IsClassicSoD
-step
-use the Rune of Shadowstrike##204795
-Learn Engrave Gloves - Shadowstrike |q 77659/1
-|only if Gnome Rogue and ZGV.IsClassicSoD
 step
 Leave the cave |goto Dun Morogh 26.78,79.83 < 15 |walk |only if subzone("Coldridge Valley") and _G.IsIndoors()
 talk Grelin Whitebeard##786
@@ -6475,46 +5978,6 @@ Enter the building |goto Dun Morogh 28.79,69.05 < 10 |walk
 talk Felix Whindlebolt##8416
 |tip He walks around this area inside the building.
 turnin A Refugee's Quandary##3361 |goto Dun Morogh 28.55,67.65
-step
-talk Thorgas Grimson##895
-|tip Inside the building.
-turnin Trek Through the Caves##77660 |goto Dun Morogh 29.18,67.46
-|only if Dwarf Hunter and ZGV.IsClassicSoD
-step
-talk Bromos Grummner##926
-|tip Inside the building.
-turnin Relics of the Light##77657 |goto Dun Morogh 28.83,68.33
-|only if Dwarf Paladin and ZGV.IsClassicSoD
-step
-talk Solm Hargrin##916
-|tip Outside, in the stables behind the the building.
-turnin Thrice Stolen##77658 |goto Dun Morogh 50.31,39.92
-|only if Dwarf Rogue and ZGV.IsClassicSoD
-step
-talk Solm Hargrin##916
-|tip Outside, in the stables behind the the building.
-turnin Thrice Stolen##77659 |goto Dun Morogh 50.31,39.92
-|only if Gnome Rogue and ZGV.IsClassicSoD
-step
-talk Thran Khorman##912
-|tip Inside the building.
-turnin The Lost Rune##77655 |goto Dun Morogh 28.83,67.24
-|only if Dwarf Warrior and ZGV.IsClassicSoD
-step
-talk Thran Khorman##912
-|tip Inside the building.
-turnin The Lost Rune##77656 |goto Dun Morogh 28.83,67.24
-|only if Gnome Warrior and ZGV.IsClassicSoD
-step
-talk Marryk Nurribit##944
-|tip Inside the building.
-turnin Spell Research##77667 |goto Dun Morogh 28.71,66.37
-|only if Gnome Mage and ZGV.IsClassicSoD
-step
-talk Branstock Khalder##837
-|tip Inside the building.
-turnin Meditation on the Light##77661 |goto Dun Morogh 28.60,66.39
-|only if Dwarf Priest and ZGV.IsClassicSoD
 step
 Leave the building |goto Dun Morogh 28.79,69.05 < 10 |walk |only if subzone("Anvilmar")
 talk Mountaineer Thalos##1965
@@ -8135,4 +7598,3 @@ Train Staves |complete weaponskill("TH_STAFF") > 0 |goto Darnassus 57.56,46.73
     }
 }
 IronPath:RegisterGuide(IronPath_Guide)
-

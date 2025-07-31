@@ -11201,7 +11201,6 @@ Visit the Vendor |vendor Rekkul##3334 |goto Orgrimmar 42.11,49.48 |q 81
 step
 talk Belgrom Rockmaul##4485
 accept Betrayed##3504 |goto Orgrimmar 75.23,34.24
-|only if not ZGV.IsClassicSoD
 step
 Enter the building |goto Orgrimmar 58.97,37.57 < 10 |walk
 talk Dran Droffers##6986
