@@ -398,7 +398,7 @@ FooterBar:SetBackdropColor(0.06, 0.12, 0.22, 1) -- slightly more visible contras
 FooterBar.guideTitle = FooterBar:CreateFontString(nil, "OVERLAY",
     "GameFontHighlightSmall")
 FooterBar.guideTitle:SetPoint("LEFT", Padding, 0)
-FooterBar.guideTitle:SetText("GuideName by Author")
+FooterBar.guideTitle:SetText("")
 
 -- -- Step Info
 -- FooterBar.stepInfo = FooterBar:CreateFontString(nil, "OVERLAY",
@@ -430,6 +430,7 @@ function GuideViewer:CancelWalkPollers()
 end
 
 function GuideViewer:SkipToPreviousVisibleStep()
+    print("Skip Prev Fired")
     self:CancelWalkPollers()
     local steps = _G.IronPath_CachedVisibleSteps or {}
     local index = self.currentStep - 1
@@ -448,6 +449,7 @@ function GuideViewer:SkipToPreviousVisibleStep()
 end
 
 function GuideViewer:SkipToNextVisibleStep()
+    print("Skip Next Fired")
     self:CancelWalkPollers()
     local steps = _G.IronPath_CachedVisibleSteps or {}
     local index = self.currentStep + 1
@@ -472,10 +474,10 @@ end
 NavBar.nextBtn:SetScript("OnClick", function()
     if InCombatLockdown() then
         IronPath:Print("Cannot skip steps during combat.", "warn")
-        return
+    else
+        GuideViewer:SkipToNextVisibleStep()
+        IronPath:DebugPrint("Next step: " .. GuideViewer.currentStep, "info")
     end
-    GuideViewer:SkipToNextVisibleStep()
-    IronPath:DebugPrint("Next step: " .. GuideViewer.currentStep, "info")
 end)
 
 NavBar.prevBtn:SetScript("OnClick", function()

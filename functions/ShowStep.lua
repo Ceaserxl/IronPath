@@ -33,6 +33,7 @@ local function ProcessObjectives(self, objectives, parentStep, objectiveList)
 
             if type(obj.completeIf) == "string" then
                 local result, debugInfo = IronPath:EvaluateCondition(obj.completeIf)
+                print("Evaluating Condition: " .. obj.completeIf .. ". Response: " .. tostring(result))
                 obj._conditionMatched = debugInfo
                 obj.isComplete = result
             end
@@ -58,6 +59,7 @@ end
 -- Main step display function
 -- ============================
 function GuideViewer:ShowStep()
+    print("ShowStep fired")
     local guide = IronPath_CurrentGuide
     if not guide or not guide.steps or #guide.steps == 0 then
         IronPath:DebugPrint("No valid guide or steps found.", "error")
@@ -76,6 +78,10 @@ function GuideViewer:ShowStep()
         self.currentStep)
 
     local step = steps[self.currentStep]
+    if not step then
+        print("ShowStep: step is nil")
+        return
+    end
     -- Reparse non-sticky objectives only
     local parsed = ReparseCurrentStep(self, guide, self.currentStep)
     if parsed and parsed.objectives then
@@ -141,10 +147,16 @@ function GuideViewer:ShowStep()
             WorldMapFrame:RefreshAllDataProviders()
         end
     end
+    local allObjectivesComplete = true
+    for _, obj in ipairs(step.objectives or {}) do
+        if not obj.isComplete then
+            allObjectivesComplete = false
+            break
+        end
+    end
 
-
-
-
-
-    self:CheckAndAutoAdvance(step)
+    if allObjectivesComplete then
+        print("All Objs complete!")
+        self:CheckAndAutoAdvance(step)
+    end
 end

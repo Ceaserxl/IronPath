@@ -11,12 +11,12 @@ local HBD = LibStub("HereBeDragons-2.0")
 IronPathPinMixin = CreateFromMixins(MapCanvasPinMixin)
 
 function IronPathPinMixin:OnLoad()
-    self:SetSize(20, 20)
+    self:SetSize(22, 22)
     self:SetFrameStrata("HIGH")
-    self:SetFrameLevel(10000)
+    self:SetFrameLevel(9999)
 
     local icon = self:CreateTexture(nil, "OVERLAY")
-    icon:SetAtlas("ShipMissionIcon-Legendary-MapBadge")
+    icon:SetAtlas("Focus")
     icon:SetAllPoints()
 
     self:EnableMouse(true)

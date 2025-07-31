@@ -2,8 +2,7 @@
 -- IronPath.lua – Combined Core Logic with GuideLoader
 -- ================================================================
 -- 1. Define and register addon core
-local IronPath = LibStub("AceAddon-3.0"):NewAddon("IronPath", "AceConsole-3.0",
-                                                  "AceEvent-3.0")
+local IronPath = LibStub("AceAddon-3.0"):NewAddon("IronPath", "AceConsole-3.0", "AceEvent-3.0")
 _G.IronPath = IronPath
 _G.IronPath.GuideLoader = {} -- reserved for external use
 local GuideLoader = _G.IronPath.GuideLoader
@@ -28,7 +27,7 @@ local defaults = {
         stepDebug = false,
         showAllSteps = false
     },
-    char = {lastStep = 1, lastGuide = ""}
+    char = { lastStep = 1, lastGuide = "" }
 }
 
 -- 4. Printers
@@ -47,7 +46,7 @@ function IronPath:DebugPrint(msg, category)
     }
     local prefixColor = color[category or "info"] or "|cffffffff"
     print(prefixColor .. "[IronPath " .. string.upper(category or "info") ..
-              "]:|r " .. msg)
+        "]:|r " .. msg)
 end
 
 function IronPath:Print(msg, category)
@@ -62,7 +61,7 @@ function IronPath:Print(msg, category)
     }
     local prefixColor = color[category or "info"] or "|cffffffff"
     print(prefixColor .. "[IronPath " .. string.upper(category or "info") ..
-              "]:|r " .. msg)
+        "]:|r " .. msg)
 end
 
 -- 5. Called first during addon load
@@ -92,8 +91,7 @@ function IronPath:ReRegisterGuide(guide)
         IronPath_Guides_Alliance_NightElf_Starter = guide
     end
 
-    self:DebugPrint("Registered guide: " .. (guide.easyName or "Unnamed"),
-                    "guide")
+    self:DebugPrint("Registered guide: " .. (guide.easyName or "Unnamed"), "guide")
 end
 
 -- 8. Called when player enters world
@@ -152,7 +150,7 @@ end
 function IronPath:SetCurrentGuide(guide)
     if not guide or not guide.steps then
         return self:DebugPrint("Invalid guide passed to SetCurrentGuide.",
-                               "error")
+            "error")
     end
 
     IronPath_CurrentGuide = guide
@@ -164,7 +162,7 @@ function IronPath:SetCurrentGuide(guide)
             guide.steps = parsed
             guide.rawSteps = raw
             self:DebugPrint("Guide steps parsed successfully (" .. #parsed ..
-                                " steps).", "parse")
+                " steps).", "parse")
         else
             return self:DebugPrint("Failed to parse guide steps.", "error")
         end
@@ -172,13 +170,10 @@ function IronPath:SetCurrentGuide(guide)
 
     local db = self.db
     if db then
-        if db.char.lastGuide ~= guide.easyName then
-            db.char.lastStep, db.char.lastGuide = 1, guide.easyName
-            IronPathViewer.currentStep = 1
-        else
-            IronPathViewer.currentStep = db.char.lastStep or 1
-        end
+        db.char.lastGuide = guide.easyName
+        IronPathViewer.currentStep = db.char.lastStep or 1
     end
+
 
     -- Cache visible steps
     if IronPathViewer and IronPathViewer.GetVisibleSteps then

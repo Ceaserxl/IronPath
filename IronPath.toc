@@ -33,11 +33,10 @@ IronPath.lua
 Config.lua
 UI.lua
 Parse_UI.lua
-#UI_New.lua
 
 # Handlers
 handlers\ConditionHandler.lua
-handlers\ParserHandler.lua
+handlers\ParseHandler.lua
 handlers\ActionHandler.lua
 handlers\EventHandler.lua
 
@@ -47,11 +46,13 @@ functions\GetVisibleSteps.lua
 functions\ShowStep.lua
 
 # Features
-features\POI.lua
-features\arrowFrame.lua
-features\Arrow.lua
-features\ArrowMixin.xml
 features\MapIcon.lua
+features\POI.lua
+
+# Arrow
+features\arrow\arrowFrame.lua
+features\arrow\Arrow.lua
+features\arrow\ArrowMixin.xml
 
 # Guides - Alliance
 guides\alliance\STARTER.lua

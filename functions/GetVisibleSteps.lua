@@ -24,7 +24,7 @@ function GuideViewer:GetVisibleSteps(guide)
     for index, step in ipairs(guide.steps) do
         local labels = step.stickystart
         if labels then
-            if type(labels) == "string" then labels = {labels} end
+            if type(labels) == "string" then labels = { labels } end
             for _, label in ipairs(labels) do
                 local targetStep = GuideViewer._stepLabels[label]
                 if targetStep then
@@ -96,7 +96,6 @@ function GuideViewer:GetVisibleSteps(guide)
                         filteredStep._seenObjectives[key] = true
                         table.insert(filteredStep.objectives, obj)
                     end
-
                 end
             end
         end
@@ -116,38 +115,41 @@ function GuideViewer:GetVisibleSteps(guide)
                     if type(stickyStep.condition) == "string" and
                         not IronPath.db.profile.showAllSteps then
                         allowSticky = IronPath:EvaluateCondition(
-                                          stickyStep.condition)
+                            stickyStep.condition)
                     end
 
                     if allowSticky then
                         local injectedAny = false
 
                         for _, obj in ipairs(stickyStep.objectives) do
-                            if obj.type ~= "walk" and not obj.notinsticky then
+                            if obj.type ~= "walk" and not obj.notinsticky and obj.type ~= "walkNote" then
                                 local passes = true
                                 if type(obj.condition) == "string" then
                                     local result, matched =
                                         IronPath:EvaluateCondition(obj.condition)
                                     obj._conditionMatched = matched
                                     passes = result or
-                                                 IronPath.db.profile
-                                                     .showAllSteps
-
+                                        IronPath.db.profile
+                                        .showAllSteps
                                 end
 
                                 if passes and not obj.isComplete then
                                     local cloned = CopyTable(obj)
                                     cloned._isSticky = true
-                                    local key =
-                                        cloned.type .. "::" ..
-                                            (cloned.label or "")
+
+                                    -- 🔄 Rebuild label if handler exists
+                                    if cloned.type and GuideViewer.ActionHandlers[cloned.type] then
+                                        GuideViewer.ActionHandlers[cloned.type](GuideViewer, { objectives = { cloned } },
+                                            true)
+                                    end
+
+                                    local key = cloned.type .. "::" .. (cloned.label or "")
                                     if not filteredStep._seenObjectives then
                                         filteredStep._seenObjectives = {}
                                     end
                                     if not filteredStep._seenObjectives[key] then
                                         filteredStep._seenObjectives[key] = true
-                                        table.insert(filteredStep.objectives,
-                                                     cloned)
+                                        table.insert(filteredStep.objectives, cloned)
                                     end
 
                                     injectedAny = true
