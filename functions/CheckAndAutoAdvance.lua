@@ -1,15 +1,20 @@
 -- CheckAndAutoAdvance.lua
 local GuideViewer = _G.IronPathViewer
+local debounceTimer
+
 function GuideViewer:CheckAndAutoAdvance(step)
-    print("CheckAndAutoAdvance: Fired")
-    -- Throttle: prevent rapid re-entry during loading
-    GuideViewer._lastAutoAdvance = GuideViewer._lastAutoAdvance or 0
-    local now = GetTime()
-    if now - GuideViewer._lastAutoAdvance < 1 then
-        IronPath:DebugPrint("CheckAndAutoAdvance: Skipped due to throttle.", "advance")
-        return
+    -- Cancel any scheduled run and schedule a new one
+    if debounceTimer then
+        debounceTimer:Cancel()
     end
-    GuideViewer._lastAutoAdvance = now
+
+    debounceTimer = C_Timer.NewTimer(0.25, function()
+        GuideViewer:_RunAutoAdvance(step)
+    end)
+end
+
+function GuideViewer:_RunAutoAdvance(step)
+    IronPath:DebugPrint("🔁 CheckAndAutoAdvance: Running debounced check", "advance")
 
     if not step or not step.objectives then
         IronPath:DebugPrint("CheckAndAutoAdvance: Step or objectives missing.", "advance")
@@ -49,18 +54,13 @@ function GuideViewer:CheckAndAutoAdvance(step)
     step._wasComplete = true
     IronPath:DebugPrint("✅ All actionable objectives complete. Step marked complete.", "advance")
 
-    if not IronPath.db or not IronPath.db.profile then
-        IronPath:DebugPrint("Profile or autoAdvanceStep setting not found.", "error")
-        return
-    end
-
-    if not IronPath.db.profile.autoAdvanceStep then
-        IronPath:DebugPrint("Auto-advance is disabled in settings.", "advance")
+    if not IronPath.db or not IronPath.db.profile or not IronPath.db.profile.autoAdvanceStep then
+        IronPath:DebugPrint("Auto-advance is disabled or profile missing.", "advance")
         return
     end
 
     if GuideViewer.currentStep ~= GuideViewer.highestUnlockedStep then
-        IronPath:DebugPrint("Auto-advance conditions not met (not at last unlocked step).", "advance")
+        IronPath:DebugPrint("Auto-advance skipped: not at last unlocked step.", "advance")
         return
     end
 

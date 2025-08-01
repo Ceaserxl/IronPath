@@ -604,6 +604,7 @@ function IronPath.Parser:HandleBuyLine(line, step)
     -- Convert to note if |n present
     if line:find("|n%s") or line:find("|n$") then
         obj.type = "note"
+        obj.from = "buy"
         obj.isComplete = nil
     end
 
@@ -665,6 +666,7 @@ function IronPath.Parser:HandleKillLine(line, step)
     -- Fallback to note type if no quest info or quantity
     if not obj.qid and not obj.quantity then
         obj.type = "note"
+        obj.from = "kill"
         obj.isComplete = nil
         obj.blankBox = false
     end
@@ -770,6 +772,7 @@ function IronPath.Parser:HandleCollectLine(line, step)
     -- Convert to note if |n tag is present
     if line:find("|n%s") or line:find("|n$") then
         obj.type = "note"
+        obj.from = "collect"
         obj.isComplete = nil
         obj.blankBox = false
     end

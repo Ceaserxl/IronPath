@@ -33,15 +33,15 @@ local function ProcessObjectives(self, objectives, parentStep, objectiveList)
 
             if type(obj.completeIf) == "string" then
                 local result, debugInfo = IronPath:EvaluateCondition(obj.completeIf)
-                print("Evaluating Condition: " .. obj.completeIf .. ". Response: " .. tostring(result))
+                --print("Evaluating Condition: " .. obj.completeIf .. ". Response: " .. tostring(result))
                 obj._conditionMatched = debugInfo
                 obj.isComplete = result
             end
 
             local handler = self.ActionHandlers[obj.type]
             if handler and not obj.isComplete then
-                local _, _, updated = handler(self, parentStep, true)
-                if updated then obj.isComplete = true end
+                local response = handler(self, parentStep, true)
+                if response == true then obj.isComplete = true end
             end
 
             self:CreateObjectiveLine(obj)
@@ -59,7 +59,7 @@ end
 -- Main step display function
 -- ============================
 function GuideViewer:ShowStep()
-    print("ShowStep fired")
+    if InCombatLockdown() then return end
     local guide = IronPath_CurrentGuide
     if not guide or not guide.steps or #guide.steps == 0 then
         IronPath:DebugPrint("No valid guide or steps found.", "error")
@@ -155,8 +155,5 @@ function GuideViewer:ShowStep()
         end
     end
 
-    if allObjectivesComplete then
-        print("All Objs complete!")
-        self:CheckAndAutoAdvance(step)
-    end
+    self:CheckAndAutoAdvance(step)
 end

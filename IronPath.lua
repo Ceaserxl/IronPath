@@ -120,15 +120,6 @@ function IronPath:OnPlayerLogin()
         end
     end
 
-    if not foundGuide then
-        local faction, race = UnitFactionGroup("player"), UnitRace("player")
-        if faction == "Alliance" and race == "Human" then
-            foundGuide = IronPath_Guides_Alliance_Human_Starter
-        elseif faction == "Alliance" and race == "NightElf" then
-            foundGuide = IronPath_Guides_Alliance_NightElf_Starter
-        end
-    end
-
     if foundGuide then
         self:SetCurrentGuide(foundGuide)
     else
@@ -149,8 +140,7 @@ end
 -- 11. Sets and parses the current guide
 function IronPath:SetCurrentGuide(guide)
     if not guide or not guide.steps then
-        return self:DebugPrint("Invalid guide passed to SetCurrentGuide.",
-            "error")
+        return self:DebugPrint("Invalid guide passed to SetCurrentGuide.", "error")
     end
 
     IronPath_CurrentGuide = guide
@@ -161,8 +151,7 @@ function IronPath:SetCurrentGuide(guide)
         if parsed and #parsed > 0 then
             guide.steps = parsed
             guide.rawSteps = raw
-            self:DebugPrint("Guide steps parsed successfully (" .. #parsed ..
-                " steps).", "parse")
+            self:DebugPrint("Guide steps parsed successfully (" .. #parsed .. " steps).", "parse")
         else
             return self:DebugPrint("Failed to parse guide steps.", "error")
         end
@@ -171,9 +160,8 @@ function IronPath:SetCurrentGuide(guide)
     local db = self.db
     if db then
         db.char.lastGuide = guide.easyName
-        IronPathViewer.currentStep = db.char.lastStep or 1
+        IronPathViewer.currentStep = db.char.lastStep - 1 or 1
     end
-
 
     -- Cache visible steps
     if IronPathViewer and IronPathViewer.GetVisibleSteps then

@@ -430,7 +430,6 @@ function GuideViewer:CancelWalkPollers()
 end
 
 function GuideViewer:SkipToPreviousVisibleStep()
-    print("Skip Prev Fired")
     self:CancelWalkPollers()
     local steps = _G.IronPath_CachedVisibleSteps or {}
     local index = self.currentStep - 1
@@ -449,7 +448,6 @@ function GuideViewer:SkipToPreviousVisibleStep()
 end
 
 function GuideViewer:SkipToNextVisibleStep()
-    print("Skip Next Fired")
     self:CancelWalkPollers()
     local steps = _G.IronPath_CachedVisibleSteps or {}
     local index = self.currentStep + 1

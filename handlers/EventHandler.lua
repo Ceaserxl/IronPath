@@ -18,22 +18,25 @@ frame:RegisterEvent("QUEST_LOG_UPDATE")
 frame:RegisterEvent("LEARNED_SPELL_IN_TAB")
 frame:RegisterEvent("BAG_UPDATE")
 frame:RegisterEvent("CONFIRM_BINDER")
-frame:RegisterEvent("MERCHANT_CLOSED")
+frame:RegisterEvent("MERCHANT_SHOW")
 frame:RegisterEvent("TAXIMAP_OPENED")
 frame:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
 frame:RegisterEvent("PLAYER_TARGET_CHANGED")
 frame:RegisterEvent("MINIMAP_UPDATE_ZOOM")
 frame:RegisterEvent("PLAYER_REGEN_ENABLED")
 frame:RegisterEvent("TRAINER_SHOW")
+frame:RegisterEvent("PLAYER_UNGHOST")
 
 frame:SetScript("OnEvent", function(_, event, ...)
     local db = IronPath.db and IronPath.db.profile
     if not db then return end
     if event == "MINIMAP_UPDATE_ZOOM" then
         GuideViewer:ShowStep()
+    elseif event == "PLAYER_UNGHOST" then
+        GuideViewer:ShowStep()
     elseif event == "TRAINER_SHOW" then
         IronPath:DebugPrint("TRAINER_SHOW fired.", "trainer")
-        GuideViewer:SkipToNextVisibleStep()
+        GuideViewer:ShowStep()
     elseif event == "PLAYER_REGEN_ENABLED" then
         GuideViewer:ShowStep()
     elseif event == "UPDATE_MOUSEOVER_UNIT" then
@@ -97,8 +100,8 @@ frame:SetScript("OnEvent", function(_, event, ...)
         end
         IronPath:DebugPrint("Synced flight path list from TAXIMAP_OPENED", "fpath")
         GuideViewer:ShowStep()
-    elseif event == "MERCHANT_CLOSED" then
-        IronPath:DebugPrint("MERCHANT_CLOSED fired.", "vendor")
+    elseif event == "MERCHANT_SHOW" then
+        IronPath:DebugPrint("MERCHANT_SHOW fired.", "vendor")
         -- Auto-sell and repair logic
         local db = IronPath.db
         local profile = db and db.profile
@@ -127,7 +130,7 @@ frame:SetScript("OnEvent", function(_, event, ...)
                 end
             end
         end
-        GuideViewer:SkipToNextVisibleStep()
+        GuideViewer:ShowStep()
     elseif event == "QUEST_LOG_UPDATE" then
         GuideViewer:ShowStep()
     elseif event == "BAG_UPDATE" then
