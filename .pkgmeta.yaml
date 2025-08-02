@@ -1,6 +1,0 @@
-package-as: IronPath
-
-ignore:
-  - .git
-  - .github
-  - README.md
