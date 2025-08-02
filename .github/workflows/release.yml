@@ -1,0 +1,44 @@
+name: CurseForge Release
+
+on:
+  push:
+    tags:
+      - '*[abr]'  # Match tags ending with a, b, or r
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Extract Version Info
+        id: version
+        run: |
+          tag=${GITHUB_REF#refs/tags/}
+          base=${tag::-1}
+          suffix=${tag: -1}
+
+          if [ "$suffix" = "a" ]; then
+            releaseType="alpha"
+          elif [ "$suffix" = "b" ]; then
+            releaseType="beta"
+          else
+            releaseType="release"
+          fi
+
+          echo "TAG=$tag" >> $GITHUB_ENV
+          echo "RELEASE_TYPE=$releaseType" >> $GITHUB_ENV
+          echo "BASE_VERSION=$base" >> $GITHUB_ENV
+
+      - name: Zip IronPath
+        run: |
+          mkdir -p build
+          zip -r build/IronPath-${{ env.TAG }}.zip IronPath
+
+      - name: Upload to CurseForge
+        uses: BigWigsMods/packager@master
+        env:
+          CF_API_KEY: ${{ secrets.CF_API_TOKEN }}
+        with:
+          args: -g wow -m .pkgmeta.yaml --version ${{ env.BASE_VERSION }} --release-type ${{ env.RELEASE_TYPE }}
