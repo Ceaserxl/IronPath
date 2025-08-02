@@ -1,44 +1,68 @@
-name: CurseForge Release
+name: CurseForge Release via Commit Message
 
 on:
   push:
-    tags:
-      - '*[abr]'  # Match tags ending with a, b, or r
+    branches:
+      - main
 
 jobs:
   upload:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Extract Version Info
-        id: version
+      - name: Detect version and release type
+        id: version_check
         run: |
-          tag=${GITHUB_REF#refs/tags/}
-          base=${tag::-1}
-          suffix=${tag: -1}
+          msg="$(git log -1 --pretty=%B)"
+          echo "Commit message: $msg"
 
-          if [ "$suffix" = "a" ]; then
-            releaseType="alpha"
-          elif [ "$suffix" = "b" ]; then
-            releaseType="beta"
+          if [[ "$msg" =~ ^[0-9]+\.[0-9]+\.[0-9]+[abr]$ ]]; then
+            base="${msg::-1}"
+            suffix="${msg: -1}"
+            echo "BASE_VERSION=$base" >> $GITHUB_ENV
+            echo "TAG=$msg" >> $GITHUB_ENV
+
+            if [ "$suffix" = "a" ]; then
+              echo "RELEASE_TYPE=alpha" >> $GITHUB_ENV
+              echo "IS_VALID=true" >> $GITHUB_ENV
+            elif [ "$suffix" = "b" ]; then
+              echo "RELEASE_TYPE=beta" >> $GITHUB_ENV
+              echo "IS_VALID=true" >> $GITHUB_ENV
+            elif [ "$suffix" = "r" ]; then
+              echo "RELEASE_TYPE=release" >> $GITHUB_ENV
+              echo "IS_VALID=true" >> $GITHUB_ENV
+            fi
           else
-            releaseType="release"
+            echo "IS_VALID=false" >> $GITHUB_ENV
           fi
 
-          echo "TAG=$tag" >> $GITHUB_ENV
-          echo "RELEASE_TYPE=$releaseType" >> $GITHUB_ENV
-          echo "BASE_VERSION=$base" >> $GITHUB_ENV
+      - name: Skip if not a version commit
+        if: env.IS_VALID != 'true'
+        run: echo "No valid version suffix found. Skipping release."
 
       - name: Zip IronPath
+        if: env.IS_VALID == 'true'
         run: |
           mkdir -p build
           zip -r build/IronPath-${{ env.TAG }}.zip IronPath
 
+      - name: Create changelog
+        if: env.IS_VALID == 'true'
+        run: git log -1 --pretty=format:"%s" > build/changelog.txt
+
       - name: Upload to CurseForge
+        if: env.IS_VALID == 'true'
         uses: BigWigsMods/packager@master
         env:
           CF_API_KEY: ${{ secrets.CF_API_TOKEN }}
         with:
-          args: -g wow -m .pkgmeta.yaml --version ${{ env.BASE_VERSION }} --release-type ${{ env.RELEASE_TYPE }} --game-version "1.15.7"
+          args: >
+            -g wow
+            -m .pkgmeta.yaml
+            --version "${{ env.BASE_VERSION }}"
+            --release-type "${{ env.RELEASE_TYPE }}"
+            --game-version "1.15.7"
+            --display-name "v${{ env.BASE_VERSION }}"
