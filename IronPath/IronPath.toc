@@ -2,7 +2,7 @@
 ## Title: IronPath
 ## Notes: Classic 1-60 leveling guide
 ## Author: CXL
-## Version: 0.6.0a
+## Version: 0.6.1a
 ## SavedVariables: IronPath_Data
 
 # Libraries
