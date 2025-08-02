@@ -43,16 +43,6 @@ jobs:
         if: env.IS_VALID != 'true'
         run: echo "No valid version suffix found. Skipping release."
 
-      - name: Zip IronPath
-        if: env.IS_VALID == 'true'
-        run: |
-          mkdir -p build
-          zip -r build/IronPath-${{ env.TAG }}.zip IronPath
-
-      - name: Create changelog
-        if: env.IS_VALID == 'true'
-        run: git log -1 --pretty=format:"%s" > build/changelog.txt
-
       - name: Upload to CurseForge
         if: env.IS_VALID == 'true'
         uses: BigWigsMods/packager@master
