@@ -115,7 +115,7 @@ function GuideViewer:ShowStep()
     ProcessObjectives(self, step.objectives, step, visibleObjectives)
 
     if NavBar and NavBar.stepInfo then
-        NavBar.stepInfo:SetText("Step " .. self.currentStep .. " of " ..
+        NavBar.stepInfo:SetText(self.currentStep .. " of " ..
             totalSteps)
     end
 

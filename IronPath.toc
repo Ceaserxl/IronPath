@@ -1,8 +1,8 @@
 ## Interface: 11507
 ## Title: IronPath
 ## Notes: Hardcore 1-60 leveling guide
-## Author: CeaserXL
-## Version: 0.1
+## Author: CXL
+## Version: 0.5.9
 ## SavedVariables: IronPath_Data
 
 # Libraries
@@ -31,7 +31,11 @@ libs\AceTimer-3.0\AceTimer-3.0.xml
 # Core
 IronPath.lua
 Config.lua
-UI.lua
+
+features\UI\UI_Frame.lua
+features\UI\UI.lua
+
+# Parser-Helper
 Parse_UI.lua
 
 # Handlers

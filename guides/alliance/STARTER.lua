@@ -47,8 +47,6 @@ click Stolen Books
 |tip This is HIGHLY recommended as it doubles your leveling speed.
 |tip At level 1 you don't have much to lose, but you will get another chance later if you don't wish to risk this. |only if hardcore
 |tip While standing inside the tent, zoom your camera out and click the small pile of books in the junk to the right of the tent opening.
-|tip There is a video linked below if you need an example.
-Click Here To Copy The Video Link |popuptext youtu.be/SEATloEvXAM
 collect Powers of the Void##6785 |q 1598/1 |goto Elwynn Forest 56.74,43.77
 |only if Human Warlock
 step
@@ -707,8 +705,6 @@ kill Princess##330
 |tip Use your throwing knives you purchased here. |only if Warrior or Rogue
 |tip This quest can be hard on a Paladin as you have no way to kite Princess. Skip it if you aren't comfortable. |only if Paladin
 |tip You can use the fence kiting video below to get room to for casting heals. |only if Paladin
-|tip Use the corner fence to easily kite Princess, view the video below for a visual example.
-Click Here To Copy The Video Link |popuptext youtu.be/f9Ilklxp0QU
 collect Brass Collar##1006 |q 88/1 |goto Elwynn Forest 69.61,79.38
 step
 label "Bandanas_Collect"
@@ -856,8 +852,6 @@ kill Hogger##448
 |tip He does a charge similar to boars that will deal extra damage if you get too far from him.
 |tip This quest can be difficult but there are often lots of players looking to kill him. Skip this step if you aren't comfortable. |only if hardcore
 |tip Don't forget about your healthstones and health potions! |only if hardcore
-|tip He can be cheesed by kiting him to the guard tower. Watch the video below for an example.
-Click Here To Copy The Video Link |popuptext youtu.be/x79t_tTgey0
 collect Huge Gnoll Claw##1931 |q 176 |goto Elwynn Forest 26.75,86.83
 |only if Human Warlock
 step
@@ -1189,8 +1183,6 @@ kill Surena Caledon##881
 |tip Make a healthstone and don't forget to use it if needed.
 |tip Morgan does a backstab, don't turn your back to him! |only if hardcore
 |tip Don't be afraid to ask for help from people in the area. |only if hardcore
-|tip We have a video of us doing this step below if you want to see how it's performed before you pull.
-Click Here To Copy The Video Link |popuptext youtu.be/unJ1RuAlDTY
 collect Surena's Choker##6810 |q 1688/1 |goto Elwynn Forest 71.02,80.78
 |only if Human Warlock
 step
@@ -1534,15 +1526,11 @@ accept Protecting the Herd##314 |goto Dun Morogh 63.08,49.89
 |tip We strongly recommend trying to find help for this quest as it gives a large weapon upgrade. |only if Paladin
 |tip We do not recommend trying to solo him however. |only if Paladin
 |tip Skip this step if you aren't comfortable cheesing an elite, you will just need to grind more later. |only if hardcore
-|tip We strongly recommend watching the video below before attempting this quest. |only if not Paladin
-Click Here To Copy The Video Link |popuptext youtu.be/z1BVC3I33qE |only if not Paladin
 step
 Aggro Vagash |goto Dun Morogh 62.41,48.08 > 10
 |tip He can spawn deep in the cave. Wait for him to come out if you want an easier time. |only if not Paladin
 |tip Follow the arrow and kite him to the fence location. |only if not Paladin
 |tip Hop back and forth over the fence so Vagash can't attack you while you whittle him down. |only if not Paladin
-|tip We strongly recommend watching the video below before attempting this quest. |only if not Paladin
-Click Here To Copy The Video Link |popuptext youtu.be/z1BVC3I33qE |only if not Paladin
 |tip Skip this step if you are unable to find help, it is difficult to solo. |only if Paladin
 collect Fang of Vagash##3627 |q 314/1 |goto Dun Morogh 63.90,49.86
 step
@@ -2135,8 +2123,6 @@ Be full health and jump towards the arrow exactly |goto Wetlands/0 16.63,65.19 <
 Be full health and jump towards the arrow exactly |goto Wetlands/0 16.14,64.41 < 10 |only if walking |notravel
 There are two crocodiles in the water and murlocs to your left. Take your time and wait for a good window before crossing. |goto Wetlands/0 14.97,63.97 < 20 |only if walking |notravel
 Follow the arrow exactly to reach Menethil Harbor |goto Wetlands/0 12.62,60.96 < 30 |q 3524 |future |next "Post_Menethil_Skip" |only if walking |notravel
-|tip You can watch a video of us doing the route if want to be extra safe by clicking here:
-Click Here To Copy The Video Link |popuptext www.youtube.com/watch?v=g5Aak-n_XJk
 |only if hardcore
 step
 label "Safe_Route"
@@ -3468,16 +3454,12 @@ accept Protecting the Herd##314 |goto Dun Morogh 63.08,49.89
 |tip And you trained Gouge |only if Rogue
 |tip And you trained Hamstring |only if Warrior
 |tip Skip this step if you aren't comfortable cheesing an elite, you will just need to grind more later. |only if hardcore
-|tip We strongly recommend watching the video below before attempting this quest.
-Click Here To Copy The Video Link |popuptext youtu.be/z1BVC3I33qE
 |only if not Paladin
 step
 Aggro Vagash |goto Dun Morogh 62.41,48.08 > 10
 |tip He can spawn deep in the cave. Wait for him to come out if you want an easier time.
 |tip Follow the arrow and kite him to the fence location.
 |tip Hop back and forth over the fence so Vagash can't attack you while you whittle him down.
-|tip We strongly recommend watching the video below before attempting this quest.
-Click Here To Copy The Video Link |popuptext youtu.be/z1BVC3I33qE
 collect Fang of Vagash##3627 |q 314/1 |goto Dun Morogh 63.90,49.86
 |only if not Paladin
 step
@@ -4975,8 +4957,6 @@ kill Surena Caledon##881
 |tip Make a healthstone and don't forget to use it if needed.
 |tip Morgan does a backstab, don't turn your back to him! |only if hardcore
 |tip Don't be afraid to ask for help from people in the area. |only if hardcore
-|tip We have a video of us doing this step below if you want to see how it's performed before you pull.
-Click Here To Copy The Video Link |popuptext youtu.be/unJ1RuAlDTY
 collect Surena's Choker##6810 |q 1688/1 |goto Elwynn Forest 71.02,80.78
 |only if Gnome Warlock
 step
@@ -5015,16 +4995,12 @@ accept Protecting the Herd##314 |goto Dun Morogh 63.08,49.89
 |tip And you trained Gouge |only if Rogue
 |tip And you trained Hamstring |only if Warrior
 |tip Skip this step if you aren't comfortable cheesing an elite, you will just need to grind more later. |only if hardcore
-|tip We strongly recommend watching the video below before attempting this quest.
-Click Here To Copy The Video Link |popuptext youtu.be/z1BVC3I33qE
 |only if not Paladin
 step
 Aggro Vagash |goto Dun Morogh 62.41,48.08 > 10
 |tip He can spawn deep in the cave. Wait for him to come out if you want an easier time.
 |tip Follow the arrow and kite him to the fence location.
 |tip Hop back and forth over the fence so Vagash can't attack you while you whittle him down.
-|tip We strongly recommend watching the video below before attempting this quest.
-Click Here To Copy The Video Link |popuptext youtu.be/z1BVC3I33qE
 collect Fang of Vagash##3627 |q 314/1 |goto Dun Morogh 63.90,49.86
 |only if not Paladin
 step
@@ -5647,8 +5623,6 @@ Be full health and jump towards the arrow exactly |goto Wetlands/0 16.63,65.19 <
 Be full health and jump towards the arrow exactly |goto Wetlands/0 16.14,64.41 < 10 |only if walking |notravel
 There are two crocodiles in the water and murlocs to your left. Take your time and wait for a good window before crossing. |goto Wetlands/0 14.97,63.97 < 20 |only if walking |notravel
 Follow the arrow exactly to reach Menethil Harbor |goto Wetlands/0 12.62,60.96 < 30 |q 3524 |future |next "Post_Menethil_Skip" |only if walking |notravel
-|tip You can watch a video of us doing the route if want to be extra safe by clicking here:
-Click Here To Copy The Video Link |popuptext www.youtube.com/watch?v=g5Aak-n_XJk
 |only if hardcore
 step
 label "Safe_Route"
@@ -6854,8 +6828,6 @@ kill Surena Caledon##881
 |tip Make a healthstone and don't forget to use it if needed.
 |tip Morgan does a backstab, don't turn your back to him! |only if hardcore
 |tip Don't be afraid to ask for help from people in the area. |only if hardcore
-|tip We have a video of us doing this step below if you want to see how it's performed before you pull.
-Click Here To Copy The Video Link |popuptext youtu.be/unJ1RuAlDTY
 collect Surena's Choker##6810 |q 1688/1 |goto Elwynn Forest 71.02,80.78
 |only if Gnome Warlock
 step
@@ -6894,16 +6866,12 @@ accept Protecting the Herd##314 |goto Dun Morogh 63.08,49.89
 |tip And you trained Gouge |only if Rogue
 |tip And you trained Hamstring |only if Warrior
 |tip Skip this step if you aren't comfortable cheesing an elite, you will just need to grind more later. |only if hardcore
-|tip We strongly recommend watching the video below before attempting this quest.
-Click Here To Copy The Video Link |popuptext youtu.be/z1BVC3I33qE
 |only if not Paladin
 step
 Aggro Vagash |goto Dun Morogh 62.41,48.08 > 10
 |tip He can spawn deep in the cave. Wait for him to come out if you want an easier time.
 |tip Follow the arrow and kite him to the fence location.
 |tip Hop back and forth over the fence so Vagash can't attack you while you whittle him down.
-|tip We strongly recommend watching the video below before attempting this quest.
-Click Here To Copy The Video Link |popuptext youtu.be/z1BVC3I33qE
 collect Fang of Vagash##3627 |q 314/1 |goto Dun Morogh 63.90,49.86
 |only if not Paladin
 step
@@ -7526,8 +7494,6 @@ Be full health and jump towards the arrow exactly |goto Wetlands/0 16.63,65.19 <
 Be full health and jump towards the arrow exactly |goto Wetlands/0 16.14,64.41 < 10 |only if walking |notravel
 There are two crocodiles in the water and murlocs to your left. Take your time and wait for a good window before crossing. |goto Wetlands/0 14.97,63.97 < 20 |only if walking |notravel
 Follow the arrow exactly to reach Menethil Harbor |goto Wetlands/0 12.62,60.96 < 30 |q 3524 |future |next "Post_Menethil_Skip" |only if walking |notravel
-|tip You can watch a video of us doing the route if want to be extra safe by clicking here:
-Click Here To Copy The Video Link |popuptext www.youtube.com/watch?v=g5Aak-n_XJk
 |only if hardcore
 step
 label "Safe_Route"

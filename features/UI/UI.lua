@@ -1,7 +1,9 @@
 -- ============================================================--
--- IronPath_UI.lua – Brushed Cobalt Layout (NavBar Primary)
+-- IronPath_UI.lua – Brushed Cobalt Layout
 -- ============================================================--
 local IronPath = _G.IronPath
+local GuideViewer = _G.IronPathViewer
+local NavBar = _G.IronPathUI
 
 ------------------------------------------------------------
 -- Globals
@@ -9,88 +11,15 @@ local IronPath = _G.IronPath
 local GlobalWidth = 320
 local Padding = 3
 
--- ============================================================
--- Icons =====================================================
--- ============================================================
--- talkIcon = "voicechat-icon-STT"
--- acceptIcon = "QuestNormal"
--- turninIcon = "QuestTurnin"
--- trainIcon = "Profession"
--- checkmarkIcon = "checkmark-minimal"
--- checkboxIcon = "checkbox-minimal"
--- killIcon = "DungeonSkull"
--- collectIcon = "Banker"
--- destroyIcon = "common-icon-redx"
--- hearthIcon = "Innkeeper"
--- fpathIcon = "TaxiNode_Neutral"
--- learnIcon = "Class"
--- buyIcon = "Auctioneer"
--- useIcon = "Focus"
--- noteIcon = "poi-workorders"
--- goToIcon = "FlightMaster"
--- blankIcon = "DungeonSkulls"
-
-------------------------------------------------------------
--- NavBar – Main Frame
-------------------------------------------------------------
-local NavBar = CreateFrame("Frame", "IronPathNavBar", UIParent,
-    "BackdropTemplate")
-_G.IronPathUI = NavBar
-
-NavBar:SetSize(GlobalWidth, 28)
-NavBar:SetPoint("CENTER")
-NavBar:SetMovable(true)
-NavBar:EnableMouse(true)
-NavBar:SetClampedToScreen(true)
-NavBar:SetScript("OnMouseDown", NavBar.StartMoving)
-NavBar:SetScript("OnMouseUp", NavBar.StopMovingOrSizing)
-NavBar:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8" })
-NavBar:SetBackdropColor(0.05, 0.08, 0.16, 1)
-NavBar:SetBackdropBorderColor(0.10, 0.14, 0.22, 1.0)
-
--- Title
-NavBar.title = NavBar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-NavBar.title:SetPoint("LEFT", Padding, 0)
-NavBar.title:SetText("|cff00ccffIronPath |cffffcc00Classic|r")
-
--- Step Info
-NavBar.stepInfo = NavBar:CreateFontString(nil, "OVERLAY",
-    "GameFontHighlightSmall")
-NavBar.stepInfo:SetPoint("LEFT", NavBar.title, "RIGHT", 10, 0)
-NavBar.stepInfo:SetText("Step X of X")
-
--- Navigation Buttons
-NavBar.prevBtn = CreateFrame("Button", nil, NavBar, "UIPanelButtonTemplate")
-NavBar.prevBtn:SetSize(50, 20)
-NavBar.prevBtn:SetPoint("RIGHT", NavBar, "RIGHT", -62, 0)
-NavBar.prevBtn:SetText("Prev")
-
-NavBar.nextBtn = CreateFrame("Button", nil, NavBar, "UIPanelButtonTemplate")
-NavBar.nextBtn:SetSize(50, 20)
-NavBar.nextBtn:SetPoint("RIGHT", NavBar, "RIGHT", -6, 0)
-NavBar.nextBtn:SetText("Next")
-
-------------------------------------------------------------
--- GuideViewer – Attached Below NavBar
-------------------------------------------------------------
-local GuideViewer = CreateFrame("Frame", "IronPathViewer", NavBar,
-    "BackdropTemplate")
-_G.IronPathViewer = GuideViewer
-
-GuideViewer:SetSize(GlobalWidth, 200)
-GuideViewer:SetPoint("TOP", NavBar, "BOTTOM", 0, 0)
-GuideViewer:SetBackdrop({ bgFile = "Interface\\ChatFrame\\ChatFrameBackground" })
-GuideViewer:SetBackdropColor(0.15, 0.15, 0.15, 0.75)
-
 ------------------------------------------------------------
 -- Objective Line Creator
 ------------------------------------------------------------
 ObjectiveStyleMap = {
     -- Navigation
     goTo       = { icon = "FlightMaster" },
-    walk       = { icon = "FlightMaster" },
-    walkNote   = { icon = "FlightMaster" },
-    fpath      = { icon = "TaxiNode_Neutral" },
+    walk       = { icon = "Taxi_Frame_Gray" },
+    walkNote   = { icon = "Taxi_Frame_Yellow" },
+    fpath      = { icon = "Taxi_Frame_Green" },
     home       = { icon = "Innkeeper" },
     talk       = { icon = "voicechat-icon-STT" },
 
@@ -100,7 +29,7 @@ ObjectiveStyleMap = {
     turnin     = { icon = "QuestTurnin" },
 
     -- Combat/Collection
-    kill       = { icon = "DungeonSkull" },
+    kill       = { icon = "DungeonTargetIndicator" },
     collect    = { icon = "QuestObjective" },
     bank       = { icon = "Banker" },
     trash      = { icon = "common-icon-redx" },
@@ -128,7 +57,11 @@ ObjectiveStyleMap = {
     obj        = { icon = "QuestObjective" },
     blank      = { icon = "" }
 }
+-- CheckmarkIcon = "UI-LFG-RoleIcon-Ready"
+-- CheckboxIcon = "UI-LFG-RoleIcon-Decline"
 
+CheckmarkIcon = "common-icon-checkmark"
+CheckboxIcon = "checkbox-minimal"
 
 function GuideViewer:CreateObjectiveLine(objective)
     local action = objective.type or "note"
@@ -232,8 +165,9 @@ function GuideViewer:CreateObjectiveLine(objective)
 
     -- Checkbox
     local checkBtn = CreateFrame("Button", nil, frame)
-    checkBtn:SetSize(16, 16)
+    checkBtn:SetSize(18, 18)
     checkBtn:SetPoint("TOPLEFT", frame, "TOPLEFT", 6, -2)
+
 
     local checkIcon = checkBtn:CreateTexture(nil, "ARTWORK")
     checkIcon:SetAllPoints()
@@ -243,10 +177,10 @@ function GuideViewer:CreateObjectiveLine(objective)
         checkIcon:SetTexture("Interface\\Buttons\\WHITE8x8")
         checkIcon:SetVertexColor(0, 0, 0, 0)
     else
-        checkIcon:SetAtlas(isComplete and "common-icon-checkmark" or "checkbox-minimal")
+        checkIcon:SetAtlas(isComplete and CheckmarkIcon or CheckboxIcon)
         checkBtn:SetScript("OnClick", function()
             frame.checked = not frame.checked
-            checkIcon:SetAtlas(frame.checked and "common-icon-checkmark" or "checkbox-minimal")
+            checkIcon:SetAtlas(frame.checked and CheckmarkIcon or CheckboxIcon)
             UpdateColor()
             if objective then objective.isComplete = frame.checked end
         end)
@@ -256,14 +190,14 @@ function GuideViewer:CreateObjectiveLine(objective)
 
     -- Icon
     local icon = frame:CreateTexture(nil, "ARTWORK")
-    icon:SetSize(16, 16)
+    icon:SetSize(18, 18)
     icon:SetAtlas(entry.icon or "VignetteKillElite")
     icon:SetPoint("LEFT", checkBtn, "RIGHT", 5, 0)
 
     -- Label
     local label = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     label:SetPoint("LEFT", icon, "RIGHT", 6, 0)
-    label:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -4, -3)
+    label:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -4, -5)
     label:SetJustifyH("LEFT")
     label:SetJustifyV("TOP")
     label:SetWordWrap(true)
@@ -271,7 +205,7 @@ function GuideViewer:CreateObjectiveLine(objective)
     label:SetText(targetText)
 
     label:SetHeight(0)
-    local h = label:GetStringHeight() + 8
+    local h = label:GetStringHeight() + 10
     label:SetHeight(h)
     frame:SetHeight(h)
 
@@ -302,11 +236,6 @@ end
 ------------------------------------------------------------
 -- GuideViewer Contents
 ------------------------------------------------------------
--- Objectives Label
-GuideViewer.objectivesAnchor = CreateFrame("Frame", nil, GuideViewer,
-    "BackdropTemplate")
-GuideViewer.objectivesAnchor:SetSize(1, 1)
-GuideViewer.objectivesAnchor:SetPoint("TOPLEFT", 0, 1)
 
 -- Reset tracker for stacking
 GuideViewer:ResetObjectiveLines()
@@ -367,55 +296,11 @@ GuideViewer:CreateObjectiveLine({
     blankBox = true
 })
 
-------------------------------------------------------------
--- Green Tint (Complete)
-------------------------------------------------------------
-GuideViewer.completeOverlay = GuideViewer:CreateTexture(nil, "OVERLAY")
-GuideViewer.completeOverlay:SetAllPoints()
-GuideViewer.completeOverlay:SetColorTexture(0, 1, 0, 0.3)
-GuideViewer.completeOverlay:Hide()
-
-------------------------------------------------------------
--- Red Tint (Invalid Step)
-------------------------------------------------------------
-GuideViewer.invalidOverlay = GuideViewer:CreateTexture(nil, "OVERLAY")
-GuideViewer.invalidOverlay:SetAllPoints()
-GuideViewer.invalidOverlay:SetColorTexture(1, 0, 0, 0.6)
-GuideViewer.invalidOverlay:Hide()
-
-------------------------------------------------------------
--- Footer Bar (Bottom Attached)
-------------------------------------------------------------
-local FooterBar = CreateFrame("Frame", nil, GuideViewer, "BackdropTemplate")
-_G.IronPathFooter = FooterBar
-
-FooterBar:SetHeight(24)
-FooterBar:SetPoint("TOPLEFT", GuideViewer, "BOTTOMLEFT", 0, 0)
-FooterBar:SetPoint("TOPRIGHT", GuideViewer, "BOTTOMRIGHT", 0, 0)
-FooterBar:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8" })
-FooterBar:SetBackdropColor(0.06, 0.12, 0.22, 1) -- slightly more visible contrast
-
-FooterBar.guideTitle = FooterBar:CreateFontString(nil, "OVERLAY",
-    "GameFontHighlightSmall")
-FooterBar.guideTitle:SetPoint("LEFT", Padding, 0)
-FooterBar.guideTitle:SetText("")
-
--- -- Step Info
--- FooterBar.stepInfo = FooterBar:CreateFontString(nil, "OVERLAY",
---                                                 "GameFontHighlightSmall")
--- FooterBar.stepInfo:SetPoint("LEFT", FooterBar.guideTitle, "RIGHT", 40, 0)
--- FooterBar.stepInfo:SetText("Step X of X completed")
-
-FooterBar.version = FooterBar:CreateFontString(nil, "OVERLAY",
-    "GameFontDisableSmall")
-FooterBar.version:SetPoint("RIGHT", -Padding, 0)
-FooterBar.version:SetText("v0.9.2")
-FooterBar._isFooter = true
-
 -- ===========================================================================
 -- ===========================================================================
 -- ===========================================================================
 -- ===========================================================================
+
 function GuideViewer:CancelWalkPollers()
     if self.activeStep and self.activeStep.objectives then
         for _, obj in ipairs(self.activeStep.objectives) do
