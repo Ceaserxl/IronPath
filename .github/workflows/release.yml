@@ -59,9 +59,7 @@ jobs:
         env:
           CF_API_KEY: ${{ secrets.CF_API_TOKEN }}
         with:
-          args: >
-            -m .pkgmeta.yaml
-            --version "${{ env.BASE_VERSION }}"
-            --release-type "${{ env.RELEASE_TYPE }}"
-            --game-version "1.15.7"
-            --display-name "v${{ env.BASE_VERSION }}"
+        args: >
+          -m .pkgmeta.yaml
+          -g "1.15.7"
+          -n "v${{ env.BASE_VERSION }}"
