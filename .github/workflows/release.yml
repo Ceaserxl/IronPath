@@ -60,7 +60,6 @@ jobs:
           CF_API_KEY: ${{ secrets.CF_API_TOKEN }}
         with:
           args: >
-            -g wow
             -m .pkgmeta.yaml
             --version "${{ env.BASE_VERSION }}"
             --release-type "${{ env.RELEASE_TYPE }}"
