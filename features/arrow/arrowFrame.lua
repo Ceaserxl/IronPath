@@ -29,19 +29,19 @@ function IronPath:CreateArrowFrame()
 
 
     local ribbon = arrowFrame:CreateTexture(nil, "ARTWORK")
-    ribbon:SetAtlas("challenges-toast")
-    ribbon:SetSize(100, 32)
-    ribbon:SetPoint("BOTTOM", IronPathNavBar, "TOP", 0, -16)
+    ribbon:SetAtlas("Garr_ListButton-Highlight")
+    ribbon:SetSize(100, 24)
+    ribbon:SetPoint("BOTTOM", IronPathNavBar, "TOP", 0, -12)
 
     local arrow = arrowFrame:CreateTexture(nil, "BACKGROUND")
     arrow:SetTexture("Interface\\WorldMap\\WorldMapArrow")
-    arrow:SetSize(40, 40)
+    arrow:SetSize(35, 35)
     arrow:SetPoint("CENTER")
 
     local distanceText = arrowFrame:CreateFontString(nil, "OVERLAY")
     distanceText:SetFont("Fonts\\2002.TTF", 14, "")
-    distanceText:SetPoint("CENTER", ribbon, "CENTER", 0, 2)
-    distanceText:SetTextColor(1, 1, 1)
+    distanceText:SetPoint("CENTER", ribbon, "CENTER", 0, 0)
+    distanceText:SetTextColor(1, 0.82, 0)
     distanceText:SetText("")
 
     arrowFrame.arrow = arrow

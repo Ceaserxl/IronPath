@@ -2,7 +2,7 @@
 ## Title: IronPath
 ## Notes: Classic 1-60 leveling guide
 ## Author: CXL
-## Version: 0.6.1b
+## Version: 0.6.2b
 ## SavedVariables: IronPath_Data
 
 # Libraries
@@ -31,6 +31,7 @@ libs\AceTimer-3.0\AceTimer-3.0.xml
 IronPath.lua
 Config.lua
 
+# UI
 features\UI\UI_Frame.lua
 features\UI\UI.lua
 
