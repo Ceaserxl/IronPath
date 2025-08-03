@@ -33,7 +33,7 @@ function GuideViewer:_RunAutoAdvance(step)
         gossip = true,
         popuptext = true,
         use = true,
-        walkNote = true
+        walkNote = true,
     }
 
     for index, obj in ipairs(step.objectives) do

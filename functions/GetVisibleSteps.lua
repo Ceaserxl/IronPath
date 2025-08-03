@@ -20,7 +20,7 @@ function GuideViewer:GetVisibleSteps(guide)
         end
     end
 
-    -- Pass 2: calculate sticky windows
+    -- Pass 2: calculate sticky windows (multi-window support)
     for index, step in ipairs(guide.steps) do
         local labels = step.stickystart
         if labels then
@@ -29,11 +29,23 @@ function GuideViewer:GetVisibleSteps(guide)
                 local targetStep = GuideViewer._stepLabels[label]
                 if targetStep then
                     targetStep._wasComplete = false
-                    local stopIndex = targetStep._labelIndex or 9999
-                    GuideViewer._stickyWindows[label] = {
+                    local labelIndex = targetStep._labelIndex or 9999
+                    local stopIndex = #guide.steps
+
+                    for i = index + 1, #guide.steps do
+                        local futureStep = guide.steps[i]
+                        if futureStep.stickystop == label or (type(futureStep.stickystop) == "table" and tContains(futureStep.stickystop, label)) then
+                            stopIndex = i
+                            break
+                        end
+                    end
+
+                    local finalStop = math.min(stopIndex, labelIndex)
+                    GuideViewer._stickyWindows[label] = GuideViewer._stickyWindows[label] or {}
+                    table.insert(GuideViewer._stickyWindows[label], {
                         start = index,
-                        stop = stopIndex
-                    }
+                        stop = finalStop
+                    })
                 end
             end
         end
@@ -103,11 +115,17 @@ function GuideViewer:GetVisibleSteps(guide)
         -- Inject sticky objectives
         local hasStickyObjectives = false
 
-        for label, range in pairs(GuideViewer._stickyWindows) do
-            local withinWindow = (index > range.start and index < range.stop)
-            local isOwnLabel = (step._label == label)
+        for label, ranges in pairs(GuideViewer._stickyWindows) do
+            local active = false
+            for _, range in ipairs(ranges) do
+                if index > range.start and index < range.stop then
+                    active = true
+                    break
+                end
+            end
 
-            if withinWindow and not isOwnLabel then
+            local isOwnLabel = (step._label == label)
+            if active and not isOwnLabel then
                 local stickyStep = GuideViewer._stepLabels[label]
                 if stickyStep and stickyStep.objectives and
                     not stickyStep._wasComplete then
