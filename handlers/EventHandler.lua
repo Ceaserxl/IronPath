@@ -30,6 +30,7 @@ frame:RegisterEvent("PLAYER_UNGHOST")
 frame:SetScript("OnEvent", function(_, event, ...)
     local db = IronPath.db and IronPath.db.profile
     if not db then return end
+
     if event == "MINIMAP_UPDATE_ZOOM" then
         GuideViewer:ShowStep()
     elseif event == "PLAYER_UNGHOST" then
