@@ -2,11 +2,11 @@ local IronPath = _G.IronPath
 
 IronPath_Guide = {
     easyName = "A - 1-15 Human",
+    zone = "Elwynn Forest",
     minLevel = 1,
     maxLevel = 15,
     race = "Human",
     faction = "Alliance",
-    author = "CeaserXL",
     steps = {
         [[
 step
@@ -2146,11 +2146,11 @@ IronPath:RegisterGuide(IronPath_Guide)
 
 IronPath_Guide = {
     easyName = "A - 1-13 Night Elf",
+    zone = "Teldrassil",
     minLevel = 1,
     maxLevel = 13,
     race = "NightElf",
     faction = "Alliance",
-    author = "CeaserXL",
     steps = {
         [[
 step
@@ -3825,11 +3825,11 @@ IronPath:RegisterGuide(IronPath_Guide)
 
 IronPath_Guide = {
     easyName = "A - 1-13 Dwarf",
+    zone = "Dun Morogh",
     minLevel = 1,
     maxLevel = 13,
     race = "Dwarf",
     faction = "Alliance",
-    author = "CeaserXL",
     steps = {
         [[
         step
@@ -5696,11 +5696,11 @@ IronPath:RegisterGuide(IronPath_Guide)
 
 IronPath_Guide = {
     easyName = "A - 1-13 Gnome",
+    zone = "Dun Morogh",
     minLevel = 1,
     maxLevel = 13,
     race = "Gnome",
     faction = "Alliance",
-    author = "CeaserXL",
     steps = {
         [[
 step

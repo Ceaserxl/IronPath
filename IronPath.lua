@@ -81,6 +81,13 @@ function IronPath:ReRegisterGuide(guide)
     if not guide then
         return self:DebugPrint("Attempted to register invalid guide.", "error")
     end
+
+    -- Check if guide faction matches player faction
+    local playerFaction = UnitFactionGroup("player")
+    if guide.faction and guide.faction ~= playerFaction then
+        return self:DebugPrint("Skipped guide due to faction mismatch: " .. (guide.easyName or "Unnamed"), "guide")
+    end
+
     guide.steps = guide.steps or {}
     table.insert(IronPath_Guides, guide)
 

@@ -4,7 +4,6 @@ IronPath_Guide = {
     minLevel = 13,
     maxLevel = 60,
     faction = "Alliance",
-    author = "CeaserXL",
     steps = {
         [[
 step

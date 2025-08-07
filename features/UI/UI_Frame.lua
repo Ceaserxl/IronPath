@@ -112,7 +112,7 @@ FooterBar:SetBackdropColor(0.06, 0.12, 0.22, 1) -- slightly more visible contras
 FooterBar.version = FooterBar:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
 FooterBar.version:SetPoint("CENTER")
 local version = GetAddOnMetadata("IronPath", "Version")
-FooterBar.version:SetText("|cff00bfffdiscord.gg/cKrD6NaTU9|r - CXL - v" .. version)
+FooterBar.version:SetText("|cff00bfffdiscord.gg/cKrD6NaTU9 - Join the team!|r - v" .. version)
 FooterBar._isFooter = true
 
 -- ===========================================================================

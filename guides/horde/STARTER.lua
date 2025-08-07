@@ -2,11 +2,11 @@ local IronPath = _G.IronPath
 
 IronPath_Guide = {
     easyName = "H - 1-14 Undead",
+    zone = "Tirisfal Glades",
     minLevel = 1,
     maxLevel = 14,
     race = "Undead",
     faction = "Horde",
-    author = "CeaserXL",
     steps = {
         [[
 step
@@ -1695,11 +1695,11 @@ accept Conscript of the Horde##840 |goto Durotar 50.85,43.59
 IronPath:RegisterGuide(IronPath_Guide)
 IronPath_Guide = {
     easyName = "H - 1-12 Tauren",
+    zone = "Mulgore",
     minLevel = 1,
     maxLevel = 12,
     race = "Tauren",
     faction = "Horde",
-    author = "CeaserXL",
     steps = {
         [[
 step
@@ -2923,11 +2923,11 @@ fpath Orgrimmar |goto Orgrimmar 45.13,63.90
 IronPath:RegisterGuide(IronPath_Guide)
 IronPath_Guide = {
     easyName = "H - 1-12 Orc",
+    zone = "Durotar",
     minLevel = 1,
     maxLevel = 12,
     race = "Orc",
     faction = "Horde",
-    author = "CeaserXL",
     steps = {
         [[
 step
@@ -4641,11 +4641,11 @@ Kill enemies around this area
 IronPath:RegisterGuide(IronPath_Guide)
 IronPath_Guide = {
     easyName = "H - 1-12 Troll",
+    zone = "Durotar",
     minLevel = 1,
     maxLevel = 12,
     race = "Troll",
     faction = "Horde",
-    author = "CeaserXL",
     steps = {
         [[
 step

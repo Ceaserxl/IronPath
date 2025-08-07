@@ -2,6 +2,22 @@ local EventHandler = {}
 IronPath.EventHandler = EventHandler
 local GuideViewer = _G.IronPathViewer
 
+
+------------------------------------------------------------
+-- Helpers
+------------------------------------------------------------
+function GuideViewer:ShouldAcceptQuest(qid)
+    if not qid or not self.currentStep then return false end
+    local step = (_G.IronPath_CachedVisibleSteps or {})[self.currentStep]
+    if not step or not step.objectives then return false end
+    for _, obj in ipairs(step.objectives) do
+        if obj.type == "accept" and obj.qid == qid then
+            return true
+        end
+    end
+    return false
+end
+
 ------------------------------------------------------------
 -- Quest Automation Event Frame
 ------------------------------------------------------------
@@ -136,11 +152,6 @@ frame:SetScript("OnEvent", function(_, event, ...)
         GuideViewer:ShowStep()
     elseif event == "BAG_UPDATE" then
         GuideViewer:ShowStep()
-    elseif event == "QUEST_DETAIL" and db.autoAccept then
-        IronPath:DebugPrint("Auto-accepting quest: " ..
-            (GetTitleText() or "Unknown"), "quest")
-        AcceptQuest()
-        GuideViewer:ShowStep()
     elseif event == "QUEST_PROGRESS" and db.autoTurnin then
         if IsQuestCompletable() then
             IronPath:DebugPrint("Auto-completing quest progress.", "quest")
@@ -181,6 +192,15 @@ frame:SetScript("OnEvent", function(_, event, ...)
                 button.AuctioneerOverlay:Show()
             end
         end
+    elseif event == "QUEST_DETAIL" and db.autoAccept then
+        local questID = GetQuestID()
+        if GuideViewer:ShouldAcceptQuest(questID) then
+            IronPath:DebugPrint("Auto-accepting quest: " .. (GetTitleText() or "Unknown"), "quest")
+            AcceptQuest()
+            GuideViewer:ShowStep()
+        else
+            IronPath:DebugPrint("Skipped auto-accept (not in guide): " .. tostring(questID), "quest")
+        end
     elseif event == "GOSSIP_SHOW" and db.autoAccept then
         local active = C_GossipInfo.GetActiveQuests()
         local available = C_GossipInfo.GetAvailableQuests()
@@ -191,38 +211,32 @@ frame:SetScript("OnEvent", function(_, event, ...)
             end
         end
         for _, quest in ipairs(available or {}) do
-            C_GossipInfo.SelectAvailableQuest(quest.questID)
-            IronPath:DebugPrint("Auto-accepting gossip quest: " .. quest.title, "quest")
+            if GuideViewer:ShouldAcceptQuest(quest.questID) then
+                C_GossipInfo.SelectAvailableQuest(quest.questID)
+                IronPath:DebugPrint("Auto-accepting gossip quest: " .. quest.title, "quest")
+            else
+                IronPath:DebugPrint("Skipped gossip quest (not in guide): " .. quest.title, "quest")
+            end
         end
         GuideViewer:ShowStep()
     elseif event == "QUEST_GREETING" and db.autoAccept then
         local numAvailable = GetNumAvailableQuests()
-        for i = 1, numAvailable do SelectAvailableQuest(i) end
+        for i = 1, numAvailable do
+            local title, level, isTrivial, isDaily, isRepeatable, questID = GetAvailableTitle(i)
+            if GuideViewer:ShouldAcceptQuest(questID) then
+                SelectAvailableQuest(i)
+                IronPath:DebugPrint("Auto-accepting greeting quest: " .. title, "quest")
+            else
+                IronPath:DebugPrint("Skipped greeting quest: " .. title, "quest")
+            end
+        end
+
         local numActive = GetNumActiveQuests()
         for i = 1, numActive do
-            local _, isComplete = GetActiveTitle(i)
-            if isComplete then SelectActiveQuest(i) end
-        end
-        GuideViewer:ShowStep()
-    elseif event == "QUEST_ACCEPT_CONFIRM" and db.autoAccept then
-        local questID = ...
-        ConfirmAcceptQuest()
-        IronPath:DebugPrint("Confirmed quest accept: " .. tostring(questID), "quest")
-        GuideViewer:ShowStep()
-    elseif event == "QUEST_ACCEPTED" then
-        local _, questID = ...
-        IronPath:DebugPrint("Quest accepted: " .. tostring(questID), "quest")
-        local guide = IronPath_CurrentGuide
-        if guide and guide.steps then
-            for _, step in ipairs(guide.steps) do
-                if step.objectives then
-                    for _, obj in ipairs(step.objectives) do
-                        if obj.type == "accept" and obj.qid == questID then
-                            obj.isComplete = true
-                            step._wasComplete = true
-                        end
-                    end
-                end
+            local title, isComplete = GetActiveTitle(i)
+            if isComplete then
+                SelectActiveQuest(i)
+                IronPath:DebugPrint("Auto-turning in active quest: " .. title, "quest")
             end
         end
         GuideViewer:ShowStep()
